@@ -1,68 +1,51 @@
-:root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
+@import "tailwindcss";
 
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
-
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+@font-face {
+  font-family: Open Sans;
+  font-style: normal;
+  font-display: swap;
+  src: url("/src/assets/fonts/OpenSans.woff2") format("woff2");
 }
 
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
+@font-face {
+  font-family: Noto Serif;
+  font-style: normal;
+  font-display: swap;
+  src: url("/src/assets/fonts/NotoSerif.woff2") format("woff2");
 }
 
-body {
-  margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
+@font-face {
+  font-family: Noto Serif Italic;
+  font-style: italic;
+  font-display: swap;
+  src: url("/src/assets/fonts/NotoSerif-Italic.woff2") format("woff2");
 }
 
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
+@theme {
+  --font-sans: Open Sans, Arial, sans-serif;
+  --font-serif: Noto Serif, Times, serif;
+  --font-serif-italic: Noto Serif Italic, Times, serif;
+
+  --color-black: #111111;
+  --color-primary: #fffcf7;
+  --color-secondary: #f9f2ec;
+  --color-tangerine: #f08f3a;
+  --color-coral: #e96a67;
+  --color-blush: #c05d88;
+  --color-amethyst: #835c90;
+  --color-dusk: #4a567c;
+  --color-harbor: #2f4858;
+  --color-dark-orange: #e37311;
+  --color-light-purple: #d5dcf2;
 }
 
-button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
-  cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
-}
-
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
+@layer base {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-serif);
   }
 }
