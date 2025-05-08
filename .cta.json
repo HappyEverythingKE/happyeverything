@@ -1,0 +1,13 @@
+{
+  "framework": "react",
+  "projectName": "myhappyeverything",
+  "typescript": true,
+  "tailwind": true,
+  "packageManager": "pnpm",
+  "toolchain": "eslint+prettier",
+  "mode": "file-router",
+  "git": true,
+  "variableValues": {},
+  "version": 1,
+  "existingAddOns": ["shadcn", "tanstack-query"]
+}
