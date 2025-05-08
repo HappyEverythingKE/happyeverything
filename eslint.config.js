@@ -1,14 +1,15 @@
+//  @ts-check
+
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import pluginQuery from '@tanstack/eslint-plugin-query'
 import pluginRouter from '@tanstack/eslint-plugin-router'
 
 import { includeIgnoreFile } from '@eslint/compat'
-import js from '@eslint/js'
+import pluginJs from '@eslint/js'
 import eslintConfigPrettier from 'eslint-config-prettier'
 import jsxA11y from 'eslint-plugin-jsx-a11y'
 import pluginReact from 'eslint-plugin-react'
-import { defineConfig } from 'eslint/config'
 import globals from 'globals'
 import tseslint from 'typescript-eslint'
 
@@ -16,18 +17,12 @@ const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 const gitignorePath = path.resolve(__dirname, '.gitignore')
 
-export default defineConfig([
+export default [
   includeIgnoreFile(gitignorePath),
-  {
-    files: ['**/*.{js,mjs,cjs,ts,jsx,tsx}'],
-    plugins: { js },
-    extends: ['js/recommended'],
-  },
-  {
-    files: ['**/*.{js,mjs,cjs,ts,jsx,tsx}'],
-    languageOptions: { globals: globals.browser },
-  },
-  tseslint.configs.recommended,
+  { files: ['**/*.{js,mjs,cjs,ts,jsx,tsx}'] },
+  { languageOptions: { globals: globals.browser } },
+  pluginJs.configs.recommended,
+  ...tseslint.configs.recommended,
   pluginReact.configs.flat.recommended,
   pluginReact.configs.flat['jsx-runtime'],
   jsxA11y.flatConfigs.recommended,
@@ -69,4 +64,4 @@ export default defineConfig([
       ],
     },
   },
-])
+]
