@@ -5,7 +5,7 @@ import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
 import TanstackQueryLayout from '@/integrations/tanstack-query/layout'
 
 import { Footer } from '@/components/marketing/footer'
-import { Navbar } from '@/components/marketing/navbar'
+import { Header } from '@/components/marketing/header'
 
 interface MyRouterContext {
   queryClient: QueryClient
@@ -14,8 +14,8 @@ interface MyRouterContext {
 export const Route = createRootRouteWithContext<MyRouterContext>()({
   component: () => (
     <>
-      <div className="bg-primary-foreground flex min-h-svh flex-col">
-        <Navbar />
+      <div className="bg-background-primary flex min-h-svh flex-col">
+        <Header />
         <main className="container mx-auto grow">
           <Outlet />
         </main>
