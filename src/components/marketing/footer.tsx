@@ -10,29 +10,32 @@ const columnLinks = [
   {
     title: 'Get in touch',
     links: [
-      { title: 'Contact Us', url: '#' },
-      { title: 'Instagram', url: '#', icon: InstagramIcon },
-      { title: 'Facebook', url: '#', icon: FacebookIcon },
+      { title: 'Contact Us', url: '#', external: false },
+      { title: 'Instagram', url: '#', icon: InstagramIcon, external: true },
+      { title: 'Facebook', url: '#', icon: FacebookIcon, external: true },
     ],
   },
   {
-    title: 'Info',
+    title: 'Company',
     links: [
-      { title: 'Privacy Policy', url: '#' },
-      { title: 'Terms of Service', url: '#' },
-      { title: 'Cookie Settings', url: '#' },
+      { title: 'Privacy Policy', url: '#', external: false },
+      { title: 'Terms of Service', url: '#', external: false },
+      { title: 'Cookie Settings', url: '#', external: false },
     ],
   },
 ]
 
 export function Footer() {
   return (
-    <footer id="relume" className="px-[5%] py-12 lg:py-8">
+    <footer
+      id="footer"
+      className="bg-tertiary text-tertiary-foreground px-[5%] py-12"
+    >
       <div className="container">
         <div className="border-border-primary border-b">
           <div className="mb-12 grid grid-cols-1 gap-x-[8vw] gap-y-12 md:mb-18 md:gap-y-16 lg:mb-20 lg:grid-cols-[1fr_0.5fr] lg:gap-y-20">
-            <div className="rb-6 max-w-md">
-              <h1 className="mb-5 text-4xl font-bold md:mb-6 md:text-5xl lg:text-6xl">
+            <div className="max-w-md">
+              <h1 className="mb-5 text-xl md:mb-6 md:text-3xl">
                 Ready to get the gifts you&apos;ll love?
               </h1>
               <p>
@@ -40,7 +43,7 @@ export function Footer() {
                 next celebration.
               </p>
               <div className="mt-6 flex flex-wrap gap-4 md:mt-8">
-                <Button asChild>
+                <Button asChild variant="secondary">
                   <Link to="/">Create your free wish list</Link>
                 </Button>
               </div>
@@ -51,13 +54,16 @@ export function Footer() {
                   key={index}
                   className="flex flex-col items-start justify-start"
                 >
-                  <h2 className="mb-3 font-semibold md:mb-4">{column.title}</h2>
+                  <h2 className="mb-3 font-sans font-semibold md:mb-4">
+                    {column.title}
+                  </h2>
                   <ul>
                     {column.links.map((link, linkIndex) => (
-                      <li key={linkIndex} className="py-2 text-sm">
+                      <li key={linkIndex} className="py-2 text-sm font-medium">
                         <a
                           href={link.url}
-                          className="flex items-center gap-3 hover:underline hover:underline-offset-4"
+                          target={link.external ? '_blank' : '_self'}
+                          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
                         >
                           {link.icon && (
                             <span>
@@ -86,14 +92,14 @@ export function Footer() {
           </div>
         </div>
         <div className="flex flex-col items-center justify-between pt-6 pb-4 text-center text-sm md:flex-row md:items-center md:pt-8 md:pb-0">
-          <p className="mt-5 mb-2 md:mt-0">
+          <p className="mt-5 mb-2 font-medium md:mt-0">
             &copy; {new Date().getFullYear()} My Happy Everything. All rights
             reserved.
           </p>
           <a
             href="https://www.sonadostudio.com"
             target="_blank"
-            className="hover:underline hover:underline-offset-4"
+            className="font-medium hover:underline hover:underline-offset-4"
           >
             Site credit
           </a>

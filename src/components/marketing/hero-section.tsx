@@ -64,11 +64,11 @@ export function HeroSection() {
   return (
     <section id="home-hero" className="relative h-[250vh]">
       <div className="px-[5%] pt-16 md:pt-24 lg:pt-28">
-        <div className="mx-auto w-full max-w-lg text-center">
-          <h1 className="lg:text-10xl mb-5 text-6xl font-bold md:mb-6 md:text-9xl">
+        <div className="mx-auto w-full max-w-3xl text-center">
+          <h1 className="mb-5 text-2xl md:mb-6 md:text-4xl">
             No more guesswork.
             <br />
-            <span className="italic">Just gifts you&apos;ll love.</span>
+            <span className="font-italic">Just gifts you&apos;ll love.</span>
           </h1>
           <p className="md:text-md">
             Celebrate birthdays, weddings and everything in between. Whether

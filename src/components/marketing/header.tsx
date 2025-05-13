@@ -116,7 +116,7 @@ export function Header() {
           >
             <Link
               to="/"
-              className="text-md block py-3 text-center first:pt-7 hover:underline hover:underline-offset-4 lg:px-4 lg:py-2 lg:text-base first:lg:pt-2"
+              className="block py-3 text-center font-medium first:pt-7 hover:underline hover:underline-offset-4 lg:px-4 lg:py-2 first:lg:pt-2"
             >
               Contact
             </Link>
@@ -124,18 +124,12 @@ export function Header() {
             <div className="mt-6 flex flex-col items-center gap-4 lg:mt-0 lg:ml-4 lg:flex-row">
               <Button
                 asChild
-                variant="secondary"
+                variant="outline"
                 className={cn(isMobileMenuOpen && 'w-full')}
               >
                 <Link to="/">Log in</Link>
               </Button>
-              <Button
-                asChild
-                className={cn(
-                  'h-8 gap-1.5 rounded-md px-3 has-[>svg]:px-2.5',
-                  isMobileMenuOpen && 'h-9 w-full px-4 py-2 has-[>svg]:px-3',
-                )}
-              >
+              <Button asChild className={cn(isMobileMenuOpen && 'w-full')}>
                 <Link to="/">Sign up free</Link>
               </Button>
             </div>
