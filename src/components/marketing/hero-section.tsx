@@ -1,5 +1,11 @@
 import { Link } from '@tanstack/react-router'
 
+import imageEdges from '@/assets/images/couple-with-flowers.png'
+import imageLeftTwo from '@/assets/images/couple-with-giftbox.png'
+import imageLeftThree from '@/assets/images/father-and-daughter.png'
+import imageRightOne from '@/assets/images/mother-and-son.png'
+import imageRightTwo from '@/assets/images/pregnant-woman-flowers.png'
+import imageCenter from '@/assets/images/women-holding-flowers.png'
 import { motion, useScroll, useTransform } from 'motion/react'
 import { useMediaQuery } from 'usehooks-ts'
 
@@ -7,28 +13,25 @@ import { Button } from '@/components/ui/button'
 
 const images = [
   {
-    src: 'https://d22po4pjz3o32e.cloudfront.net/placeholder-image.svg',
+    src: imageEdges,
   },
   {
-    src: 'https://d22po4pjz3o32e.cloudfront.net/placeholder-image.svg',
+    src: imageLeftTwo,
   },
   {
-    src: 'https://d22po4pjz3o32e.cloudfront.net/placeholder-image.svg',
+    src: imageLeftThree,
   },
   {
-    src: 'https://d22po4pjz3o32e.cloudfront.net/placeholder-image.svg',
+    src: imageCenter,
   },
   {
-    src: 'https://d22po4pjz3o32e.cloudfront.net/placeholder-image.svg',
+    src: imageRightOne,
   },
   {
-    src: 'https://d22po4pjz3o32e.cloudfront.net/placeholder-image.svg',
+    src: imageRightTwo,
   },
   {
-    src: 'https://d22po4pjz3o32e.cloudfront.net/placeholder-image.svg',
-  },
-  {
-    src: 'https://d22po4pjz3o32e.cloudfront.net/placeholder-image.svg',
+    src: imageEdges,
   },
 ]
 
@@ -88,32 +91,44 @@ export function HeroSection() {
           >
             <div className="relative hidden md:block md:w-[25vw] lg:w-[20vw]">
               <img
-                className="aspect-[2/3] w-full object-cover"
+                className="aspect-[2/3] w-full rounded-2xl object-cover"
                 {...images[0]}
-                alt=""
+                alt="Couple exchanges flowers"
+                width="1020"
+                height="1020"
               />
             </div>
 
             <div className="relative grid w-[40vw] grid-cols-1 grid-rows-[auto_auto] gap-4 self-center md:w-[18vw]">
               <div className="relative">
                 <img
-                  className="aspect-square w-full object-cover"
+                  className="aspect-square w-full rounded-2xl object-cover"
                   {...images[1]}
-                  alt=""
+                  alt="Couple exchanges giftbox"
+                  width="1020"
+                  height="1020"
                 />
               </div>
               <div className="relative">
                 <img
-                  className="aspect-[3/4] w-full object-cover"
+                  className="aspect-[3/4] w-full rounded-2xl object-cover"
                   {...images[2]}
-                  alt=""
+                  alt="Father and daughter celebrate"
+                  width="1020"
+                  height="1020"
                 />
               </div>
             </div>
           </motion.div>
 
           <motion.div className="relative" style={centerImageContainer}>
-            <img className="size-full object-cover" {...images[3]} alt="" />
+            <img
+              className="size-full rounded-2xl object-cover"
+              {...images[3]}
+              alt="Friends exchange flowers"
+              width="1020"
+              height="1020"
+            />
           </motion.div>
 
           <motion.div
@@ -123,25 +138,31 @@ export function HeroSection() {
             <div className="relative grid w-[40vw] grid-cols-1 grid-rows-[auto_auto] gap-4 self-center md:w-[18vw]">
               <div className="relative w-[40vw] sm:w-auto">
                 <img
-                  className="aspect-[3/4] w-full object-cover"
+                  className="aspect-[3/4] w-full rounded-2xl object-cover"
                   {...images[4]}
-                  alt=""
+                  alt="Mother and son celebrate"
+                  width="1020"
+                  height="1020"
                 />
               </div>
               <div className="relative w-[40vw] sm:w-auto">
                 <img
-                  className="aspect-square w-full object-cover"
+                  className="aspect-square w-full rounded-2xl object-cover"
                   {...images[5]}
-                  alt=""
+                  alt="Pregnant woman receives flowers"
+                  width="1020"
+                  height="1020"
                 />
               </div>
             </div>
 
             <div className="relative hidden md:block md:w-[25vw] lg:w-[20vw]">
               <img
-                className="aspect-[2/3] w-full object-cover"
+                className="aspect-[2/3] w-full rounded-2xl object-cover"
                 {...images[6]}
-                alt=""
+                alt="Couple exchanges flowers"
+                width="1020"
+                height="1020"
               />
             </div>
           </motion.div>
