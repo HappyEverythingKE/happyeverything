@@ -1,12 +1,12 @@
 import { useState } from 'react'
 import { Link } from '@tanstack/react-router'
 
+import MobileLogo from '@/assets/logos/logo-mobile.svg'
+import PrimaryLogo from '@/assets/logos/logo-primary.svg'
 import { motion } from 'motion/react'
 
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
-import MobileLogo from '@/components/assets/logos/logo-mobile.svg'
-import PrimaryLogo from '@/components/assets/logos/logo-primary.svg'
 import { HeroSection } from '@/components/marketing/hero-section'
 
 const topLineVariants = {

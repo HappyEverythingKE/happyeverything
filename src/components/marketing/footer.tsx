@@ -1,8 +1,8 @@
 import { Link } from '@tanstack/react-router'
 
-import FacebookIcon from '@/components/assets/icons/facebook-icon.svg'
-import InstagramIcon from '@/components/assets/icons/instagram-icon.svg'
-import FooterLogo from '@/components/assets/logos/logo-footer.svg'
+import FacebookIcon from '@/assets/icons/facebook-icon.svg'
+import InstagramIcon from '@/assets/icons/instagram-icon.svg'
+import FooterLogo from '@/assets/logos/logo-footer.svg'
 
 import { Button } from '../ui/button'
 
