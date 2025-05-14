@@ -37,7 +37,7 @@ export function SolutionSection() {
     <section id="solution-section" className="px-[5%] py-16 md:py-24 lg:py-28">
       <div className="rb-12 mb-12 text-center md:mb-18 lg:mb-20">
         <div className="mx-auto w-full max-w-3xl">
-          <h2 className="text-xl leading-[1.2] text-balance md:text-2xl">
+          <h2 className="text-xl text-balance md:text-2xl">
             Gifting made <span className="font-italic">simple</span> in 3 easy
             steps
           </h2>
@@ -56,9 +56,7 @@ export function SolutionSection() {
               />
               <div className="bg-tangerine absolute top-[20%] right-[20%] size-[80%] blur-md"></div>
             </div>
-            <h3 className="text-md mb-5 font-bold md:mb-6 md:text-lg">
-              {section.heading}
-            </h3>
+            <h3 className="text-md mb-5 md:mb-6">{section.heading}</h3>
             <p className="text-balance whitespace-pre-line">
               {section.description}
             </p>

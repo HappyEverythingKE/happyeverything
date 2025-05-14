@@ -68,12 +68,12 @@ export function FaqSection() {
           <h2 className="rb-5 mb-5 text-xl md:mb-6 md:text-2xl">
             Have questions?
           </h2>
-          <p className="md:text-md">We&apos;ve got answers</p>
+          <p>We&apos;ve got answers</p>
         </div>
         <Accordion type="multiple">
           {questions.map((question, index) => (
             <AccordionItem key={index} value={`item-${index}`}>
-              <AccordionTrigger className="text-md font-sans font-semibold md:py-5">
+              <AccordionTrigger className="font-sans font-semibold md:py-5">
                 {question.title}
               </AccordionTrigger>
               <AccordionContent className="md:pb-6">
@@ -83,11 +83,11 @@ export function FaqSection() {
           ))}
         </Accordion>
         <div className="mx-auto mt-12 max-w-md text-center md:mt-18 lg:mt-20">
-          <h4 className="mb-3 text-lg md:mb-4 md:leading-[1.3]">Need help?</h4>
+          <h4 className="mb-3 text-lg md:mb-4">Need help?</h4>
           <p>Get in touch with us if you need any support.</p>
           <div className="mt-6 md:mt-8">
             <Button variant="outline">
-              <Link to="/">Contact Us</Link>
+              <Link to="/">Contact us</Link>
             </Button>
           </div>
         </div>

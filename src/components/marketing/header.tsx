@@ -7,7 +7,6 @@ import { motion } from 'motion/react'
 
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
-import { HeroSection } from '@/components/marketing/hero-section'
 
 const topLineVariants = {
   open: {
@@ -114,12 +113,14 @@ export function Header() {
             transition={{ duration: 0.4 }}
             className="overflow-hidden px-[5%] lg:flex lg:items-center lg:px-0 lg:[--height-closed:auto] lg:[--height-open:auto]"
           >
-            <Link
-              to="/"
-              className="block py-3 text-center font-medium first:pt-7 hover:underline hover:underline-offset-4 lg:px-4 lg:py-2 first:lg:pt-2"
-            >
-              Contact
-            </Link>
+            <Button asChild variant="link">
+              <Link
+                to="/"
+                className="block py-3 text-center first:pt-7 lg:px-4 lg:py-2 first:lg:pt-2"
+              >
+                Contact us
+              </Link>
+            </Button>
 
             <div className="mt-6 flex flex-col items-center gap-4 lg:mt-0 lg:ml-4 lg:flex-row">
               <Button
@@ -136,7 +137,6 @@ export function Header() {
           </motion.div>
         </nav>
       </div>
-      <HeroSection />
     </header>
   )
 }

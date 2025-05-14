@@ -2,6 +2,7 @@ import { createFileRoute } from '@tanstack/react-router'
 
 import { BenefitSection } from '@/components/marketing/benefit-section'
 import { FaqSection } from '@/components/marketing/faq-section'
+import { HeroSection } from '@/components/marketing/hero-section'
 import { SolutionSection } from '@/components/marketing/solution-section'
 
 export const Route = createFileRoute('/')({
@@ -10,10 +11,13 @@ export const Route = createFileRoute('/')({
 
 function App() {
   return (
-    <div className="flex flex-col">
-      <SolutionSection />
-      <BenefitSection />
-      <FaqSection />
-    </div>
+    <>
+      <HeroSection />
+      <div className="container mx-auto grow">
+        <SolutionSection />
+        <BenefitSection />
+        <FaqSection />
+      </div>
+    </>
   )
 }

@@ -68,7 +68,7 @@ const FeatureSection = ({ sections }: { sections: SectionProps[] }) => (
             alt={section.image.alt}
           />
         </div>
-        <h3 className="md:text-md mb-3 text-sm md:mb-4">{section.heading}</h3>
+        <h3 className="text-md mb-3 md:mb-4">{section.heading}</h3>
         <p>{section.description}</p>
       </div>
     ))}
@@ -84,7 +84,7 @@ export function BenefitSection() {
             Why settle for guesswork? <br />
             Get the gifts you <span className="font-italic">actually</span> want
           </h2>
-          <p className="md:text-md text-balance">
+          <p className="text-balance">
             My Happy Everything makes it simple for your loved ones to know
             exactly what you want, so every gift feels personal and appreciated.
             <br />

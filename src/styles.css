@@ -59,28 +59,28 @@
 
   --text-xs: 0.781rem;
   --text-xs--line-height: calc(1 / 0.781);
-  --text-sm: 0.938rem;
+  --text-sm: 1rem;
   --text-sm--line-height: calc(1.25 / 0.938);
   --text-base: 1.125rem;
   --text-base--line-height: calc(1.75 / 1.125);
-  /* h6 */
+  /* h3 / h4 / large paragraph */
   --text-md: 1.35rem;
   --text-md--line-height: calc(1.75 / 1.35);
-  /* h5 */
+  /* h3 / h4 */
   --text-lg: 1.62rem;
   --text-lg--line-height: calc(2 / 1.62);
-  /* h4 */
+  /* mobile h2 */
   --text-xl: 2rem;
   --text-xl--line-height: calc(2.25 / 2);
-  /* h3 */
+  /* mobile h1 / h2 */
   --text-2xl: 3rem;
-  --text-2xl--line-height: 1;
-  /* h2 */
+  --text-2xl--line-height: 1.2;
+  /* footer h1 */
   --text-3xl: 3.5rem;
-  --text-3xl--line-height: 1;
+  --text-3xl--line-height: 1.2;
   /* h1 */
   --text-4xl: 4rem;
-  --text-4xl--line-height: 1;
+  --text-4xl--line-height: 1.1;
 }
 
 :root {

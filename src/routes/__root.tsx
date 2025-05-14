@@ -16,7 +16,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
     <>
       <div className="bg-background-primary flex min-h-svh flex-col">
         <Header />
-        <main className="container mx-auto grow">
+        <main>
           <Outlet />
         </main>
         <Footer />
