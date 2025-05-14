@@ -210,7 +210,7 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground m-0 overscroll-none font-sans tracking-tight antialiased;
+    @apply bg-background text-foreground m-0 overscroll-none font-sans text-base tracking-tight antialiased;
   }
 
   h1,
