@@ -62,7 +62,7 @@ export function HeroSection() {
   }
 
   return (
-    <section id="home-hero" className="relative h-[250vh]">
+    <section id="home-hero" className="relative">
       <div className="px-[5%] pt-16 md:pt-24 lg:pt-28">
         <div className="mx-auto w-full max-w-3xl text-center">
           <h1 className="mb-5 text-2xl md:mb-6 md:text-4xl">

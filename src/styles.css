@@ -84,27 +84,32 @@
 }
 
 :root {
-  --color-black: oklch(0.18 0.046 257.01);
-  --background: oklch(0.99 0.0073 80.72);
-  --foreground: oklch(0.18 0.046 257.01);
-  --card: oklch(0.99 0.0073 80.72);
-  --card-foreground: oklch(0.18 0.046 257.01);
-  --popover: oklch(0.99 0.0073 80.72);
-  --popover-foreground: oklch(0.18 0.046 257.01);
-  --primary: oklch(0.67 0.167 52.71);
-  --primary-foreground: oklch(1 0 0);
-  --secondary: oklch(0.96 0.011 63.36);
-  --secondary-foreground: oklch(0.18 0.046 257.01);
-  --tertiary: oklch(0.39 0.041 237.32);
-  --tertiary-foreground: oklch(0.99 0.0073 80.72);
-  --muted: oklch(0.96 0.011 63.36);
-  --muted-foreground: oklch(0.51 0 0);
-  /* --accent: oklch(0.93 0.02 272.31); */
-  --accent: oklch(0.9 0.0311 271.69);
-  --accent-foreground: oklch(0.18 0.046 257.01);
+  --color-brand-tangerine: #f08f3a;
+  --color-brand-coral: #e96a67;
+  --color-brand-blush: #c05d88;
+  --color-brand-amethyst: #835c90;
+  --color-brand-dusk: #4a567c;
+  --color-brand-harbor: #2f4858;
+  --color-black: #041125;
+  --background: #fffcf7;
+  --foreground: #041125;
+  --card: #fffcf7;
+  --card-foreground: #041125;
+  --popover: #fffcf7;
+  --popover-foreground: #041125;
+  --primary: #e37311;
+  --primary-foreground: #ffffff;
+  --secondary: #f9f2ec;
+  --secondary-foreground: #041125;
+  --tertiary: #2f4858;
+  --tertiary-foreground: #fffcf7;
+  --muted: #f9f2ec;
+  --muted-foreground: #666666;
+  --accent: #d5dcf2;
+  --accent-foreground: #041125;
   --destructive: oklch(0.62 0.21 25.77);
   --destructive-foreground: oklch(1 0 0);
-  --border: oklch(0.95 0 0);
+  --border: #eeeeee;
   --input: oklch(0.94 0 0);
   --ring: oklch(0.77 0 0);
   --chart-1: oklch(0.82 0.13 84.49);
@@ -113,12 +118,12 @@
   --chart-4: oklch(0.92 0.08 125.58);
   --chart-5: oklch(0.92 0.1 116.19);
   --radius: 1rem;
-  --sidebar: oklch(0.96 0.011 63.36);
-  --sidebar-foreground: oklch(0.18 0.046 257.01);
-  --sidebar-primary: oklch(0.18 0.046 257.01);
+  --sidebar: #f9f2ec;
+  --sidebar-foreground: #041125;
+  --sidebar-primary: #041125;
   --sidebar-primary-foreground: oklch(0.99 0 0);
   --sidebar-accent: oklch(0.98 0 0);
-  --sidebar-accent-foreground: oklch(0.18 0.046 257.01);
+  --sidebar-accent-foreground: #041125;
   --sidebar-border: oklch(0.94 0 0);
   --sidebar-ring: oklch(0.77 0 0);
 }
@@ -159,6 +164,7 @@
 }
 
 @theme inline {
+  --color-tangerine: var(--color-brand-tangerine);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
