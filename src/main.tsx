@@ -1,15 +1,18 @@
 import { StrictMode } from 'react'
 import { createRouter, RouterProvider } from '@tanstack/react-router'
 
+import * as TanstackQuery from '@/integrations/tanstack-query/root-provider'
+// Import the generated route tree
+import { routeTree } from '@/routeTree.gen'
 import ReactDOM from 'react-dom/client'
 
-import * as TanstackQuery from './integrations/tanstack-query/root-provider'
-// Import the generated route tree
-import { routeTree } from './routeTree.gen'
+import '@/styles.css'
 
-import './styles.css'
+import reportWebVitals from '@/reportWebVitals.ts'
 
-import reportWebVitals from './reportWebVitals.ts'
+import { ErrorComponent } from '@/components/error-component.tsx'
+import { NotFound } from '@/components/not-found.tsx'
+import { PendingComponent } from '@/components/pending-component.tsx'
 
 // Create a new router instance
 const router = createRouter({
@@ -21,6 +24,9 @@ const router = createRouter({
   scrollRestoration: true,
   defaultStructuralSharing: true,
   defaultPreloadStaleTime: 0,
+  defaultNotFoundComponent: NotFound,
+  defaultErrorComponent: ({ error }) => <ErrorComponent error={error} />,
+  defaultPendingComponent: PendingComponent,
 })
 
 // Register the router instance for type safety
