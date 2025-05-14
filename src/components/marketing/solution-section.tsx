@@ -37,7 +37,7 @@ export function SolutionSection() {
     <section id="solution-section" className="px-[5%] py-16 md:py-24 lg:py-28">
       <div className="rb-12 mb-12 text-center md:mb-18 lg:mb-20">
         <div className="mx-auto w-full max-w-3xl">
-          <h2 className="text-2xl leading-[1.2] text-balance md:text-2xl">
+          <h2 className="text-xl leading-[1.2] text-balance md:text-2xl">
             Gifting made <span className="font-italic">simple</span> in 3 easy
             steps
           </h2>
