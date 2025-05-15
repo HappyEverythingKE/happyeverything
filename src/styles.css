@@ -57,7 +57,7 @@
   --font-serif: 'Noto Serif', 'Georgia', 'Times', serif;
   --font-italic: 'Noto Serif Italic', 'Georgia', 'Times', serif;
 
-  --text-xs: 0.781rem;
+  --text-xs: 0.8rem;
   --text-xs--line-height: calc(1 / 0.781);
   --text-sm: 1rem;
   --text-sm--line-height: calc(1.25 / 0.938);
@@ -110,7 +110,7 @@
   --destructive: oklch(0.62 0.21 25.77);
   --destructive-foreground: oklch(1 0 0);
   --border: #eeeeee;
-  --input: oklch(0.94 0 0);
+  --input: #c4cccc;
   --ring: oklch(0.77 0 0);
   --chart-1: oklch(0.82 0.13 84.49);
   --chart-2: oklch(0.8 0.11 203.6);
@@ -185,7 +185,7 @@
   --color-destructive-foreground: var(--destructive-foreground);
   --color-border: var(--border);
   --color-input: var(--input);
-  --color-ring: var(--ring);
+  --color-ring: var(--color-brand-harbor);
   --color-chart-1: var(--chart-1);
   --color-chart-2: var(--chart-2);
   --color-chart-3: var(--chart-3);

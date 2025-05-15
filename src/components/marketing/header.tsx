@@ -115,7 +115,7 @@ export function Header() {
           >
             <Button asChild variant="link">
               <Link
-                to="/"
+                to="/contact"
                 className="block py-3 text-center first:pt-7 lg:px-4 lg:py-2 first:lg:pt-2"
               >
                 Contact us

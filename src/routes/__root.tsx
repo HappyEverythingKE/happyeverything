@@ -1,15 +1,26 @@
+import React from 'react'
 import { createRootRouteWithContext, Outlet } from '@tanstack/react-router'
 import type { QueryClient } from '@tanstack/react-query'
-import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
 
 import TanstackQueryLayout from '@/integrations/tanstack-query/layout'
 
+import { Toaster } from '@/components/ui/sonner'
 import { Footer } from '@/components/marketing/footer'
 import { Header } from '@/components/marketing/header'
 
 interface MyRouterContext {
   queryClient: QueryClient
 }
+
+const TanStackRouterDevtools =
+  process.env.NODE_ENV === 'production'
+    ? () => null // Render nothing in production
+    : React.lazy(() =>
+        // Lazy load in development
+        import('@tanstack/react-router-devtools').then((res) => ({
+          default: res.TanStackRouterDevtools,
+        })),
+      )
 
 export const Route = createRootRouteWithContext<MyRouterContext>()({
   component: () => (
@@ -19,9 +30,13 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
         <main>
           <Outlet />
         </main>
+        <Toaster richColors position="bottom-center" />
         <Footer />
       </div>
-      <TanStackRouterDevtools />
+
+      <React.Suspense>
+        <TanStackRouterDevtools />
+      </React.Suspense>
 
       <TanstackQueryLayout />
     </>
