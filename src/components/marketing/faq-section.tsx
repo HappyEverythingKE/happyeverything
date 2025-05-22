@@ -87,7 +87,7 @@ export function FaqSection() {
           <p>Get in touch with us if you need any support.</p>
           <div className="mt-6 md:mt-8">
             <Button variant="outline">
-              <Link to="/">Contact us</Link>
+              <Link to="/contact">Contact us</Link>
             </Button>
           </div>
         </div>

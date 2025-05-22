@@ -10,7 +10,7 @@ const columnLinks = [
   {
     title: 'Get in touch',
     links: [
-      { title: 'Contact Us', url: '#', external: false },
+      { title: 'Contact Us', url: '/contact', external: false },
       { title: 'Instagram', url: '#', icon: InstagramIcon, external: true },
       { title: 'Facebook', url: '#', icon: FacebookIcon, external: true },
     ],
