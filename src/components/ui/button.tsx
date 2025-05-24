@@ -21,6 +21,8 @@ const buttonVariants = cva(
         ghost:
           'hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50',
         link: 'text-tertiary hover:underline-offset-4 hover:underline decoration-inherit',
+        buttonIcon:
+          'justify-start hover:bg-tangerine! hover:text-primary-foreground! dark:hover:bg-accent/50',
       },
       size: {
         default: 'h-9 px-6 py-3 has-[>svg]:px-3',

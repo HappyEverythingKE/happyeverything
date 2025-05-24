@@ -35,7 +35,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
       </div>
 
       <React.Suspense>
-        <TanStackRouterDevtools />
+        <TanStackRouterDevtools position="bottom-right" />
       </React.Suspense>
 
       <TanstackQueryLayout />

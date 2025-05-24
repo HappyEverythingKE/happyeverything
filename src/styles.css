@@ -104,7 +104,7 @@
   --tertiary: #2f4858;
   --tertiary-foreground: #fffcf7;
   --muted: #f9f2ec;
-  --muted-foreground: #666666;
+  --muted-foreground: #041125;
   --accent: #d5dcf2;
   --accent-foreground: #041125;
   --destructive: oklch(0.62 0.21 25.77);
@@ -122,9 +122,9 @@
   --sidebar-foreground: #041125;
   --sidebar-primary: #041125;
   --sidebar-primary-foreground: oklch(0.99 0 0);
-  --sidebar-accent: oklch(0.98 0 0);
+  --sidebar-accent: #f8e1ce;
   --sidebar-accent-foreground: #041125;
-  --sidebar-border: oklch(0.94 0 0);
+  --sidebar-border: #cccccc;
   --sidebar-ring: oklch(0.77 0 0);
 }
 
@@ -226,5 +226,14 @@
   button:not(:disabled),
   [role='button']:not(:disabled) {
     cursor: pointer;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
   }
 }
