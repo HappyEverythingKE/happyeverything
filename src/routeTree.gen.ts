@@ -11,16 +11,16 @@
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
-import { Route as ContactImport } from './routes/contact'
+import { Route as MarketingImport } from './routes/_marketing'
 import { Route as DashboardRouteImport } from './routes/dashboard/route'
-import { Route as IndexImport } from './routes/index'
 import { Route as DashboardIndexImport } from './routes/dashboard/index'
+import { Route as MarketingIndexImport } from './routes/_marketing.index'
+import { Route as MarketingContactImport } from './routes/_marketing.contact'
 
 // Create/Update Routes
 
-const ContactRoute = ContactImport.update({
-  id: '/contact',
-  path: '/contact',
+const MarketingRoute = MarketingImport.update({
+  id: '/_marketing',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -30,29 +30,28 @@ const DashboardRouteRoute = DashboardRouteImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
-const IndexRoute = IndexImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => rootRoute,
-} as any)
-
 const DashboardIndexRoute = DashboardIndexImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => DashboardRouteRoute,
 } as any)
 
+const MarketingIndexRoute = MarketingIndexImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => MarketingRoute,
+} as any)
+
+const MarketingContactRoute = MarketingContactImport.update({
+  id: '/contact',
+  path: '/contact',
+  getParentRoute: () => MarketingRoute,
+} as any)
+
 // Populate the FileRoutesByPath interface
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexImport
-      parentRoute: typeof rootRoute
-    }
     '/dashboard': {
       id: '/dashboard'
       path: '/dashboard'
@@ -60,12 +59,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardRouteImport
       parentRoute: typeof rootRoute
     }
-    '/contact': {
-      id: '/contact'
+    '/_marketing': {
+      id: '/_marketing'
+      path: ''
+      fullPath: ''
+      preLoaderRoute: typeof MarketingImport
+      parentRoute: typeof rootRoute
+    }
+    '/_marketing/contact': {
+      id: '/_marketing/contact'
       path: '/contact'
       fullPath: '/contact'
-      preLoaderRoute: typeof ContactImport
-      parentRoute: typeof rootRoute
+      preLoaderRoute: typeof MarketingContactImport
+      parentRoute: typeof MarketingImport
+    }
+    '/_marketing/': {
+      id: '/_marketing/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof MarketingIndexImport
+      parentRoute: typeof MarketingImport
     }
     '/dashboard/': {
       id: '/dashboard/'
@@ -91,46 +104,66 @@ const DashboardRouteRouteWithChildren = DashboardRouteRoute._addFileChildren(
   DashboardRouteRouteChildren,
 )
 
+interface MarketingRouteChildren {
+  MarketingContactRoute: typeof MarketingContactRoute
+  MarketingIndexRoute: typeof MarketingIndexRoute
+}
+
+const MarketingRouteChildren: MarketingRouteChildren = {
+  MarketingContactRoute: MarketingContactRoute,
+  MarketingIndexRoute: MarketingIndexRoute,
+}
+
+const MarketingRouteWithChildren = MarketingRoute._addFileChildren(
+  MarketingRouteChildren,
+)
+
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
   '/dashboard': typeof DashboardRouteRouteWithChildren
-  '/contact': typeof ContactRoute
+  '': typeof MarketingRouteWithChildren
+  '/contact': typeof MarketingContactRoute
+  '/': typeof MarketingIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
 }
 
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
-  '/contact': typeof ContactRoute
+  '/contact': typeof MarketingContactRoute
+  '/': typeof MarketingIndexRoute
   '/dashboard': typeof DashboardIndexRoute
 }
 
 export interface FileRoutesById {
   __root__: typeof rootRoute
-  '/': typeof IndexRoute
   '/dashboard': typeof DashboardRouteRouteWithChildren
-  '/contact': typeof ContactRoute
+  '/_marketing': typeof MarketingRouteWithChildren
+  '/_marketing/contact': typeof MarketingContactRoute
+  '/_marketing/': typeof MarketingIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/dashboard' | '/contact' | '/dashboard/'
+  fullPaths: '/dashboard' | '' | '/contact' | '/' | '/dashboard/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/contact' | '/dashboard'
-  id: '__root__' | '/' | '/dashboard' | '/contact' | '/dashboard/'
+  to: '/contact' | '/' | '/dashboard'
+  id:
+    | '__root__'
+    | '/dashboard'
+    | '/_marketing'
+    | '/_marketing/contact'
+    | '/_marketing/'
+    | '/dashboard/'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
   DashboardRouteRoute: typeof DashboardRouteRouteWithChildren
-  ContactRoute: typeof ContactRoute
+  MarketingRoute: typeof MarketingRouteWithChildren
 }
 
 const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
   DashboardRouteRoute: DashboardRouteRouteWithChildren,
-  ContactRoute: ContactRoute,
+  MarketingRoute: MarketingRouteWithChildren,
 }
 
 export const routeTree = rootRoute
@@ -143,13 +176,9 @@ export const routeTree = rootRoute
     "__root__": {
       "filePath": "__root.tsx",
       "children": [
-        "/",
         "/dashboard",
-        "/contact"
+        "/_marketing"
       ]
-    },
-    "/": {
-      "filePath": "index.tsx"
     },
     "/dashboard": {
       "filePath": "dashboard/route.tsx",
@@ -157,8 +186,20 @@ export const routeTree = rootRoute
         "/dashboard/"
       ]
     },
-    "/contact": {
-      "filePath": "contact.tsx"
+    "/_marketing": {
+      "filePath": "_marketing.tsx",
+      "children": [
+        "/_marketing/contact",
+        "/_marketing/"
+      ]
+    },
+    "/_marketing/contact": {
+      "filePath": "_marketing.contact.tsx",
+      "parent": "/_marketing"
+    },
+    "/_marketing/": {
+      "filePath": "_marketing.index.tsx",
+      "parent": "/_marketing"
     },
     "/dashboard/": {
       "filePath": "dashboard/index.tsx",

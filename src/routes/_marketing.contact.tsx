@@ -15,7 +15,7 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { FieldInfo } from '@/components/field-info'
 
-export const Route = createFileRoute('/contact')({
+export const Route = createFileRoute('/_marketing/contact')({
   component: RouteComponent,
 })
 

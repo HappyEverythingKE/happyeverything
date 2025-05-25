@@ -63,7 +63,7 @@ export function Header() {
               <img
                 src={MobileLogo}
                 alt="My Happy Everything"
-                className="md:hidden"
+                className="lg:hidden"
                 width="90"
                 height="42"
               />
@@ -72,7 +72,7 @@ export function Header() {
               <img
                 src={PrimaryLogo}
                 alt="My Happy Everything"
-                className="hidden md:block"
+                className="hidden lg:block"
                 width="320"
                 height="63"
               />
@@ -113,16 +113,15 @@ export function Header() {
             transition={{ duration: 0.4 }}
             className="overflow-hidden px-[5%] lg:flex lg:items-center lg:px-0 lg:[--height-closed:auto] lg:[--height-open:auto]"
           >
-            <Button asChild variant="link">
-              <Link
-                to="/contact"
-                className="block py-3 text-center first:pt-7 lg:px-4 lg:py-2 first:lg:pt-2"
-              >
-                Contact us
-              </Link>
-            </Button>
-
             <div className="mt-6 flex flex-col items-center gap-4 lg:mt-0 lg:ml-4 lg:flex-row">
+              <Button asChild variant="link">
+                <Link
+                  to="/contact"
+                  className="py-3 text-center lg:px-4 lg:py-2"
+                >
+                  Contact us
+                </Link>
+              </Button>
               <Button
                 asChild
                 variant="outline"
