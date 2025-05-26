@@ -4,7 +4,6 @@ import { logger } from 'hono/logger'
 
 import { serve } from '@hono/node-server'
 import { serveStatic } from '@hono/node-server/serve-static'
-import { z } from 'zod'
 
 import type { ErrorResponse } from '@/shared/types'
 
@@ -54,21 +53,11 @@ app.get('*', serveStatic({ root: './frontend/dist' }))
 app.get('*', serveStatic({ path: './frontend/dist/index.html' }))
 
 // Server config
-const ServeEnv = z.object({
-  PORT: z
-    .string()
-    .regex(/^\d+$/, 'Port must be a numeric string')
-    .default('3000')
-    .transform(Number),
-})
-
-const ProcessEnv = ServeEnv.parse(process.env)
-
 const server = serve(
   {
     fetch: app.fetch,
     hostname: '0.0.0.0',
-    port: ProcessEnv.PORT,
+    port: Number(process.env['PORT'] || 3000),
   },
   (info) => {
     console.log(`Server is running on port: ${info.port}`)
