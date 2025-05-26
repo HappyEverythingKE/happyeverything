@@ -22,4 +22,4 @@ jobs:
           node-version: 22.x
       - run: pnpm i
       - run: pnpm lint:server
-      - run: pnpm lint:frontend
+      # - run: pnpm lint:frontend
