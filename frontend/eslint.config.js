@@ -23,7 +23,7 @@ export default [
   { languageOptions: { globals: globals.browser } },
   pluginJs.configs.recommended,
   ...tseslint.configs.recommended,
-  pluginReact.configs.flat.recommended,
+  pluginReact.configs.flat['recommended'],
   pluginReact.configs.flat['jsx-runtime'],
   jsxA11y.flatConfigs.recommended,
   ...pluginRouter.configs['flat/recommended'],

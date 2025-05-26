@@ -35,9 +35,9 @@ const sections = [
 export function SolutionSection() {
   return (
     <section id="solution-section" className="px-[5%] py-16 md:py-24 lg:py-28">
-      <div className="rb-12 mb-12 text-center md:mb-18 lg:mb-20">
+      <div className="rb-12 md:mb-18 mb-12 text-center lg:mb-20">
         <div className="mx-auto w-full max-w-3xl">
-          <h2 className="text-xl text-balance md:text-2xl">
+          <h2 className="text-balance text-xl md:text-2xl">
             Gifting made <span className="font-italic">simple</span> in 3 easy
             steps
           </h2>
@@ -50,14 +50,14 @@ export function SolutionSection() {
               <img
                 src={section.image.src}
                 alt={section.image.alt}
-                className="relative z-1 size-12"
+                className="z-1 relative size-12"
                 width="512"
                 height="512"
               />
-              <div className="bg-tangerine absolute top-[20%] right-[20%] size-[80%] blur-md"></div>
+              <div className="bg-tangerine absolute right-[20%] top-[20%] size-[80%] blur-md"></div>
             </div>
             <h3 className="text-md mb-5 md:mb-6">{section.heading}</h3>
-            <p className="text-balance whitespace-pre-line">
+            <p className="whitespace-pre-line text-balance">
               {section.description}
             </p>
           </div>

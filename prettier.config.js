@@ -7,6 +7,8 @@ const config = {
   trailingComma: 'all',
   importOrder: [
     '^(react/(.*)$)|^(react$)',
+    '^(hono/(.*)$)|^(hono$)',
+    '^(drizzle-orm/(.*)$)|^(drizzle-orm$)',
     '^(@tanstack/react-router/(.*)$)|^(@tanstack/react-router$)',
     '^(@tanstack/(.*)$)|^(@tanstack$)',
     '',
