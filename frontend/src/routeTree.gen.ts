@@ -11,6 +11,7 @@
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
+import { Route as SignupImport } from './routes/signup'
 import { Route as MarketingImport } from './routes/_marketing'
 import { Route as DashboardRouteImport } from './routes/dashboard/route'
 import { Route as DashboardIndexImport } from './routes/dashboard/index'
@@ -18,6 +19,12 @@ import { Route as MarketingIndexImport } from './routes/_marketing.index'
 import { Route as MarketingContactImport } from './routes/_marketing.contact'
 
 // Create/Update Routes
+
+const SignupRoute = SignupImport.update({
+  id: '/signup',
+  path: '/signup',
+  getParentRoute: () => rootRoute,
+} as any)
 
 const MarketingRoute = MarketingImport.update({
   id: '/_marketing',
@@ -64,6 +71,13 @@ declare module '@tanstack/react-router' {
       path: ''
       fullPath: ''
       preLoaderRoute: typeof MarketingImport
+      parentRoute: typeof rootRoute
+    }
+    '/signup': {
+      id: '/signup'
+      path: '/signup'
+      fullPath: '/signup'
+      preLoaderRoute: typeof SignupImport
       parentRoute: typeof rootRoute
     }
     '/_marketing/contact': {
@@ -121,12 +135,14 @@ const MarketingRouteWithChildren = MarketingRoute._addFileChildren(
 export interface FileRoutesByFullPath {
   '/dashboard': typeof DashboardRouteRouteWithChildren
   '': typeof MarketingRouteWithChildren
+  '/signup': typeof SignupRoute
   '/contact': typeof MarketingContactRoute
   '/': typeof MarketingIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
 }
 
 export interface FileRoutesByTo {
+  '/signup': typeof SignupRoute
   '/contact': typeof MarketingContactRoute
   '/': typeof MarketingIndexRoute
   '/dashboard': typeof DashboardIndexRoute
@@ -136,6 +152,7 @@ export interface FileRoutesById {
   __root__: typeof rootRoute
   '/dashboard': typeof DashboardRouteRouteWithChildren
   '/_marketing': typeof MarketingRouteWithChildren
+  '/signup': typeof SignupRoute
   '/_marketing/contact': typeof MarketingContactRoute
   '/_marketing/': typeof MarketingIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
@@ -143,13 +160,14 @@ export interface FileRoutesById {
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/dashboard' | '' | '/contact' | '/' | '/dashboard/'
+  fullPaths: '/dashboard' | '' | '/signup' | '/contact' | '/' | '/dashboard/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/contact' | '/' | '/dashboard'
+  to: '/signup' | '/contact' | '/' | '/dashboard'
   id:
     | '__root__'
     | '/dashboard'
     | '/_marketing'
+    | '/signup'
     | '/_marketing/contact'
     | '/_marketing/'
     | '/dashboard/'
@@ -159,11 +177,13 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   DashboardRouteRoute: typeof DashboardRouteRouteWithChildren
   MarketingRoute: typeof MarketingRouteWithChildren
+  SignupRoute: typeof SignupRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   DashboardRouteRoute: DashboardRouteRouteWithChildren,
   MarketingRoute: MarketingRouteWithChildren,
+  SignupRoute: SignupRoute,
 }
 
 export const routeTree = rootRoute
@@ -177,7 +197,8 @@ export const routeTree = rootRoute
       "filePath": "__root.tsx",
       "children": [
         "/dashboard",
-        "/_marketing"
+        "/_marketing",
+        "/signup"
       ]
     },
     "/dashboard": {
@@ -192,6 +213,9 @@ export const routeTree = rootRoute
         "/_marketing/contact",
         "/_marketing/"
       ]
+    },
+    "/signup": {
+      "filePath": "signup.tsx"
     },
     "/_marketing/contact": {
       "filePath": "_marketing.contact.tsx",

@@ -130,7 +130,7 @@ export function Header() {
                 <Link to="/">Log in</Link>
               </Button>
               <Button asChild className={cn(isMobileMenuOpen && 'w-full')}>
-                <Link to="/">Sign up free</Link>
+                <Link to="/signup">Sign up free</Link>
               </Button>
             </div>
           </motion.div>
