@@ -1,19 +1,24 @@
 import { Hono } from 'hono'
+import { cors } from 'hono/cors'
 import { HTTPException } from 'hono/http-exception'
 import { logger } from 'hono/logger'
 
+import { supabaseMiddleware } from '@/middleware/auth.middleware'
 import { authRoutes } from '@/routes/auth'
+import type { UserContext } from '@/user-context'
 import { serveStatic } from '@hono/node-server/serve-static'
 
 import type { ErrorResponse } from '@/shared/types'
 
-const app = new Hono()
+const app = new Hono<UserContext>()
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const apiRoutes = app
   .basePath('/api')
   // middleware
   .use('*', logger())
+  .use('*', cors())
+  .use('*', supabaseMiddleware())
   // routes
   .route('/auth', authRoutes)
 

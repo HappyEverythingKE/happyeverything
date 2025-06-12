@@ -23,14 +23,14 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
-      // "@/shared": path.resolve(__dirname, "../shared"), -> only on betternews repo
-      // "@server": path.resolve(__dirname, "../server"), -> only on meecham's repo
+      "@shared": path.resolve(__dirname, "../shared"),
+      "@server": path.resolve(__dirname, "../server"),
     },
   },
   server: {
     proxy: {
       "/api": {
-        target: "http://localhost:3000",
+        target: "http://127.0.0.1:3000",
         changeOrigin: true,
       },
     },

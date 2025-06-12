@@ -1,7 +1,10 @@
 import type { Context, MiddlewareHandler } from 'hono'
 import { env } from 'hono/adapter'
 import { getCookie, setCookie } from 'hono/cookie'
+import { createMiddleware } from 'hono/factory'
+import { HTTPException } from 'hono/http-exception'
 
+import type { UserContext } from '@/user-context'
 import { createServerClient } from '@supabase/ssr'
 import type { SupabaseClient } from '@supabase/supabase-js'
 
@@ -37,13 +40,11 @@ export const supabaseMiddleware = (): MiddlewareHandler => {
     const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
       cookies: {
         getAll() {
-          const cookies = Object.entries(getCookie(c)).map(([name, value]) => ({
+          return Object.entries(getCookie(c)).map(([name, value]) => ({
             name,
             value,
           }))
-          return cookies
         },
-
         setAll: (cookies) => {
           cookies.forEach(({ name, value, ...options }) => {
             setCookie(c, name, value, {
@@ -62,3 +63,19 @@ export const supabaseMiddleware = (): MiddlewareHandler => {
     await next()
   }
 }
+
+export const getUserSession = createMiddleware<UserContext>(async (c, next) => {
+  const supabase = getSupabase(c)
+
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser()
+
+  if (error || !user) {
+    throw new HTTPException(401, { message: 'Unauthorized' })
+  }
+
+  c.set('user', user)
+  await next()
+})
