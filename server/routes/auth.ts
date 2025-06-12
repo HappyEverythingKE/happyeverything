@@ -20,20 +20,17 @@ export const authRoutes = new Hono()
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
+      // TODO: may be needed for magic links
+      // options: {
+      //   emailRedirectTo: '/dashboard',
+      // },
     })
 
     if (error) {
-      if (error.code !== '500') {
-        throw new HTTPException(error.status as ContentfulStatusCode, {
-          message: error.message,
-          cause: { form: true },
-        })
-      } else {
-        throw new HTTPException(500, {
-          message: 'Failed to create user',
-          cause: error,
-        })
-      }
+      throw new HTTPException(error.status as ContentfulStatusCode, {
+        message: error.message,
+        cause: { form: true },
+      })
     }
 
     return c.json<SuccessResponse<AuthResponse['data']>>(

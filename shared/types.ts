@@ -1,5 +1,9 @@
 import { z } from 'zod'
 
+import type { ApiRoutes } from '../server/app'
+
+export { type ApiRoutes }
+
 export type SuccessResponse<T = void> = {
   success: true
   message: string
