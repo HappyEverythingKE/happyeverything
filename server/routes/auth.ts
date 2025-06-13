@@ -7,13 +7,13 @@ import { zValidator } from '@hono/zod-validator'
 import type { AuthResponse } from '@supabase/supabase-js'
 
 import {
-  SignupSchema,
+  LoginSchema,
   type CurrentUser,
   type SuccessResponse,
 } from '@/shared/types'
 
 export const authRoutes = new Hono()
-  .post('/signup', zValidator('form', SignupSchema), async (c) => {
+  .post('/login', zValidator('form', LoginSchema), async (c) => {
     const supabase = getSupabase(c)
     const { email } = c.req.valid('form')
 
@@ -76,38 +76,6 @@ export const authRoutes = new Hono()
       200,
     )
   })
-  // .post('/login', zValidator('form', SignupSchema), async (c) => {
-  //   const supabase = getSupabase(c)
-  //   const { email, password } = c.req.valid('form')
-
-  //   const { data: user, error } = await supabase.auth.signInWithPassword({
-  //     email,
-  //     password,
-  //   })
-
-  //   if (error) {
-  //     if (error.code !== '500') {
-  //       throw new HTTPException(error.status as ContentfulStatusCode, {
-  //         message: error.message,
-  //         cause: { form: true },
-  //       })
-  //     } else {
-  //       throw new HTTPException(500, {
-  //         message: 'Failed to log in',
-  //         cause: error,
-  //       })
-  //     }
-  //   }
-
-  //   return c.json<SuccessResponse<AuthResponse['data']>>(
-  //     {
-  //       success: true,
-  //       message: 'User logged in',
-  //       data: user,
-  //     },
-  //     200,
-  //   )
-  // })
   .get('/logout', async (c) => {
     const supabase = getSupabase(c)
 

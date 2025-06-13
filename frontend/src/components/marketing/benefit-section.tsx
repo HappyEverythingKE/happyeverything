@@ -107,7 +107,7 @@ export function BenefitSection() {
       </div>
       <div className="md:mt-18 mt-12 flex flex-wrap items-center justify-center gap-4 lg:mt-20">
         <Button asChild>
-          <Link to="/">Create your first wish list</Link>
+          <Link to="/signup">Create your first wish list</Link>
         </Button>
       </div>
     </section>

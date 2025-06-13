@@ -15,16 +15,16 @@ const defaultValues = {
   email: '',
 } as z.infer<typeof LoginSchema>
 
-export function SignupForm() {
+export function LoginForm() {
   const form = useForm({
     defaultValues: defaultValues,
     validators: { onChange: LoginSchema },
     onSubmit: async ({ value }) => {
       const res = await postLogin(value.email)
       if (res.success) {
-        toast.success('Check your email for a sign up link!')
+        toast.success('Check your email for a login link!')
       } else {
-        toast.error('Sign up failed', { description: res.error })
+        toast.error('Login failed', { description: res.error })
         form.setErrorMap({
           onSubmit: res.error || 'Unexpected error',
         })
@@ -44,9 +44,9 @@ export function SignupForm() {
           }}
         >
           <div className="flex flex-col items-center gap-2 text-center">
-            <h1 className="text-2xl">Sign Up</h1>
+            <h1 className="text-2xl">Welcome back!</h1>
             <p className="text-balance text-sm">
-              Create and share your own wish lists today!
+              Log in to manage your wish lists
             </p>
           </div>
           <div className="grid gap-6">
@@ -98,7 +98,7 @@ export function SignupForm() {
                   disabled={!canSubmit || isPristine || isSubmitting}
                   className="w-full"
                 >
-                  {isSubmitting ? 'Working...' : 'Sign Up'}
+                  {isSubmitting ? 'Working...' : 'Log In'}
                 </Button>
               )}
             />
@@ -107,9 +107,9 @@ export function SignupForm() {
 
         <div className="mt-6 flex flex-col gap-6">
           <div className="text-center text-sm">
-            Already have an account?{' '}
+            Don&apos;t have an account yet?{' '}
             <Button asChild variant="link" className="p-0">
-              <Link to="/login">Log In</Link>
+              <Link to="/signup">Sign Up</Link>
             </Button>
           </div>
 

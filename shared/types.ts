@@ -15,7 +15,7 @@ export type ErrorResponse = {
   isFormError?: boolean
 }
 
-export const SignupSchema = z.object({
+export const LoginSchema = z.object({
   email: z.string().email('Please enter a valid email.'),
 })
 

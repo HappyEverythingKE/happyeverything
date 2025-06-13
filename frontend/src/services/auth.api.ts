@@ -2,9 +2,9 @@ import type { ErrorResponse, SuccessResponse } from '@shared/types'
 
 import { client } from '@/lib/api'
 
-export const postSignup = async (email: string) => {
+export const postLogin = async (email: string) => {
   try {
-    const res = await client.auth.signup.$post({
+    const res = await client.auth.login.$post({
       form: {
         email,
       },
