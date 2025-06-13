@@ -16,6 +16,7 @@ import { Route as MarketingImport } from './routes/_marketing'
 import { Route as DashboardRouteImport } from './routes/dashboard/route'
 import { Route as DashboardIndexImport } from './routes/dashboard/index'
 import { Route as MarketingIndexImport } from './routes/_marketing.index'
+import { Route as AuthConfirmImport } from './routes/auth/confirm'
 import { Route as MarketingContactImport } from './routes/_marketing.contact'
 
 // Create/Update Routes
@@ -47,6 +48,12 @@ const MarketingIndexRoute = MarketingIndexImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => MarketingRoute,
+} as any)
+
+const AuthConfirmRoute = AuthConfirmImport.update({
+  id: '/auth/confirm',
+  path: '/auth/confirm',
+  getParentRoute: () => rootRoute,
 } as any)
 
 const MarketingContactRoute = MarketingContactImport.update({
@@ -86,6 +93,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/contact'
       preLoaderRoute: typeof MarketingContactImport
       parentRoute: typeof MarketingImport
+    }
+    '/auth/confirm': {
+      id: '/auth/confirm'
+      path: '/auth/confirm'
+      fullPath: '/auth/confirm'
+      preLoaderRoute: typeof AuthConfirmImport
+      parentRoute: typeof rootRoute
     }
     '/_marketing/': {
       id: '/_marketing/'
@@ -137,6 +151,7 @@ export interface FileRoutesByFullPath {
   '': typeof MarketingRouteWithChildren
   '/signup': typeof SignupRoute
   '/contact': typeof MarketingContactRoute
+  '/auth/confirm': typeof AuthConfirmRoute
   '/': typeof MarketingIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
 }
@@ -144,6 +159,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/signup': typeof SignupRoute
   '/contact': typeof MarketingContactRoute
+  '/auth/confirm': typeof AuthConfirmRoute
   '/': typeof MarketingIndexRoute
   '/dashboard': typeof DashboardIndexRoute
 }
@@ -154,21 +170,30 @@ export interface FileRoutesById {
   '/_marketing': typeof MarketingRouteWithChildren
   '/signup': typeof SignupRoute
   '/_marketing/contact': typeof MarketingContactRoute
+  '/auth/confirm': typeof AuthConfirmRoute
   '/_marketing/': typeof MarketingIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/dashboard' | '' | '/signup' | '/contact' | '/' | '/dashboard/'
+  fullPaths:
+    | '/dashboard'
+    | ''
+    | '/signup'
+    | '/contact'
+    | '/auth/confirm'
+    | '/'
+    | '/dashboard/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/signup' | '/contact' | '/' | '/dashboard'
+  to: '/signup' | '/contact' | '/auth/confirm' | '/' | '/dashboard'
   id:
     | '__root__'
     | '/dashboard'
     | '/_marketing'
     | '/signup'
     | '/_marketing/contact'
+    | '/auth/confirm'
     | '/_marketing/'
     | '/dashboard/'
   fileRoutesById: FileRoutesById
@@ -178,12 +203,14 @@ export interface RootRouteChildren {
   DashboardRouteRoute: typeof DashboardRouteRouteWithChildren
   MarketingRoute: typeof MarketingRouteWithChildren
   SignupRoute: typeof SignupRoute
+  AuthConfirmRoute: typeof AuthConfirmRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   DashboardRouteRoute: DashboardRouteRouteWithChildren,
   MarketingRoute: MarketingRouteWithChildren,
   SignupRoute: SignupRoute,
+  AuthConfirmRoute: AuthConfirmRoute,
 }
 
 export const routeTree = rootRoute
@@ -198,7 +225,8 @@ export const routeTree = rootRoute
       "children": [
         "/dashboard",
         "/_marketing",
-        "/signup"
+        "/signup",
+        "/auth/confirm"
       ]
     },
     "/dashboard": {
@@ -220,6 +248,9 @@ export const routeTree = rootRoute
     "/_marketing/contact": {
       "filePath": "_marketing.contact.tsx",
       "parent": "/_marketing"
+    },
+    "/auth/confirm": {
+      "filePath": "auth/confirm.tsx"
     },
     "/_marketing/": {
       "filePath": "_marketing.index.tsx",

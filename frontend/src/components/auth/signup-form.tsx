@@ -1,6 +1,5 @@
-import { Link, useNavigate, useRouter } from '@tanstack/react-router'
+import { Link } from '@tanstack/react-router'
 import { useForm } from '@tanstack/react-form'
-import { useQueryClient } from '@tanstack/react-query'
 
 import { postSignup } from '@/services/auth.api'
 import { SignupSchema } from '@shared/types'
@@ -14,27 +13,18 @@ import { FieldInfo } from '@/components/field-info'
 
 const defaultValues = {
   email: '',
-  password: '',
 } as z.infer<typeof SignupSchema>
 
 export function SignupForm() {
-  const router = useRouter()
-  const queryClient = useQueryClient()
-  const navigate = useNavigate()
-
   const form = useForm({
     defaultValues: defaultValues,
     validators: { onChange: SignupSchema },
     onSubmit: async ({ value }) => {
-      const res = await postSignup(value.email, value.password)
+      const res = await postSignup(value.email)
       if (res.success) {
-        router.invalidate()
-        await navigate({ to: '/dashboard' })
-        return null
+        toast.success('Check your email for a login link!')
       } else {
-        if (!res.isFormError) {
-          return toast.error('Signup failed', { description: res.error })
-        }
+        toast.error('Login failed', { description: res.error })
         form.setErrorMap({
           onSubmit: res.error || 'Unexpected error',
         })
@@ -83,28 +73,6 @@ export function SignupForm() {
                 }}
               />
             </div>
-            <div className="grid gap-2">
-              <form.Field
-                name="password"
-                children={(field) => {
-                  return (
-                    <>
-                      <Label htmlFor={field.name}>Password</Label>
-                      <Input
-                        id={`new-${field.name}`}
-                        type="password"
-                        value={field.state.value}
-                        onBlur={field.handleBlur}
-                        onChange={(e) => field.handleChange(e.target.value)}
-                        aria-invalid={!field.state.meta.isValid}
-                        autoComplete="new-password"
-                      />
-                      <FieldInfo field={field} />
-                    </>
-                  )
-                }}
-              />
-            </div>
 
             <form.Subscribe
               selector={(state) => [state.errorMap]}
@@ -137,14 +105,14 @@ export function SignupForm() {
           </div>
         </form>
 
-        {/* Google Auth */}
         <div className="mt-6 flex flex-col gap-6">
-          <div className="after:border-border relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t">
+          {/* Google Auth */}
+          {/* <div className="after:border-border relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t">
             <span className="bg-background relative z-10 px-2">
               Or continue with
             </span>
           </div>
-          {/* <Button
+          <Button
             variant="outline"
             className="w-full"
             onClick={handleOAuth}

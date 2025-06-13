@@ -17,14 +17,6 @@ export type ErrorResponse = {
 
 export const SignupSchema = z.object({
   email: z.string().email('Please enter a valid email.'),
-  password: z
-    .string()
-    .trim()
-    .max(255)
-    .regex(
-      /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$/,
-      'Password must contain at least 8 characters including one uppercase letter, one lowercase letter, one number, and one special character.',
-    ),
 })
 
 export type CurrentUser = {

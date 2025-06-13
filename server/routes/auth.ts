@@ -4,7 +4,7 @@ import type { ContentfulStatusCode } from 'hono/utils/http-status'
 
 import { getSupabase, getUserSession } from '@/middleware/auth.middleware'
 import { zValidator } from '@hono/zod-validator'
-import { type AuthResponse } from '@supabase/supabase-js'
+import type { AuthResponse } from '@supabase/supabase-js'
 
 import {
   SignupSchema,
@@ -15,15 +15,13 @@ import {
 export const authRoutes = new Hono()
   .post('/signup', zValidator('form', SignupSchema), async (c) => {
     const supabase = getSupabase(c)
-    const { email, password } = c.req.valid('form')
+    const { email } = c.req.valid('form')
 
-    const { data, error } = await supabase.auth.signUp({
+    const { error } = await supabase.auth.signInWithOtp({
       email,
-      password,
-      // TODO: may be needed for magic links
-      // options: {
-      //   emailRedirectTo: '/dashboard',
-      // },
+      options: {
+        emailRedirectTo: 'http://localhost:5173/auth/confirm', // TODO: Update to your deployed domain
+      },
     })
 
     if (error) {
@@ -33,47 +31,85 @@ export const authRoutes = new Hono()
       })
     }
 
-    return c.json<SuccessResponse<AuthResponse['data']>>(
+    return c.json<SuccessResponse>(
       {
         success: true,
-        message: 'User created',
-        data,
-      },
-      201,
-    )
-  })
-  .post('/login', zValidator('form', SignupSchema), async (c) => {
-    const supabase = getSupabase(c)
-    const { email, password } = c.req.valid('form')
-
-    const { data: user, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    })
-
-    if (error) {
-      if (error.code !== '500') {
-        throw new HTTPException(error.status as ContentfulStatusCode, {
-          message: error.message,
-          cause: { form: true },
-        })
-      } else {
-        throw new HTTPException(500, {
-          message: 'Failed to log in',
-          cause: error,
-        })
-      }
-    }
-
-    return c.json<SuccessResponse<AuthResponse['data']>>(
-      {
-        success: true,
-        message: 'User logged in',
-        data: user,
+        message: 'Verifying OTP',
       },
       200,
     )
   })
+  .get('/confirm', async (c) => {
+    // callback url gets called every time user logs-in or signs-up with magic link
+
+    const token_hash = c.req.query('token_hash')!
+    const type = c.req.query('type')
+
+    if (!token_hash || !type) {
+      throw new HTTPException(400, {
+        message: 'Missing token or type',
+      })
+    }
+
+    const supabase = getSupabase(c)
+
+    const {
+      data: { session },
+      error,
+    } = await supabase.auth.verifyOtp({
+      token_hash,
+      type: type as 'email',
+    })
+
+    console.error('verifyOtp error:', error)
+
+    if (error) {
+      throw new HTTPException(error.status as ContentfulStatusCode, {
+        message: error.message,
+      })
+    }
+
+    return c.json<SuccessResponse<{ data: AuthResponse['data']['session'] }>>(
+      {
+        success: true,
+        message: 'Magic link verified!',
+        data: { data: session },
+      },
+      200,
+    )
+  })
+  // .post('/login', zValidator('form', SignupSchema), async (c) => {
+  //   const supabase = getSupabase(c)
+  //   const { email, password } = c.req.valid('form')
+
+  //   const { data: user, error } = await supabase.auth.signInWithPassword({
+  //     email,
+  //     password,
+  //   })
+
+  //   if (error) {
+  //     if (error.code !== '500') {
+  //       throw new HTTPException(error.status as ContentfulStatusCode, {
+  //         message: error.message,
+  //         cause: { form: true },
+  //       })
+  //     } else {
+  //       throw new HTTPException(500, {
+  //         message: 'Failed to log in',
+  //         cause: error,
+  //       })
+  //     }
+  //   }
+
+  //   return c.json<SuccessResponse<AuthResponse['data']>>(
+  //     {
+  //       success: true,
+  //       message: 'User logged in',
+  //       data: user,
+  //     },
+  //     200,
+  //   )
+  // })
   .get('/logout', async (c) => {
     const supabase = getSupabase(c)
 
