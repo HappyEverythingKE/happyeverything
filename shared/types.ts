@@ -20,5 +20,5 @@ export const SignupSchema = z.object({
 })
 
 export type CurrentUser = {
-  userEmail?: string
+  email?: string
 }

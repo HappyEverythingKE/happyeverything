@@ -1,9 +1,7 @@
-import { useEffect } from 'react'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { fallback } from '@tanstack/zod-adapter'
 
 import { getVerifyOTP } from '@/services/auth.api'
-import { Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { z } from 'zod'
 
@@ -21,29 +19,22 @@ function RouteComponent() {
   const navigate = useNavigate()
   const { token_hash, type } = Route.useSearch()
 
-  useEffect(() => {
-    const verifyMagicLink = async () => {
-      const res = await getVerifyOTP(token_hash, type)
+  const handleVerify = async () => {
+    const res = await getVerifyOTP(token_hash, type)
 
-      if (res.success) {
-        toast.success('Login successful!')
-        navigate({ to: '/dashboard' })
-        return null
-      } else {
-        toast.error('Magic link failed', { description: res.error })
-        navigate({ to: '/signup' })
-      }
+    if (res.success) {
+      navigate({ to: '/dashboard' })
+    } else {
+      toast.error('Verification failed', { description: res.error })
+      navigate({ to: '/signup' })
     }
-
-    verifyMagicLink()
-  }, [])
+  }
 
   return (
-    <div className="flex min-h-screen items-center justify-center">
-      <div className="flex flex-col items-center gap-4 text-center">
-        <Loader2 className="text-muted-foreground h-8 w-8 animate-spin" />
-        <p className="text-muted-foreground text-sm">Verifying magic link...</p>
-      </div>
+    <div>
+      <h1>Confirm Your Login</h1>
+      <p>Click below to finish logging in.</p>
+      <button onClick={handleVerify}>Confirm</button>
     </div>
   )
 }
