@@ -26,6 +26,7 @@ export function SignupForm() {
       } else {
         toast.error('Sign up failed', { description: res.error })
         form.setErrorMap({
+          // @ts-expect-error error is a string but onSubmit expects an object mapping to the fields
           onSubmit: res.error || 'Unexpected error',
         })
       }
@@ -34,7 +35,7 @@ export function SignupForm() {
 
   return (
     <>
-      <div className="mx-auto max-w-xs">
+      <div className="mx-auto max-w-xs pt-6 md:pt-0">
         <form
           className="flex flex-col gap-6"
           onSubmit={(e) => {
@@ -44,8 +45,8 @@ export function SignupForm() {
           }}
         >
           <div className="flex flex-col items-center gap-2 text-center">
-            <h1 className="text-2xl">Sign Up</h1>
-            <p className="text-balance text-sm">
+            <h1 className="text-3xl md:pb-2">Sign Up</h1>
+            <p className="text-balance">
               Create and share your own wish lists today!
             </p>
           </div>
@@ -78,7 +79,7 @@ export function SignupForm() {
               selector={(state) => [state.errorMap]}
               children={([errorMap]) =>
                 errorMap.onSubmit ? (
-                  <p className="text-destructive text-[0.8rem] font-medium">
+                  <p className="text-destructive text-sm font-medium">
                     {errorMap.onSubmit}
                   </p>
                 ) : null
@@ -106,7 +107,7 @@ export function SignupForm() {
         </form>
 
         <div className="mt-6 flex flex-col gap-6">
-          <div className="text-center text-sm">
+          <div className="text-center">
             Already have an account?{' '}
             <Button asChild variant="link" className="p-0">
               <Link to="/login">Log In</Link>
