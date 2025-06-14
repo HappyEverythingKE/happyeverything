@@ -15,10 +15,15 @@ export type ErrorResponse = {
   isFormError?: boolean
 }
 
+export type CurrentUser = {
+  email: string
+  onboarding_completed: string
+}
+
 export const LoginSchema = z.object({
   email: z.string().email('Please enter a valid email.'),
 })
 
-export type CurrentUser = {
-  email?: string
-}
+export const UrlHandleSchema = z.object({
+  urlHandle: z.string(),
+})

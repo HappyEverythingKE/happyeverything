@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { fallback } from '@tanstack/zod-adapter'
 
-import { getVerifyOTP } from '@/services/auth.api'
+import { getCurrentUserProfile, getVerifyOTP } from '@/services/auth.api'
 import { toast } from 'sonner'
 import { z } from 'zod'
 
@@ -30,13 +30,29 @@ function RouteComponent() {
   const { token_hash, type } = Route.useSearch()
 
   const handleVerify = async () => {
-    const res = await getVerifyOTP(token_hash, type)
+    const verifyRes = await getVerifyOTP(token_hash, type)
 
-    if (res.success) {
-      navigate({ to: '/dashboard' })
-    } else {
-      toast.error('Verification failed', { description: res.error })
+    if (!verifyRes.success) {
+      toast.error('Verification failed', { description: verifyRes.error })
       navigate({ to: '/signup' })
+      return
+    }
+
+    // fetch current user's profile after they are authenticated
+    const userRes = await getCurrentUserProfile()
+
+    if (!userRes.success) {
+      toast.error('An error occured', { description: userRes.error })
+      navigate({ to: '/signup' })
+      return
+    }
+
+    const { onboarding_completed } = userRes.data
+
+    if (!onboarding_completed) {
+      navigate({ to: '/dashboard/claim-handle' })
+    } else {
+      navigate({ to: '/dashboard' })
     }
   }
 

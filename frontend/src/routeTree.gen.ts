@@ -14,9 +14,11 @@ import { Route as rootRoute } from './routes/__root'
 import { Route as SignupImport } from './routes/signup'
 import { Route as LoginImport } from './routes/login'
 import { Route as MarketingImport } from './routes/_marketing'
+import { Route as DashboardImport } from './routes/_dashboard'
 import { Route as DashboardRouteImport } from './routes/dashboard/route'
 import { Route as DashboardIndexImport } from './routes/dashboard/index'
 import { Route as MarketingIndexImport } from './routes/_marketing.index'
+import { Route as DashboardClaimHandleImport } from './routes/dashboard/claim-handle'
 import { Route as AuthConfirmImport } from './routes/auth/confirm'
 import { Route as MarketingContactImport } from './routes/_marketing.contact'
 
@@ -39,6 +41,11 @@ const MarketingRoute = MarketingImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
+const DashboardRoute = DashboardImport.update({
+  id: '/_dashboard',
+  getParentRoute: () => rootRoute,
+} as any)
+
 const DashboardRouteRoute = DashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
@@ -55,6 +62,12 @@ const MarketingIndexRoute = MarketingIndexImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => MarketingRoute,
+} as any)
+
+const DashboardClaimHandleRoute = DashboardClaimHandleImport.update({
+  id: '/claim-handle',
+  path: '/claim-handle',
+  getParentRoute: () => DashboardRouteRoute,
 } as any)
 
 const AuthConfirmRoute = AuthConfirmImport.update({
@@ -78,6 +91,13 @@ declare module '@tanstack/react-router' {
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRoute
+    }
+    '/_dashboard': {
+      id: '/_dashboard'
+      path: ''
+      fullPath: ''
+      preLoaderRoute: typeof DashboardImport
       parentRoute: typeof rootRoute
     }
     '/_marketing': {
@@ -115,6 +135,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthConfirmImport
       parentRoute: typeof rootRoute
     }
+    '/dashboard/claim-handle': {
+      id: '/dashboard/claim-handle'
+      path: '/claim-handle'
+      fullPath: '/dashboard/claim-handle'
+      preLoaderRoute: typeof DashboardClaimHandleImport
+      parentRoute: typeof DashboardRouteImport
+    }
     '/_marketing/': {
       id: '/_marketing/'
       path: '/'
@@ -135,10 +162,12 @@ declare module '@tanstack/react-router' {
 // Create and export the route tree
 
 interface DashboardRouteRouteChildren {
+  DashboardClaimHandleRoute: typeof DashboardClaimHandleRoute
   DashboardIndexRoute: typeof DashboardIndexRoute
 }
 
 const DashboardRouteRouteChildren: DashboardRouteRouteChildren = {
+  DashboardClaimHandleRoute: DashboardClaimHandleRoute,
   DashboardIndexRoute: DashboardIndexRoute,
 }
 
@@ -167,15 +196,18 @@ export interface FileRoutesByFullPath {
   '/signup': typeof SignupRoute
   '/contact': typeof MarketingContactRoute
   '/auth/confirm': typeof AuthConfirmRoute
+  '/dashboard/claim-handle': typeof DashboardClaimHandleRoute
   '/': typeof MarketingIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
 }
 
 export interface FileRoutesByTo {
+  '': typeof DashboardRoute
   '/login': typeof LoginRoute
   '/signup': typeof SignupRoute
   '/contact': typeof MarketingContactRoute
   '/auth/confirm': typeof AuthConfirmRoute
+  '/dashboard/claim-handle': typeof DashboardClaimHandleRoute
   '/': typeof MarketingIndexRoute
   '/dashboard': typeof DashboardIndexRoute
 }
@@ -183,11 +215,13 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/dashboard': typeof DashboardRouteRouteWithChildren
+  '/_dashboard': typeof DashboardRoute
   '/_marketing': typeof MarketingRouteWithChildren
   '/login': typeof LoginRoute
   '/signup': typeof SignupRoute
   '/_marketing/contact': typeof MarketingContactRoute
   '/auth/confirm': typeof AuthConfirmRoute
+  '/dashboard/claim-handle': typeof DashboardClaimHandleRoute
   '/_marketing/': typeof MarketingIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
 }
@@ -201,18 +235,29 @@ export interface FileRouteTypes {
     | '/signup'
     | '/contact'
     | '/auth/confirm'
+    | '/dashboard/claim-handle'
     | '/'
     | '/dashboard/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/login' | '/signup' | '/contact' | '/auth/confirm' | '/' | '/dashboard'
+  to:
+    | ''
+    | '/login'
+    | '/signup'
+    | '/contact'
+    | '/auth/confirm'
+    | '/dashboard/claim-handle'
+    | '/'
+    | '/dashboard'
   id:
     | '__root__'
     | '/dashboard'
+    | '/_dashboard'
     | '/_marketing'
     | '/login'
     | '/signup'
     | '/_marketing/contact'
     | '/auth/confirm'
+    | '/dashboard/claim-handle'
     | '/_marketing/'
     | '/dashboard/'
   fileRoutesById: FileRoutesById
@@ -220,6 +265,7 @@ export interface FileRouteTypes {
 
 export interface RootRouteChildren {
   DashboardRouteRoute: typeof DashboardRouteRouteWithChildren
+  DashboardRoute: typeof DashboardRoute
   MarketingRoute: typeof MarketingRouteWithChildren
   LoginRoute: typeof LoginRoute
   SignupRoute: typeof SignupRoute
@@ -228,6 +274,7 @@ export interface RootRouteChildren {
 
 const rootRouteChildren: RootRouteChildren = {
   DashboardRouteRoute: DashboardRouteRouteWithChildren,
+  DashboardRoute: DashboardRoute,
   MarketingRoute: MarketingRouteWithChildren,
   LoginRoute: LoginRoute,
   SignupRoute: SignupRoute,
@@ -245,6 +292,7 @@ export const routeTree = rootRoute
       "filePath": "__root.tsx",
       "children": [
         "/dashboard",
+        "/_dashboard",
         "/_marketing",
         "/login",
         "/signup",
@@ -254,8 +302,12 @@ export const routeTree = rootRoute
     "/dashboard": {
       "filePath": "dashboard/route.tsx",
       "children": [
+        "/dashboard/claim-handle",
         "/dashboard/"
       ]
+    },
+    "/_dashboard": {
+      "filePath": "_dashboard.tsx"
     },
     "/_marketing": {
       "filePath": "_marketing.tsx",
@@ -276,6 +328,10 @@ export const routeTree = rootRoute
     },
     "/auth/confirm": {
       "filePath": "auth/confirm.tsx"
+    },
+    "/dashboard/claim-handle": {
+      "filePath": "dashboard/claim-handle.tsx",
+      "parent": "/dashboard"
     },
     "/_marketing/": {
       "filePath": "_marketing.index.tsx",

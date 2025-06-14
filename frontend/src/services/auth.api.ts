@@ -1,4 +1,6 @@
-import type { ErrorResponse, SuccessResponse } from '@shared/types'
+// import { queryOptions } from '@tanstack/react-query'
+
+import type { CurrentUser, ErrorResponse, SuccessResponse } from '@shared/types'
 
 import { client } from '@/lib/api'
 
@@ -49,3 +51,28 @@ export const getVerifyOTP = async (token_hash: string, type: string) => {
     } as ErrorResponse
   }
 }
+
+export const getCurrentUserProfile = async () => {
+  try {
+    const res = await client.auth.me.$get({})
+
+    if (res.ok) {
+      const data = (await res.json()) as SuccessResponse<CurrentUser>
+      return data
+    }
+    const data = (await res.json()) as unknown as ErrorResponse
+    return data
+  } catch (error) {
+    return {
+      success: false,
+      error: String(error),
+      isFormError: false,
+    } as ErrorResponse
+  }
+}
+
+// export const profileQueryOptions = queryOptions({
+//   queryKey: ['current-user-profile'],
+//   queryFn: getCurrentUserProfile,
+//   staleTime: Infinity,
+// })

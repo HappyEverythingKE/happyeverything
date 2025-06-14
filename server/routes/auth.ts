@@ -90,9 +90,20 @@ export const authRoutes = new Hono()
   .get('/me', getUserSession, async (c) => {
     const user = c.get('user')!
 
+    const supabase = getSupabase(c)
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('email, onboarding_completed')
+      .eq('id', user.id)
+      .single()
+
+    if (error || !data) {
+      throw new HTTPException(500, { message: 'Failed to fetch user profile' })
+    }
+
     return c.json<SuccessResponse<CurrentUser>>({
       success: true,
-      message: 'User fetched',
-      data: { email: user.email },
+      message: 'Fetched user profile',
+      data,
     })
   })
