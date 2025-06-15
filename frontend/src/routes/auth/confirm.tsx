@@ -50,7 +50,7 @@ function RouteComponent() {
     const { onboarding_completed } = userRes.data
 
     if (!onboarding_completed) {
-      navigate({ to: '/dashboard/claim-handle' })
+      navigate({ to: '/onboard' })
     } else {
       navigate({ to: '/dashboard' })
     }
@@ -60,7 +60,7 @@ function RouteComponent() {
     <>
       <LogoHeader />
       <div className="mx-auto flex w-full flex-1 items-center justify-center">
-        <Card className="md:px-4 md:py-8">
+        <Card className="md:px-2 md:py-8">
           <CardHeader className="gap-3">
             <CardTitle className="text-lg">Confirm Your Email</CardTitle>
             <CardDescription className="text-balance text-base">

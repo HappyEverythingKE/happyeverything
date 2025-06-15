@@ -12,13 +12,13 @@
 
 import { Route as rootRoute } from './routes/__root'
 import { Route as SignupImport } from './routes/signup'
+import { Route as OnboardImport } from './routes/onboard'
 import { Route as LoginImport } from './routes/login'
 import { Route as MarketingImport } from './routes/_marketing'
 import { Route as DashboardImport } from './routes/_dashboard'
 import { Route as DashboardRouteImport } from './routes/dashboard/route'
 import { Route as DashboardIndexImport } from './routes/dashboard/index'
 import { Route as MarketingIndexImport } from './routes/_marketing.index'
-import { Route as DashboardClaimHandleImport } from './routes/dashboard/claim-handle'
 import { Route as AuthConfirmImport } from './routes/auth/confirm'
 import { Route as MarketingContactImport } from './routes/_marketing.contact'
 
@@ -27,6 +27,12 @@ import { Route as MarketingContactImport } from './routes/_marketing.contact'
 const SignupRoute = SignupImport.update({
   id: '/signup',
   path: '/signup',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const OnboardRoute = OnboardImport.update({
+  id: '/onboard',
+  path: '/onboard',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -62,12 +68,6 @@ const MarketingIndexRoute = MarketingIndexImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => MarketingRoute,
-} as any)
-
-const DashboardClaimHandleRoute = DashboardClaimHandleImport.update({
-  id: '/claim-handle',
-  path: '/claim-handle',
-  getParentRoute: () => DashboardRouteRoute,
 } as any)
 
 const AuthConfirmRoute = AuthConfirmImport.update({
@@ -114,6 +114,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoginImport
       parentRoute: typeof rootRoute
     }
+    '/onboard': {
+      id: '/onboard'
+      path: '/onboard'
+      fullPath: '/onboard'
+      preLoaderRoute: typeof OnboardImport
+      parentRoute: typeof rootRoute
+    }
     '/signup': {
       id: '/signup'
       path: '/signup'
@@ -135,13 +142,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthConfirmImport
       parentRoute: typeof rootRoute
     }
-    '/dashboard/claim-handle': {
-      id: '/dashboard/claim-handle'
-      path: '/claim-handle'
-      fullPath: '/dashboard/claim-handle'
-      preLoaderRoute: typeof DashboardClaimHandleImport
-      parentRoute: typeof DashboardRouteImport
-    }
     '/_marketing/': {
       id: '/_marketing/'
       path: '/'
@@ -162,12 +162,10 @@ declare module '@tanstack/react-router' {
 // Create and export the route tree
 
 interface DashboardRouteRouteChildren {
-  DashboardClaimHandleRoute: typeof DashboardClaimHandleRoute
   DashboardIndexRoute: typeof DashboardIndexRoute
 }
 
 const DashboardRouteRouteChildren: DashboardRouteRouteChildren = {
-  DashboardClaimHandleRoute: DashboardClaimHandleRoute,
   DashboardIndexRoute: DashboardIndexRoute,
 }
 
@@ -193,10 +191,10 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof DashboardRouteRouteWithChildren
   '': typeof MarketingRouteWithChildren
   '/login': typeof LoginRoute
+  '/onboard': typeof OnboardRoute
   '/signup': typeof SignupRoute
   '/contact': typeof MarketingContactRoute
   '/auth/confirm': typeof AuthConfirmRoute
-  '/dashboard/claim-handle': typeof DashboardClaimHandleRoute
   '/': typeof MarketingIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
 }
@@ -204,10 +202,10 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '': typeof DashboardRoute
   '/login': typeof LoginRoute
+  '/onboard': typeof OnboardRoute
   '/signup': typeof SignupRoute
   '/contact': typeof MarketingContactRoute
   '/auth/confirm': typeof AuthConfirmRoute
-  '/dashboard/claim-handle': typeof DashboardClaimHandleRoute
   '/': typeof MarketingIndexRoute
   '/dashboard': typeof DashboardIndexRoute
 }
@@ -218,10 +216,10 @@ export interface FileRoutesById {
   '/_dashboard': typeof DashboardRoute
   '/_marketing': typeof MarketingRouteWithChildren
   '/login': typeof LoginRoute
+  '/onboard': typeof OnboardRoute
   '/signup': typeof SignupRoute
   '/_marketing/contact': typeof MarketingContactRoute
   '/auth/confirm': typeof AuthConfirmRoute
-  '/dashboard/claim-handle': typeof DashboardClaimHandleRoute
   '/_marketing/': typeof MarketingIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
 }
@@ -232,20 +230,20 @@ export interface FileRouteTypes {
     | '/dashboard'
     | ''
     | '/login'
+    | '/onboard'
     | '/signup'
     | '/contact'
     | '/auth/confirm'
-    | '/dashboard/claim-handle'
     | '/'
     | '/dashboard/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | ''
     | '/login'
+    | '/onboard'
     | '/signup'
     | '/contact'
     | '/auth/confirm'
-    | '/dashboard/claim-handle'
     | '/'
     | '/dashboard'
   id:
@@ -254,10 +252,10 @@ export interface FileRouteTypes {
     | '/_dashboard'
     | '/_marketing'
     | '/login'
+    | '/onboard'
     | '/signup'
     | '/_marketing/contact'
     | '/auth/confirm'
-    | '/dashboard/claim-handle'
     | '/_marketing/'
     | '/dashboard/'
   fileRoutesById: FileRoutesById
@@ -268,6 +266,7 @@ export interface RootRouteChildren {
   DashboardRoute: typeof DashboardRoute
   MarketingRoute: typeof MarketingRouteWithChildren
   LoginRoute: typeof LoginRoute
+  OnboardRoute: typeof OnboardRoute
   SignupRoute: typeof SignupRoute
   AuthConfirmRoute: typeof AuthConfirmRoute
 }
@@ -277,6 +276,7 @@ const rootRouteChildren: RootRouteChildren = {
   DashboardRoute: DashboardRoute,
   MarketingRoute: MarketingRouteWithChildren,
   LoginRoute: LoginRoute,
+  OnboardRoute: OnboardRoute,
   SignupRoute: SignupRoute,
   AuthConfirmRoute: AuthConfirmRoute,
 }
@@ -295,6 +295,7 @@ export const routeTree = rootRoute
         "/_dashboard",
         "/_marketing",
         "/login",
+        "/onboard",
         "/signup",
         "/auth/confirm"
       ]
@@ -302,7 +303,6 @@ export const routeTree = rootRoute
     "/dashboard": {
       "filePath": "dashboard/route.tsx",
       "children": [
-        "/dashboard/claim-handle",
         "/dashboard/"
       ]
     },
@@ -319,6 +319,9 @@ export const routeTree = rootRoute
     "/login": {
       "filePath": "login.tsx"
     },
+    "/onboard": {
+      "filePath": "onboard.tsx"
+    },
     "/signup": {
       "filePath": "signup.tsx"
     },
@@ -328,10 +331,6 @@ export const routeTree = rootRoute
     },
     "/auth/confirm": {
       "filePath": "auth/confirm.tsx"
-    },
-    "/dashboard/claim-handle": {
-      "filePath": "dashboard/claim-handle.tsx",
-      "parent": "/dashboard"
     },
     "/_marketing/": {
       "filePath": "_marketing.index.tsx",

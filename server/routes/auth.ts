@@ -1,44 +1,56 @@
 import { Hono } from 'hono'
+import { env } from 'hono/adapter'
 import { HTTPException } from 'hono/http-exception'
 import type { ContentfulStatusCode } from 'hono/utils/http-status'
 
 import { getSupabase, getUserSession } from '@/middleware/auth.middleware'
 import { zValidator } from '@hono/zod-validator'
-import type { AuthResponse } from '@supabase/supabase-js'
+import { z } from 'zod'
 
-import {
-  LoginSchema,
-  type CurrentUser,
-  type SuccessResponse,
-} from '@/shared/types'
+import type { AppEnv, CurrentUser, SuccessResponse } from '@/shared/types'
 
 export const authRoutes = new Hono()
-  .post('/login', zValidator('form', LoginSchema), async (c) => {
-    const supabase = getSupabase(c)
-    const { email } = c.req.valid('form')
+  .post(
+    '/login',
+    zValidator(
+      'form',
+      z.object({ email: z.string(), name: z.string().optional() }),
+    ),
+    async (c) => {
+      const supabase = getSupabase(c)
+      const { email, name } = c.req.valid('form')
 
-    const { error } = await supabase.auth.signInWithOtp({
-      email,
-      options: {
-        emailRedirectTo: 'http://localhost:5173/auth/confirm', // TODO: Update to your deployed domain
-      },
-    })
+      const { APP_BASE_URL } = env<AppEnv>(c)
+      const redirectURL = `${APP_BASE_URL}/auth/confirm`
 
-    if (error) {
-      throw new HTTPException(error.status as ContentfulStatusCode, {
-        message: error.message,
-        cause: { form: true },
+      const userOptions = name
+        ? {
+            data: { name },
+            emailRedirectTo: redirectURL,
+          }
+        : { emailRedirectTo: redirectURL }
+
+      const { error } = await supabase.auth.signInWithOtp({
+        email,
+        options: userOptions,
       })
-    }
 
-    return c.json<SuccessResponse>(
-      {
-        success: true,
-        message: 'Verifying OTP',
-      },
-      200,
-    )
-  })
+      if (error) {
+        throw new HTTPException(error.status as ContentfulStatusCode, {
+          message: error.message,
+          cause: { form: true },
+        })
+      }
+
+      return c.json<SuccessResponse>(
+        {
+          success: true,
+          message: 'Verifying OTP',
+        },
+        200,
+      )
+    },
+  )
   .get('/confirm', async (c) => {
     // callback url gets called every time user logs/signs-in with magic link
 
@@ -53,10 +65,7 @@ export const authRoutes = new Hono()
 
     const supabase = getSupabase(c)
 
-    const {
-      data: { session },
-      error,
-    } = await supabase.auth.verifyOtp({
+    const { error } = await supabase.auth.verifyOtp({
       token_hash,
       type: type as 'email',
     })
@@ -67,11 +76,10 @@ export const authRoutes = new Hono()
       })
     }
 
-    return c.json<SuccessResponse<{ data: AuthResponse['data']['session'] }>>(
+    return c.json<SuccessResponse>(
       {
         success: true,
         message: 'User verified',
-        data: { data: session },
       },
       200,
     )
@@ -82,7 +90,9 @@ export const authRoutes = new Hono()
     const { error } = await supabase.auth.signOut()
 
     if (error) {
-      throw new Error('An error occured while logging out', error)
+      throw new HTTPException(error.status as ContentfulStatusCode, {
+        message: 'An error occured while logging out',
+      })
     }
 
     return c.redirect('/')
@@ -92,8 +102,8 @@ export const authRoutes = new Hono()
 
     const supabase = getSupabase(c)
     const { data, error } = await supabase
-      .from('profiles')
-      .select('email, onboarding_completed')
+      .from('accounts')
+      .select('email, name, onboarding_completed')
       .eq('id', user.id)
       .single()
 

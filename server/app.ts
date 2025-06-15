@@ -4,6 +4,7 @@ import { HTTPException } from 'hono/http-exception'
 import { logger } from 'hono/logger'
 
 import { supabaseMiddleware } from '@/middleware/auth.middleware'
+import { accountRoutes } from '@/routes/account'
 import { authRoutes } from '@/routes/auth'
 import type { UserContext } from '@/user-context'
 import { serveStatic } from '@hono/node-server/serve-static'
@@ -21,6 +22,7 @@ const apiRoutes = app
   .use('*', supabaseMiddleware())
   // routes
   .route('/auth', authRoutes)
+  .route('/account', accountRoutes)
 
 app.onError((err, c) => {
   // handle expected errors

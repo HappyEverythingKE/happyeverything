@@ -2,7 +2,7 @@ import { Link } from '@tanstack/react-router'
 import { useForm } from '@tanstack/react-form'
 
 import { postLogin } from '@/services/auth.api'
-import { LoginSchema } from '@shared/types'
+import { SignupSchema } from '@shared/types'
 import { toast } from 'sonner'
 import { type z } from 'zod'
 
@@ -13,14 +13,15 @@ import { FieldInfo } from '@/components/field-info'
 
 const defaultValues = {
   email: '',
-} as z.infer<typeof LoginSchema>
+  name: '',
+} as z.infer<typeof SignupSchema>
 
 export function SignupForm() {
   const form = useForm({
     defaultValues: defaultValues,
-    validators: { onChange: LoginSchema },
+    validators: { onChange: SignupSchema },
     onSubmit: async ({ value }) => {
-      const res = await postLogin(value.email)
+      const res = await postLogin({ email: value.email, name: value.name })
       if (res.success) {
         toast.success('Check your email for a sign up link!')
       } else {
@@ -51,6 +52,29 @@ export function SignupForm() {
             </p>
           </div>
           <div className="grid gap-6">
+            <div className="grid gap-2">
+              <form.Field
+                name="name"
+                children={(field) => {
+                  return (
+                    <>
+                      <Label htmlFor={field.name}>What is your name?</Label>
+                      <Input
+                        id={field.name}
+                        type="text"
+                        value={field.state.value}
+                        onBlur={field.handleBlur}
+                        onChange={(e) => field.handleChange(e.target.value)}
+                        aria-invalid={!field.state.meta.isValid}
+                        placeholder="Your full name"
+                      />
+                      <FieldInfo field={field} />
+                    </>
+                  )
+                }}
+              />
+            </div>
+
             <div className="grid gap-2">
               <form.Field
                 name="email"

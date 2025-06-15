@@ -8,6 +8,8 @@ import type { UserContext } from '@/user-context'
 import { createServerClient } from '@supabase/ssr'
 import type { SupabaseClient } from '@supabase/supabase-js'
 
+import type { AppEnv } from '@/shared/types'
+
 declare module 'hono' {
   interface ContextVariableMap {
     supabase: SupabaseClient
@@ -18,16 +20,11 @@ export const getSupabase = (c: Context) => {
   return c.get('supabase')
 }
 
-type SupabaseEnv = {
-  SUPABASE_URL: string
-  SUPABASE_ANON_KEY: string
-}
-
 export const supabaseMiddleware = (): MiddlewareHandler => {
   return async (c, next) => {
-    const supabaseEnv = env<SupabaseEnv>(c)
-    const supabaseUrl = supabaseEnv.SUPABASE_URL
-    const supabaseAnonKey = supabaseEnv.SUPABASE_ANON_KEY
+    const { SUPABASE_URL, SUPABASE_ANON_KEY } = env<AppEnv>(c)
+    const supabaseUrl = SUPABASE_URL
+    const supabaseAnonKey = SUPABASE_ANON_KEY
 
     if (!supabaseUrl) {
       throw new Error('SUPABASE_URL missing!')
