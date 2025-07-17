@@ -22,6 +22,10 @@ export type ErrorResponse = {
   isFormError?: boolean
 }
 
+export type AuthContext = {
+  isAuthenticated: boolean
+}
+
 export type CurrentUser = {
   email: string
   name: string
@@ -36,5 +40,18 @@ export const SignupSchema = z.object({
 export const LoginSchema = SignupSchema.pick({ email: true })
 
 export const ProfileSlugSchema = z.object({
-  slug: z.string(),
+  slug: z
+    .string()
+    .trim()
+    .min(3, 'Username must be at least 3 characters long.')
+    .max(20, 'Username must be at most 20 characters long.')
+    .regex(
+      /^[a-z0-9-]+$/,
+      'Username can only contain lowercase letters, numbers, and hyphens.',
+    )
+    .refine(
+      (value) => !value.startsWith('-') && !value.endsWith('-'),
+      'Username cannot start or end with a hyphen.',
+    )
+    .transform((value) => value.toLowerCase()),
 })

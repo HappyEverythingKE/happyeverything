@@ -64,15 +64,20 @@ export function ProfileSlugForm() {
             children={(field) => {
               return (
                 <>
-                  <Input
-                    id={field.name}
-                    type="text"
-                    value={field.state.value}
-                    onBlur={field.handleBlur}
-                    onChange={(e) => field.handleChange(e.target.value)}
-                    aria-invalid={!field.state.meta.isValid}
-                    placeholder="@"
-                  />
+                  <div className="relative">
+                    <span className="text-muted-foreground absolute left-3 top-1/2 -translate-y-1/2 text-sm">
+                      @
+                    </span>
+                    <Input
+                      id={field.name}
+                      type="text"
+                      value={field.state.value}
+                      onBlur={field.handleBlur}
+                      onChange={(e) => field.handleChange(e.target.value)}
+                      aria-invalid={!field.state.meta.isValid}
+                      className="pl-7"
+                    />
+                  </div>
                   <FieldInfo field={field} />
                 </>
               )
@@ -80,12 +85,16 @@ export function ProfileSlugForm() {
           />
 
           {/* URL preview */}
-          {/* TODO: inputted text should show up below */}
-          <div className="text-center">
-            <span className="text-sm text-gray-500">
-              myhappyeverything.com/u/
-            </span>
-          </div>
+          <form.Subscribe
+            selector={(state) => [state.values.slug]}
+            children={([slugValue]) => (
+              <div className="text-center">
+                <span className="text-sm text-gray-500">
+                  myhappyeverything.com/u/{slugValue || ''}
+                </span>
+              </div>
+            )}
+          />
 
           <form.Subscribe
             selector={(state) => [state.errorMap]}

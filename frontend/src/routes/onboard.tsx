@@ -1,9 +1,16 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, redirect } from '@tanstack/react-router'
 
 import { ProfileSlugForm } from '@/components/dashboard/account/profile-slug-form'
 
 export const Route = createFileRoute('/onboard')({
   // TODO: make this a protected route
+  // beforeLoad: async ({ context }) => {
+  //   if (!context.authState.isAuthenticated) {
+  //     console.log('onboard path:', context.authState.isAuthenticated)
+  //     // throw redirect({ to: '/signup' })
+  //   }
+  // },
+
   component: RouteComponent,
 })
 
