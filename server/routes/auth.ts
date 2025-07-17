@@ -7,7 +7,12 @@ import { getSupabase, getUserSession } from '@/middleware/auth.middleware'
 import { zValidator } from '@hono/zod-validator'
 import { z } from 'zod'
 
-import type { AppEnv, CurrentUser, SuccessResponse } from '@/shared/types'
+import type {
+  AppEnv,
+  AuthContext,
+  CurrentUser,
+  SuccessResponse,
+} from '@/shared/types'
 
 export const authRoutes = new Hono()
   .post(
@@ -21,7 +26,7 @@ export const authRoutes = new Hono()
       const { email, name } = c.req.valid('form')
 
       const { APP_BASE_URL } = env<AppEnv>(c)
-      const redirectURL = `${APP_BASE_URL}/auth/confirm`
+      const redirectURL = `${APP_BASE_URL}/auth-confirm`
 
       const userOptions = name
         ? {
@@ -45,7 +50,6 @@ export const authRoutes = new Hono()
       return c.json<SuccessResponse>(
         {
           success: true,
-          message: 'Verifying OTP',
         },
         200,
       )
@@ -79,7 +83,6 @@ export const authRoutes = new Hono()
     return c.json<SuccessResponse>(
       {
         success: true,
-        message: 'User verified',
       },
       200,
     )
@@ -97,13 +100,28 @@ export const authRoutes = new Hono()
 
     return c.redirect('/')
   })
+  .get('/session', getUserSession, async (c) => {
+    return c.json<AuthContext>({
+      isAuthenticated: true,
+    })
+  })
   .get('/me', getUserSession, async (c) => {
     const user = c.get('user')!
+    const avatar = user.user_metadata?.['avatar_url'] || undefined
 
     const supabase = getSupabase(c)
     const { data, error } = await supabase
       .from('accounts')
-      .select('email, name, onboarding_completed')
+      .select(
+        `
+          email,
+          name,
+          onboarding_completed,
+          profiles!inner (
+            slug
+          )
+        `,
+      )
       .eq('id', user.id)
       .single()
 
@@ -111,9 +129,19 @@ export const authRoutes = new Hono()
       throw new HTTPException(500, { message: 'Failed to fetch user profile' })
     }
 
-    return c.json<SuccessResponse<CurrentUser>>({
-      success: true,
-      message: 'Fetched user profile',
-      data,
-    })
+    const userData: CurrentUser = {
+      email: data.email,
+      name: data.name,
+      onboarding_completed: data.onboarding_completed,
+      slug: data.profiles[0]?.slug,
+      avatar: avatar,
+    }
+
+    return c.json<SuccessResponse<CurrentUser>>(
+      {
+        success: true,
+        data: userData,
+      },
+      200,
+    )
   })

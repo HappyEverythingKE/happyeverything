@@ -1,4 +1,11 @@
-import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
+import {
+  createFileRoute,
+  Link,
+  redirect,
+  useNavigate,
+  useRouter,
+} from '@tanstack/react-router'
+import { useQueryClient } from '@tanstack/react-query'
 import { fallback } from '@tanstack/zod-adapter'
 
 import { getCurrentUserProfile, getVerifyOTP } from '@/services/auth.api'
@@ -20,12 +27,19 @@ const OtpSearchSchema = z.object({
   type: fallback(z.string(), '').default(''),
 })
 
-export const Route = createFileRoute('/auth/confirm')({
+export const Route = createFileRoute('/auth-confirm')({
   validateSearch: OtpSearchSchema,
+  beforeLoad: async ({ context }) => {
+    if (context.authState.isAuthenticated) {
+      throw redirect({ to: '/dashboard' })
+    }
+  },
   component: RouteComponent,
 })
 
 function RouteComponent() {
+  const router = useRouter()
+  const queryClient = useQueryClient()
   const navigate = useNavigate()
   const { token_hash, type } = Route.useSearch()
 
@@ -38,7 +52,12 @@ function RouteComponent() {
       return
     }
 
-    // fetch current user's profile after they are authenticated
+    if (verifyRes.success) {
+      queryClient.invalidateQueries()
+      router.invalidate()
+    }
+
+    // fetch current user's profile after they are authenticated to determine redirect location
     const userRes = await getCurrentUserProfile()
 
     if (!userRes.success) {
@@ -50,7 +69,7 @@ function RouteComponent() {
     const { onboarding_completed } = userRes.data
 
     if (!onboarding_completed) {
-      navigate({ to: '/onboard' })
+      navigate({ to: '/onboarding' })
     } else {
       navigate({ to: '/dashboard' })
     }
@@ -62,7 +81,7 @@ function RouteComponent() {
       <div className="mx-auto flex w-full flex-1 items-center justify-center">
         <Card className="md:px-2 md:py-8">
           <CardHeader className="gap-3">
-            <CardTitle className="text-lg">Confirm Your Email</CardTitle>
+            <CardTitle className="text-lg">Almost there!</CardTitle>
             <CardDescription className="text-balance text-base">
               Click below to finish logging in.
             </CardDescription>

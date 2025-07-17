@@ -30,7 +30,6 @@ export function ProfileSlugForm() {
     onSubmit: async ({ value }) => {
       const res = await postProfile(value.slug)
       if (res.success) {
-        //TODO: do something with the slug returned in the response? Add to cached current user context?
         navigate({ to: '/dashboard' })
       } else {
         toast.error('An error occured', { description: res.error })

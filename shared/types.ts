@@ -13,7 +13,7 @@ export type AppEnv = {
 
 export type SuccessResponse<T = void> = {
   success: true
-  message: string
+  message?: string
 } & (T extends void ? {} : { data: T })
 
 export type ErrorResponse = {
@@ -29,7 +29,9 @@ export type AuthContext = {
 export type CurrentUser = {
   email: string
   name: string
-  onboarding_completed: string
+  onboarding_completed: boolean
+  slug: string | null
+  avatar: string | undefined
 }
 
 export const SignupSchema = z.object({
