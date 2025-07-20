@@ -77,7 +77,7 @@ export function HeroSection() {
           </p>
           <div className="mt-6 flex items-center justify-center gap-x-4 md:mt-8">
             <Button asChild>
-              <Link to="/">Create your wish list - it&apos;s free!</Link>
+              <Link to="/signup">Create your wish list - it&apos;s free!</Link>
             </Button>
           </div>
         </div>

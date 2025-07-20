@@ -43,7 +43,7 @@ export function Footer() {
             </p>
             <div className="mt-6 flex flex-wrap gap-4 md:mt-8">
               <Button asChild variant="secondary">
-                <Link to="/">Create your free wish list</Link>
+                <Link to="/signup">Create your free wish list</Link>
               </Button>
             </div>
           </div>

@@ -44,7 +44,7 @@ export function ErrorComponent({ error }: { error: Error }) {
             Try again
           </Button>
           <Button asChild className="w-full" variant="outline">
-            <Link to="/">Return to homepage</Link>
+            <Link to="/dashboard">Return to homepage</Link>
           </Button>
           {isDev ? (
             <Accordion type="single" collapsible className="w-full">

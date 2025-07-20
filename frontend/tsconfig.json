@@ -23,9 +23,9 @@
     "noUncheckedSideEffectImports": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"]
-      // "@/shared/*": ["../shared/*"] -> only on betternews repo
-      // "@server/*": ["../server/*"] -> only on meecham's repo
+      "@/*": ["./src/*"],
+      "@shared/*": ["../shared/*"],
+      "@server/*": ["../server/*"]
     }
   }
 }

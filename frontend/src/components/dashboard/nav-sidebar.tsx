@@ -4,6 +4,7 @@ import * as React from 'react'
 import { Link } from '@tanstack/react-router'
 
 import IconLogo from '@/assets/logos/logo-icon.svg'
+import type { CurrentUser } from '@shared/types'
 import { Gift, LifeBuoy, Send } from 'lucide-react'
 
 import {
@@ -21,13 +22,8 @@ import { NavMain } from '@/components/dashboard/nav-main'
 import { NavSecondary } from '@/components/dashboard/nav-secondary'
 import { NavUser } from '@/components/dashboard/nav-user'
 
-// This is sample data.
-const data = {
-  user: {
-    name: 'shadcn',
-    email: 'm@example.com',
-    avatar: '/avatars/shadcn.jpg',
-  },
+// Sample data for lists and nav items
+const navData = {
   userLists: [
     {
       title: "Mark and Samantha's Wedding",
@@ -60,7 +56,11 @@ const data = {
   ],
 }
 
-export function NavSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+interface NavSidebarProps extends React.ComponentProps<typeof Sidebar> {
+  user: CurrentUser
+}
+
+export function NavSidebar({ user, ...props }: NavSidebarProps) {
   return (
     <Sidebar variant="inset" collapsible="icon" {...props}>
       <SidebarHeader>
@@ -83,13 +83,13 @@ export function NavSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent className="pt-4">
-        <NavMain items={data.userLists} />
+        <NavMain items={navData.userLists} />
       </SidebarContent>
       <SidebarSeparator />
-      <NavSecondary items={data.navSecondary} />
+      <NavSecondary items={navData.navSecondary} />
       <SidebarSeparator />
       <SidebarFooter>
-        <NavUser user={data.user} />
+        <NavUser user={user} />
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>

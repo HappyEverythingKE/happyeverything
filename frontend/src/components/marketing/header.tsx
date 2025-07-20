@@ -127,10 +127,10 @@ export function Header() {
                 variant="outline"
                 className={cn(isMobileMenuOpen && 'w-full')}
               >
-                <Link to="/">Log in</Link>
+                <Link to="/login">Log in</Link>
               </Button>
               <Button asChild className={cn(isMobileMenuOpen && 'w-full')}>
-                <Link to="/">Sign up free</Link>
+                <Link to="/signup">Sign up free</Link>
               </Button>
             </div>
           </motion.div>
