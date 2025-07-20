@@ -20,7 +20,7 @@ function RouteComponent() {
         <NavSidebar user={user} />
         <SidebarInset>
           <NavHeader user={user} />
-          <main>
+          <main className="flex-1">
             <Outlet />
           </main>
         </SidebarInset>

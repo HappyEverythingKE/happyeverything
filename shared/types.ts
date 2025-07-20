@@ -10,7 +10,9 @@ export type AppEnv = {
   SUPABASE_PUBLIC_KEY: string
   SUPABASE_SERVICE_ROLE_KEY: string
   SUPABASE_PROJECT_ID: string
-  MAX_ACCOUNTS_PER_USER: number
+  MAX_PROFILES_PER_USER: number
+  MAX_LISTS_PER_PROFILE: number
+  MAX_ITEMS_PER_LIST: number
 }
 
 export type SuccessResponse<T = void> = {
@@ -39,6 +41,18 @@ export type CurrentUser = {
   }[]
 }
 
+export type List = {
+  id: string
+  profileId: string
+  name: string
+  slug: string
+  description?: string
+  private: boolean
+  password?: string
+  status: string
+  createdAt: string
+}
+
 export const SignupSchema = z.object({
   email: z.string().email('Please enter a valid email.'),
   name: z.string().trim().min(3, 'Please enter your full name.').max(31),
@@ -61,4 +75,18 @@ export const ProfileSlugSchema = z.object({
       'Username cannot start or end with a hyphen.',
     )
     .transform((value) => value.toLowerCase()),
+})
+
+export const ListCreateSchema = z.object({
+  name: z.string().min(1),
+  description: z.string().optional(),
+  listType: z.string().optional(),
+})
+
+export const ListUpdateSchema = z.object({
+  name: z.string().min(1).optional(),
+  description: z.string().optional(),
+  isPrivate: z.boolean().optional(),
+  password: z.string().optional(),
+  status: z.string().optional(),
 })

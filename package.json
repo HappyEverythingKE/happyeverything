@@ -19,6 +19,7 @@
   "dependencies": {
     "@hono/node-server": "^1.14.2",
     "@hono/zod-validator": "^0.7.0",
+    "@sindresorhus/slugify": "^2.2.1",
     "@supabase/ssr": "^0.6.1",
     "@supabase/supabase-js": "^2.49.8",
     "@tanstack/zod-adapter": "^1.121.2",

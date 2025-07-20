@@ -6,6 +6,7 @@ import { logger } from 'hono/logger'
 import { supabaseMiddleware } from '@/middleware/auth.middleware'
 import { accountRoutes } from '@/routes/account'
 import { authRoutes } from '@/routes/auth'
+import { listsRoutes } from '@/routes/lists/lists-routes'
 import type { UserContext } from '@/user-context'
 import { serveStatic } from '@hono/node-server/serve-static'
 
@@ -23,6 +24,9 @@ const apiRoutes = app
   // routes
   .route('/auth', authRoutes)
   .route('/account', accountRoutes)
+  .route('/lists', listsRoutes)
+// .route('/lists', listItemsRoutes)
+// .route('/lists', listAccessRoutes)
 
 app.onError((err, c) => {
   // handle expected errors

@@ -28,14 +28,14 @@ export const accountRoutes = new Hono().post(
 
     if (countError) {
       throw new HTTPException(500, {
-        message: 'Profile check failed.',
+        message: 'Profile limit check failed.',
       })
     }
-    const { MAX_ACCOUNTS_PER_USER } = env<AppEnv>(c)
+    const { MAX_PROFILES_PER_USER } = env<AppEnv>(c)
 
-    if ((count ?? 0) >= MAX_ACCOUNTS_PER_USER) {
+    if ((count ?? 0) >= MAX_PROFILES_PER_USER) {
       throw new HTTPException(403, {
-        message: `You’ve reached the limit of ${MAX_ACCOUNTS_PER_USER} profiles.`,
+        message: `You’ve reached the limit of ${MAX_PROFILES_PER_USER} profiles.`,
       })
     }
 
@@ -66,7 +66,6 @@ export const accountRoutes = new Hono().post(
     return c.json<SuccessResponse<{ slug: string }>>(
       {
         success: true,
-        message: 'Profile created',
         data: { slug: data.slug },
       },
       201,
