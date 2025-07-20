@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from 'react'
 import {
   createFileRoute,
   Link,
@@ -8,7 +9,7 @@ import {
 import { useQueryClient } from '@tanstack/react-query'
 import { fallback } from '@tanstack/zod-adapter'
 
-import { getCurrentUserProfile, getVerifyOTP } from '@/services/auth.api'
+import { getUserProfileStatus, getVerifyOTP } from '@/services/auth.api'
 import { toast } from 'sonner'
 import { z } from 'zod'
 
@@ -43,37 +44,40 @@ function RouteComponent() {
   const navigate = useNavigate()
   const { token_hash, type } = Route.useSearch()
 
+  const [status, setStatus] = useState<
+    'idle' | 'loading' | 'error' | 'success'
+  >('idle')
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  const hasRunRef = useRef(false)
+
   const handleVerify = async () => {
-    const verifyRes = await getVerifyOTP(token_hash, type)
+    if (hasRunRef.current) return
+    hasRunRef.current = true
 
-    if (!verifyRes.success) {
-      toast.error('Verification failed', { description: verifyRes.error })
-      navigate({ to: '/signup' })
-      return
-    }
+    setStatus('loading')
+    setErrorMessage(null)
 
-    if (verifyRes.success) {
-      queryClient.invalidateQueries()
-      router.invalidate()
-    }
+    try {
+      await getVerifyOTP(token_hash, type)
 
-    // fetch current user's profile after they are authenticated to determine redirect location
-    const userRes = await getCurrentUserProfile()
+      await queryClient.invalidateQueries()
+      await router.invalidate()
 
-    if (!userRes.success) {
-      toast.error('An error occured', { description: userRes.error })
-      navigate({ to: '/signup' })
-      return
-    }
-
-    const { onboarding_completed } = userRes.data
-
-    if (!onboarding_completed) {
-      navigate({ to: '/onboarding' })
-    } else {
-      navigate({ to: '/dashboard' })
+      // navigate user based on profile status
+      const { hasProfile } = await getUserProfileStatus()
+      setStatus('success')
+      navigate({ to: hasProfile ? '/dashboard' : '/onboarding' })
+    } catch (error) {
+      const message = (error as Error).message
+      setStatus('error')
+      setErrorMessage(message)
+      toast.error('Verification failed', { description: message })
     }
   }
+
+  useEffect(() => {
+    handleVerify()
+  }, [])
 
   return (
     <>
@@ -86,16 +90,31 @@ function RouteComponent() {
               Click below to finish logging in.
             </CardDescription>
           </CardHeader>
-          <CardFooter className="flex-col items-start gap-4">
-            <Button className="w-full" onClick={handleVerify}>
-              Confirm
-            </Button>
-            <div className="text-sm">
-              Having trouble?{' '}
-              <Button asChild variant="link" className="p-0">
-                <Link to="/login">Resend magic link.</Link>
+
+          <CardFooter className="w-full flex-col items-start gap-4">
+            {status === 'loading' && (
+              <Button disabled className="w-full">
+                Verifying your magic link...
               </Button>
-            </div>
+            )}
+
+            {(status === 'error' || status === 'idle') && (
+              <Button className="w-full" onClick={handleVerify}>
+                Confirm
+              </Button>
+            )}
+
+            {status === 'error' && (
+              <div className="text-muted-foreground text-sm">
+                {errorMessage && <p className="text-red-500">{errorMessage}</p>}
+                <p>
+                  Having trouble?{' '}
+                  <Button asChild variant="link" className="p-0">
+                    <Link to="/login">Resend magic link.</Link>
+                  </Button>
+                </p>
+              </div>
+            )}
           </CardFooter>
         </Card>
       </div>

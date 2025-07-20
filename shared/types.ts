@@ -7,7 +7,9 @@ export { type ApiRoutes }
 export type AppEnv = {
   APP_BASE_URL: string
   SUPABASE_URL: string
-  SUPABASE_ANON_KEY: string
+  SUPABASE_PUBLIC_KEY: string
+  SUPABASE_SERVICE_ROLE_KEY: string
+  SUPABASE_PROJECT_ID: string
   MAX_ACCOUNTS_PER_USER: number
 }
 
@@ -29,9 +31,12 @@ export type AuthContext = {
 export type CurrentUser = {
   email: string
   name: string
-  onboarding_completed: boolean
-  slug: string | null
   avatar: string | undefined
+  profiles: {
+    id: string
+    slug: string
+    status: string
+  }[]
 }
 
 export const SignupSchema = z.object({

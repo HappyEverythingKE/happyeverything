@@ -7,34 +7,46 @@ import { HTTPException } from 'hono/http-exception'
 import type { UserContext } from '@/user-context'
 import { createServerClient } from '@supabase/ssr'
 import type { SupabaseClient } from '@supabase/supabase-js'
+import { createClient as createAdminClient } from '@supabase/supabase-js'
 
 import type { AppEnv } from '@/shared/types'
 
 declare module 'hono' {
   interface ContextVariableMap {
     supabase: SupabaseClient
+    supabaseAdmin: SupabaseClient
   }
 }
 
+// utility to access the RLS-aware Supabase client
 export const getSupabase = (c: Context) => {
   return c.get('supabase')
 }
 
+// utility to access the admin Supabase client
+export const getAdminSupabase = (c: Context) => {
+  return c.get('supabaseAdmin')
+}
+
 export const supabaseMiddleware = (): MiddlewareHandler => {
   return async (c, next) => {
-    const { SUPABASE_URL, SUPABASE_ANON_KEY } = env<AppEnv>(c)
-    const supabaseUrl = SUPABASE_URL
-    const supabaseAnonKey = SUPABASE_ANON_KEY
+    const { SUPABASE_URL, SUPABASE_PUBLIC_KEY, SUPABASE_SERVICE_ROLE_KEY } =
+      env<AppEnv>(c)
 
-    if (!supabaseUrl) {
+    if (!SUPABASE_URL) {
       throw new Error('SUPABASE_URL missing!')
     }
 
-    if (!supabaseAnonKey) {
-      throw new Error('SUPABASE_ANON_KEY missing!')
+    if (!SUPABASE_PUBLIC_KEY) {
+      throw new Error('SUPABASE_PUBLIC_KEY missing!')
     }
 
-    const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
+    if (!SUPABASE_SERVICE_ROLE_KEY) {
+      throw new Error('SUPABASE_SERVICE_ROLE_KEY missing!')
+    }
+
+    // authenticated Supabase client (uses cookies, respects RLS)
+    const supabase = createServerClient(SUPABASE_URL, SUPABASE_PUBLIC_KEY, {
       cookies: {
         getAll() {
           return Object.entries(getCookie(c)).map(([name, value]) => ({
@@ -55,7 +67,14 @@ export const supabaseMiddleware = (): MiddlewareHandler => {
       },
     })
 
+    // admin Supabase client (bypasses RLS, never sent to client)
+    const supabaseAdmin = createAdminClient(
+      SUPABASE_URL,
+      SUPABASE_SERVICE_ROLE_KEY,
+    )
+
     c.set('supabase', supabase)
+    c.set('supabaseAdmin', supabaseAdmin)
 
     await next()
   }

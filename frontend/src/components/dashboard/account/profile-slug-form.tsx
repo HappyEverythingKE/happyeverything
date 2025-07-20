@@ -1,5 +1,6 @@
-import { useNavigate } from '@tanstack/react-router'
+import { useNavigate, useRouter } from '@tanstack/react-router'
 import { useForm } from '@tanstack/react-form'
+import { useQueryClient } from '@tanstack/react-query'
 
 import { postProfile } from '@/services/account.api'
 import { ProfileSlugSchema } from '@shared/types'
@@ -22,6 +23,8 @@ const defaultValues = {
 } as z.infer<typeof ProfileSlugSchema>
 
 export function ProfileSlugForm() {
+  const router = useRouter()
+  const queryClient = useQueryClient()
   const navigate = useNavigate()
 
   const form = useForm({
@@ -30,6 +33,19 @@ export function ProfileSlugForm() {
     onSubmit: async ({ value }) => {
       const res = await postProfile(value.slug)
       if (res.success) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        queryClient.setQueryData(['current-user'], (prev: any) => {
+          if (!prev?.data) return prev
+          return {
+            ...prev,
+            data: {
+              ...prev.data,
+              slug: res.data.slug,
+            },
+          }
+        })
+
+        router.invalidate()
         navigate({ to: '/dashboard' })
       } else {
         toast.error('An error occured', { description: res.error })

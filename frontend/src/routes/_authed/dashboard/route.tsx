@@ -5,11 +5,14 @@ import NavHeader from '@/components/dashboard/nav-header'
 import { NavSidebar } from '@/components/dashboard/nav-sidebar'
 
 export const Route = createFileRoute('/_authed/dashboard')({
+  loader: async ({ context }) => {
+    return context.user
+  },
   component: RouteComponent,
 })
 
 function RouteComponent() {
-  const { user } = Route.useRouteContext()
+  const user = Route.useLoaderData()
 
   return (
     <>

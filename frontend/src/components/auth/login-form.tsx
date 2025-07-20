@@ -20,7 +20,7 @@ export function LoginForm() {
     defaultValues: defaultValues,
     validators: { onChange: LoginSchema },
     onSubmit: async ({ value }) => {
-      const res = await postLogin({ email: value.email, name: undefined })
+      const res = await postLogin({ email: value.email })
       if (res.success) {
         toast.success('Check your email for a login link!')
       } else {

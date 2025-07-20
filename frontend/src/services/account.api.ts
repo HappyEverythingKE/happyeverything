@@ -11,7 +11,7 @@ export const postProfile = async (slug: string) => {
     })
 
     if (res.ok) {
-      const data = (await res.json()) as SuccessResponse<{ data: unknown }>
+      const data = (await res.json()) as SuccessResponse<{ slug: string }>
       return data
     }
     const data = (await res.json()) as unknown as ErrorResponse

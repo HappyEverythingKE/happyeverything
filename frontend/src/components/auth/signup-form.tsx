@@ -1,7 +1,7 @@
 import { Link } from '@tanstack/react-router'
 import { useForm } from '@tanstack/react-form'
 
-import { postLogin } from '@/services/auth.api'
+import { postSignup } from '@/services/auth.api'
 import { SignupSchema } from '@shared/types'
 import { toast } from 'sonner'
 import { type z } from 'zod'
@@ -21,7 +21,7 @@ export function SignupForm() {
     defaultValues: defaultValues,
     validators: { onChange: SignupSchema },
     onSubmit: async ({ value }) => {
-      const res = await postLogin({ email: value.email, name: value.name })
+      const res = await postSignup({ email: value.email, name: value.name })
       if (res.success) {
         toast.success('Check your email for a sign up link!')
       } else {

@@ -1,14 +1,13 @@
 'use client'
 
-import {
-  BadgeCheck,
-  Bell,
-  ChevronsUpDown,
-  CreditCard,
-  LogOut,
-  Sparkles,
-} from 'lucide-react'
+import { useNavigate, useRouter } from '@tanstack/react-router'
+import { useQueryClient } from '@tanstack/react-query'
 
+import { getLogout } from '@/services/auth.api'
+import type { CurrentUser } from '@shared/types'
+import { BadgeCheck, Bell, ChevronsUpDown, LogOut } from 'lucide-react'
+
+import { supabase } from '@/lib/supabase'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import {
   DropdownMenu,
@@ -26,16 +25,31 @@ import {
   useSidebar,
 } from '@/components/ui/sidebar'
 
-export function NavUser({
-  user,
-}: {
-  user: {
-    name: string
-    email: string
-    avatar: string
-  }
-}) {
+const prettifyInitials = (name: string | undefined) => {
+  if (!name) return '^_^'
+
+  return name
+    .split(' ')
+    .map((word) => word[0])
+    .join('')
+    .toUpperCase()
+}
+
+export function NavUser({ user }: { user: CurrentUser }) {
   const { isMobile } = useSidebar()
+  const navigate = useNavigate()
+  const router = useRouter()
+  const queryClient = useQueryClient()
+  const initials = prettifyInitials(user.name)
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut() // client-side logout
+    await getLogout() // server-side logout
+    queryClient.resetQueries()
+    router.invalidate()
+    navigate({ to: '/login' })
+    return null
+  }
 
   return (
     <SidebarMenu>
@@ -47,8 +61,10 @@ export function NavUser({
               className="data-[state=open]:bg-accent data-[state=open]:text-accent-foreground"
             >
               <Avatar className="h-8 w-8 rounded-lg">
-                <AvatarImage src={user.avatar} alt={user.name} />
-                <AvatarFallback className="rounded-lg">CN</AvatarFallback>
+                <AvatarImage src={user.avatar} alt={'User Avatar'} />
+                <AvatarFallback className="rounded-lg">
+                  {initials}
+                </AvatarFallback>
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-semibold">{user.name}</span>
@@ -66,8 +82,10 @@ export function NavUser({
             <DropdownMenuLabel className="p-0 font-normal">
               <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                 <Avatar className="h-8 w-8 rounded-lg">
-                  <AvatarImage src={user.avatar} alt={user.name} />
-                  <AvatarFallback className="rounded-lg">CN</AvatarFallback>
+                  <AvatarImage src={user.avatar} alt={'User Avatar'} />
+                  <AvatarFallback className="rounded-lg">
+                    {initials}
+                  </AvatarFallback>
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-semibold">{user.name}</span>
@@ -78,19 +96,8 @@ export function NavUser({
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
               <DropdownMenuItem>
-                <Sparkles />
-                Upgrade to Pro
-              </DropdownMenuItem>
-            </DropdownMenuGroup>
-            <DropdownMenuSeparator />
-            <DropdownMenuGroup>
-              <DropdownMenuItem>
                 <BadgeCheck />
                 Account
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <CreditCard />
-                Billing
               </DropdownMenuItem>
               <DropdownMenuItem>
                 <Bell />
@@ -98,7 +105,7 @@ export function NavUser({
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
+            <DropdownMenuItem onSelect={handleLogout}>
               <LogOut />
               Log out
             </DropdownMenuItem>
