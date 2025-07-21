@@ -6,7 +6,7 @@ interface WithListsProps {
 
 export function WithLists({ lists }: WithListsProps) {
   return (
-    <>
+    <div className="grid grid-cols-1 gap-6 px-8 py-4 lg:grid-cols-3 lg:gap-9">
       <div className="col-span-2">
         <h4 className="mb-4 text-lg font-semibold">
           Your Lists ({lists.length})
@@ -30,6 +30,6 @@ export function WithLists({ lists }: WithListsProps) {
         <h4 className="mb-4 text-lg font-semibold">Activity</h4>
         <p className="text-muted-foreground text-sm">No recent activity</p>
       </div>
-    </>
+    </div>
   )
 }

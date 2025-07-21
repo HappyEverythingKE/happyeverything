@@ -78,8 +78,14 @@ export const ProfileSlugSchema = z.object({
 })
 
 export const ListCreateSchema = z.object({
-  name: z.string().min(1),
-  description: z.string().optional(),
+  name: z
+    .string()
+    .min(1, 'This field is required.')
+    .max(25, 'List name must be less than 25 characters.'),
+  description: z
+    .string()
+    .max(50, 'The description must be less than 100 characters')
+    .optional(),
   listType: z.string().optional(),
 })
 

@@ -23,6 +23,7 @@ export const listsRoutes = new Hono()
       .from('lists')
       .select('*')
       .eq('profile_id', profileId)
+      .order('created_at', { ascending: false })
 
     console.log('API Fetched lists:', lists, listsError)
 
@@ -40,20 +41,7 @@ export const listsRoutes = new Hono()
   .post('/:profileId', zValidator('form', ListCreateSchema), async (c) => {
     const profileId = c.req.param('profileId')
     const supabase = getSupabase(c)
-    // const body = await c.req.json()
     const { name, description } = c.req.valid('form') // TODO: add list type
-    console.log('API: Creating list for profile:', profileId, {
-      name,
-      description,
-    })
-    // const { error } = ListCreateSchema.safeParse(body)
-
-    // if (error) {
-    //   throw new HTTPException(400, {
-    //     message: error.message,
-    //     cause: { form: true },
-    //   })
-    // }
 
     // count existing lists belonging to this profile
     const { count, error: countError } = await supabase
@@ -77,7 +65,6 @@ export const listsRoutes = new Hono()
 
     // generate the slug from the name
     const generatedSlug = slugify(name)
-    console.log('API Generated slug:', generatedSlug)
 
     // ensure the slug is unique to this user's lists.
     const { data: existingList, error: existingError } = await supabase
@@ -117,8 +104,7 @@ export const listsRoutes = new Hono()
 
     if (insertError) {
       throw new HTTPException(500, {
-        message: insertError.message,
-        // 'Failed to create your list'
+        message: 'Failed to create your list',
       })
     }
 
