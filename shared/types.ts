@@ -1,9 +1,5 @@
 import { z } from 'zod'
 
-import type { ApiRoutes } from '../server/app'
-
-export { type ApiRoutes }
-
 export type AppEnv = {
   APP_BASE_URL: string
   SUPABASE_URL: string

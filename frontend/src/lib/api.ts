@@ -1,8 +1,6 @@
-import { hc } from 'hono/client'
+import { hcWithType } from '@server/hc'
 
-import { type ApiRoutes } from '@shared/types'
-
-export const client = hc<ApiRoutes>('/', {
+export const client = hcWithType('/', {
   fetch: (input: RequestInfo | URL, init?: RequestInit) =>
     fetch(input, {
       ...init,
