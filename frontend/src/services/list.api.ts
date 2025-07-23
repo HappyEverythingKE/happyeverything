@@ -4,28 +4,30 @@ import type { ErrorResponse, List, SuccessResponse } from '@shared/types'
 
 import { client } from '@/lib/api'
 
-export const getListsByProfileId = async (profileId: string) => {
-  const res = await client.lists[profileId].$get({})
+export const getListsByProfile = async (profileSlug: string) => {
+  const res = await client.lists[profileSlug].$get({})
 
-  if (!res.ok) {
-    const data = (await res.json()) as ErrorResponse
-    throw new Error(data.error ?? 'Failed to fetch lists')
+  if (res.ok) {
+    const { data } = (await res.json()) as SuccessResponse<List[]>
+    return data
   }
-
-  const { data } = (await res.json()) as SuccessResponse<{ lists: List[] }>
-  return data.lists
+  const data = (await res.json()) as ErrorResponse
+  throw new Error(data.error ?? 'Failed to fetch lists')
 }
 
-export const listQueryOptions = (profileId: string) =>
+export const profileListsQueryOptions = (profileSlug: string) =>
   queryOptions({
-    queryKey: ['lists', profileId],
-    queryFn: () => getListsByProfileId(profileId!),
-    enabled: !!profileId,
+    queryKey: ['lists', profileSlug],
+    queryFn: () => getListsByProfile(profileSlug!),
+    enabled: !!profileSlug,
   })
 
-export const postList = async (profileId: string, listData: Partial<List>) => {
+export const postList = async (
+  profileSlug: string,
+  listData: Partial<List>,
+) => {
   try {
-    const res = await client.lists[profileId].$post({
+    const res = await client.lists[profileSlug].$post({
       form: listData,
     })
 
@@ -45,9 +47,27 @@ export const postList = async (profileId: string, listData: Partial<List>) => {
   }
 }
 
-export function useCreateList(profileId: string) {
+export function useCreateList(profileSlug: string) {
   return useMutation({
     mutationFn: (values: Parameters<typeof postList>[1]) =>
-      postList(profileId, values),
+      postList(profileSlug, values),
   })
 }
+
+export const fetchList = async (profileSlug: string, listSlug: string) => {
+  const res = await client[profileSlug].lists[listSlug].$get({})
+
+  if (res.ok) {
+    const { data } = (await res.json()) as SuccessResponse<List>
+    return data
+  }
+  const data = (await res.json()) as ErrorResponse
+  throw new Error(data.error ?? 'Failed to fetch list')
+}
+
+export const singleListQueryOptions = (profileSlug: string, listSlug: string) =>
+  queryOptions({
+    queryKey: ['listDetail', profileSlug, listSlug],
+    queryFn: () => fetchList(profileSlug, listSlug),
+    enabled: !!profileSlug && !!listSlug,
+  })

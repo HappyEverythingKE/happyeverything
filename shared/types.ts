@@ -31,15 +31,14 @@ export type CurrentUser = {
   name: string
   avatar: string | undefined
   profiles: {
-    id: string
+    // TODO: remove?
     slug: string
     status: string
   }[]
 }
 
 export type List = {
-  id: string
-  profileId: string
+  profileSlug: string
   name: string
   slug: string
   description?: string
@@ -47,6 +46,12 @@ export type List = {
   password?: string
   status: string
   createdAt: string
+}
+
+export type Profile = {
+  slug: string
+  status: string
+  lists?: List[]
 }
 
 export const SignupSchema = z.object({

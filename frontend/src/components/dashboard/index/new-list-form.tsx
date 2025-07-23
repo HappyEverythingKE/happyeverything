@@ -33,7 +33,7 @@ const listTypes = [
 ] as const
 
 interface NewListFormProps {
-  profileId: string
+  profileSlug: string
   onFormSubmit: () => void
   onFormCancel: () => void
 }
@@ -45,13 +45,13 @@ const defaultValues = {
 } as z.infer<typeof ListCreateSchema>
 
 export function NewListForm({
-  profileId,
+  profileSlug,
   onFormSubmit,
   onFormCancel,
 }: NewListFormProps) {
   const router = useRouter()
   const queryClient = useQueryClient()
-  const { mutateAsync, isPending } = useCreateList(profileId)
+  const { mutateAsync, isPending } = useCreateList(profileSlug)
 
   const form = useForm({
     defaultValues: defaultValues,
@@ -60,7 +60,7 @@ export function NewListForm({
       try {
         const res = await mutateAsync(value)
         if (res.success) {
-          queryClient.invalidateQueries({ queryKey: ['lists', profileId] })
+          queryClient.invalidateQueries({ queryKey: ['lists', profileSlug] })
           router.invalidate()
           onFormSubmit()
         } else {

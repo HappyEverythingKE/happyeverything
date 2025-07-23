@@ -1,24 +1,24 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
 
-import { listQueryOptions } from '@/services/list.api'
+import { profileListsQueryOptions } from '@/services/list.api'
 
 import { ListsSkeleton } from '@/components/ui/lists-skeleton'
 import { WithLists } from '@/components/dashboard/index/with-lists'
 import { WithoutLists } from '@/components/dashboard/index/without-lists'
 
-export const Route = createFileRoute('/_authed/dashboard/')({
+export const Route = createFileRoute('/_authed/dashboard/$profileSlug/')({
   component: RouteComponent,
 })
 
 function RouteComponent() {
-  const { profileId } = Route.useRouteContext()
+  const { profile } = Route.useRouteContext()
 
   const {
     data: lists,
     isLoading,
     isError,
-  } = useQuery(listQueryOptions(profileId))
+  } = useQuery(profileListsQueryOptions(profile.slug))
 
   const hasLists = lists && lists.length > 0
 
@@ -33,7 +33,7 @@ function RouteComponent() {
       ) : hasLists ? (
         <WithLists lists={lists} />
       ) : (
-        <WithoutLists profileId={profileId} />
+        <WithoutLists profileSlug={profile.slug} />
       )}
     </div>
   )

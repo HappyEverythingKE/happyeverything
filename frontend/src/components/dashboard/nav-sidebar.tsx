@@ -4,7 +4,7 @@ import * as React from 'react'
 import { Link } from '@tanstack/react-router'
 
 import IconLogo from '@/assets/logos/logo-icon.svg'
-import type { CurrentUser, List } from '@shared/types'
+import type { CurrentUser, Profile } from '@shared/types'
 import { LifeBuoy, Send } from 'lucide-react'
 
 import {
@@ -40,17 +40,12 @@ const navData = {
 
 interface NavSidebarProps extends React.ComponentProps<typeof Sidebar> {
   user: CurrentUser
-  lists: List[]
-  profileId: string
+  profile: Profile
 }
 
-export function NavSidebar({
-  user,
-  lists,
-  profileId,
-  ...props
-}: NavSidebarProps) {
-  const listNavItems = (lists ?? []).map((list) => ({
+export function NavSidebar({ user, profile, ...props }: NavSidebarProps) {
+  // TODO: fetch lists from API?
+  const listNavItems = (profile.lists ?? []).map((list) => ({
     title: list.name,
     slug: list.slug,
     isActive: false,
@@ -62,7 +57,10 @@ export function NavSidebar({
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild className="active:bg-sidebar">
-              <Link to="/dashboard">
+              <Link
+                to="/dashboard/$profileSlug"
+                params={{ profileSlug: profile.slug }}
+              >
                 <div className="flex items-center justify-center">
                   <img
                     src={IconLogo}
@@ -78,7 +76,7 @@ export function NavSidebar({
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent className="pt-4">
-        <NavMain profileId={profileId} items={listNavItems} />
+        <NavMain profileSlug={profile.slug} items={listNavItems} />
       </SidebarContent>
       <SidebarSeparator />
       <NavSecondary items={navData.navSecondary} />

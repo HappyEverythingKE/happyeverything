@@ -17,10 +17,10 @@ import {
 import { NewListForm } from '@/components/dashboard/index/new-list-form'
 
 export function NavMain({
-  profileId,
+  profileSlug,
   items,
 }: {
-  profileId: string
+  profileSlug: string
   items: {
     title: string
     slug: string
@@ -36,6 +36,26 @@ export function NavMain({
   const handleCancel = () => {
     setIsSheetOpen(false)
   }
+
+  // TODO: add skeleton loading state for nav and profile switcher: https://ui.shadcn.com/blocks/sidebar
+  //   const { data, isLoading } = useQuery()
+
+  // if (isLoading) {
+  //   return (
+  //     <SidebarMenu>
+  //       {Array.from({ length: 5 }).map((_, index) => (
+  //         <SidebarMenuItem key={index}>
+  //           <SidebarMenuSkeleton showIcon />
+  //         </SidebarMenuItem>
+  //       ))}
+  //     </SidebarMenu>
+  //   )
+  // }
+
+  // if (!data) {
+  //   return ...
+  // }
+
   return (
     <>
       <SidebarGroup>
@@ -54,8 +74,8 @@ export function NavMain({
             <SidebarMenuItem key={item.title}>
               <SidebarMenuButton asChild isActive={item.isActive}>
                 <Link
-                  to="/dashboard/lists/$listSlug"
-                  params={{ listSlug: item.slug }}
+                  to="/dashboard/$profileSlug/lists/$listSlug"
+                  params={{ profileSlug: profileSlug, listSlug: item.slug }}
                 >
                   <Gift />
                   <span>{item.title}</span>
@@ -69,7 +89,7 @@ export function NavMain({
       {/* Sheet Form */}
       <SheetForm isOpen={isSheetOpen} onClose={handleCancel} title="New List">
         <NewListForm
-          profileId={profileId}
+          profileSlug={profileSlug}
           onFormSubmit={handleSubmit}
           onFormCancel={handleCancel}
         />

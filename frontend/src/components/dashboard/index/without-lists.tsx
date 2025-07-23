@@ -7,7 +7,7 @@ import { Card, CardHeader, CardTitle } from '@/components/ui/card'
 import { SheetForm } from '@/components/ui/sheet-form'
 import { NewListForm } from '@/components/dashboard/index/new-list-form'
 
-export const WithoutLists = ({ profileId }: { profileId: string }) => {
+export const WithoutLists = ({ profileSlug }: { profileSlug: string }) => {
   const [isSheetOpen, setIsSheetOpen] = useState(false)
 
   const handleSubmit = () => {
@@ -72,7 +72,7 @@ export const WithoutLists = ({ profileId }: { profileId: string }) => {
       {/* Sheet Form */}
       <SheetForm isOpen={isSheetOpen} onClose={handleCancel} title="New List">
         <NewListForm
-          profileId={profileId}
+          profileSlug={profileSlug}
           onFormSubmit={handleSubmit}
           onFormCancel={handleCancel}
         />
