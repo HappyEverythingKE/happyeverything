@@ -17,7 +17,7 @@ export const getListsByProfile = async (profileSlug: string) => {
 
 export const profileListsQueryOptions = (profileSlug: string) =>
   queryOptions({
-    queryKey: ['lists', profileSlug],
+    queryKey: [profileSlug, 'lists'],
     queryFn: () => getListsByProfile(profileSlug!),
     enabled: !!profileSlug,
   })
@@ -55,7 +55,7 @@ export function useCreateList(profileSlug: string) {
 }
 
 export const fetchList = async (profileSlug: string, listSlug: string) => {
-  const res = await client[profileSlug].lists[listSlug].$get({})
+  const res = await client.lists[profileSlug].lists[listSlug].$get({})
 
   if (res.ok) {
     const { data } = (await res.json()) as SuccessResponse<List>

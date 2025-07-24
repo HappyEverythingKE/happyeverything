@@ -12,13 +12,13 @@ export const Route = createFileRoute('/_authed/dashboard/$profileSlug/')({
 })
 
 function RouteComponent() {
-  const { profile } = Route.useRouteContext()
+  const { selectedProfile } = Route.useRouteContext()
 
   const {
     data: lists,
     isLoading,
     isError,
-  } = useQuery(profileListsQueryOptions(profile.slug))
+  } = useQuery(profileListsQueryOptions(selectedProfile.slug))
 
   const hasLists = lists && lists.length > 0
 
@@ -31,9 +31,9 @@ function RouteComponent() {
       {isLoading ? (
         <ListsSkeleton />
       ) : hasLists ? (
-        <WithLists lists={lists} />
+        <WithLists profileSlug={selectedProfile.slug} lists={lists} />
       ) : (
-        <WithoutLists profileSlug={profile.slug} />
+        <WithoutLists profileSlug={selectedProfile.slug} />
       )}
     </div>
   )

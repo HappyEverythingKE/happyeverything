@@ -2,7 +2,9 @@
 
 import { useState } from 'react'
 import { Link } from '@tanstack/react-router'
+import { useQuery } from '@tanstack/react-query'
 
+import { profileListsQueryOptions } from '@/services/list.api'
 import { Gift, PlusCircle } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
@@ -13,48 +15,45 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarMenuSkeleton,
 } from '@/components/ui/sidebar'
 import { NewListForm } from '@/components/dashboard/index/new-list-form'
 
-export function NavMain({
-  profileSlug,
-  items,
-}: {
-  profileSlug: string
-  items: {
-    title: string
-    slug: string
-    isActive?: boolean
-  }[]
-}) {
+export function NavMain({ profileSlug }: { profileSlug: string }) {
   const [isSheetOpen, setIsSheetOpen] = useState(false)
 
-  const handleSubmit = () => {
-    setIsSheetOpen(false)
+  const { data: lists, isLoading } = useQuery(
+    profileListsQueryOptions(profileSlug),
+  )
+
+  const handleSubmit = () => setIsSheetOpen(false)
+  const handleCancel = () => setIsSheetOpen(false)
+
+  if (isLoading) {
+    return (
+      <SidebarMenu>
+        {Array.from({ length: 3 }).map((_, index) => (
+          <SidebarMenuItem key={index}>
+            <SidebarMenuSkeleton showIcon />
+          </SidebarMenuItem>
+        ))}
+      </SidebarMenu>
+    )
   }
 
-  const handleCancel = () => {
-    setIsSheetOpen(false)
+  if (!lists || lists.length === 0) {
+    return (
+      <SidebarGroup>
+        <SidebarGroupLabel>No wish lists</SidebarGroupLabel>
+        <SidebarMenuItem>
+          <SidebarMenuButton disabled>
+            <Gift />
+            <span>Nothing here yet</span>
+          </SidebarMenuButton>
+        </SidebarMenuItem>
+      </SidebarGroup>
+    )
   }
-
-  // TODO: add skeleton loading state for nav and profile switcher: https://ui.shadcn.com/blocks/sidebar
-  //   const { data, isLoading } = useQuery()
-
-  // if (isLoading) {
-  //   return (
-  //     <SidebarMenu>
-  //       {Array.from({ length: 5 }).map((_, index) => (
-  //         <SidebarMenuItem key={index}>
-  //           <SidebarMenuSkeleton showIcon />
-  //         </SidebarMenuItem>
-  //       ))}
-  //     </SidebarMenu>
-  //   )
-  // }
-
-  // if (!data) {
-  //   return ...
-  // }
 
   return (
     <>
@@ -70,15 +69,15 @@ export function NavMain({
       <SidebarGroup>
         <SidebarGroupLabel>Your wish lists</SidebarGroupLabel>
         <SidebarMenu>
-          {items.map((item) => (
-            <SidebarMenuItem key={item.title}>
-              <SidebarMenuButton asChild isActive={item.isActive}>
+          {lists.map((item) => (
+            <SidebarMenuItem key={item.slug}>
+              <SidebarMenuButton asChild isActive={false}>
                 <Link
                   to="/dashboard/$profileSlug/lists/$listSlug"
-                  params={{ profileSlug: profileSlug, listSlug: item.slug }}
+                  params={{ profileSlug, listSlug: item.slug }}
                 >
                   <Gift />
-                  <span>{item.title}</span>
+                  <span>{item.name}</span>
                 </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>

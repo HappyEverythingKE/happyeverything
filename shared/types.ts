@@ -30,11 +30,6 @@ export type CurrentUser = {
   email: string
   name: string
   avatar: string | undefined
-  profiles: {
-    // TODO: remove?
-    slug: string
-    status: string
-  }[]
 }
 
 export type List = {

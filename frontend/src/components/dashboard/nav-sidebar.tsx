@@ -22,6 +22,8 @@ import { NavMain } from '@/components/dashboard/nav-main'
 import { NavSecondary } from '@/components/dashboard/nav-secondary'
 import { NavUser } from '@/components/dashboard/nav-user'
 
+import { ProfileSwitcher } from './profile-switcher'
+
 // Sidebar nav data
 const navData = {
   navSecondary: [
@@ -40,17 +42,16 @@ const navData = {
 
 interface NavSidebarProps extends React.ComponentProps<typeof Sidebar> {
   user: CurrentUser
-  profile: Profile
+  selectedProfile: Profile
+  allProfiles: Profile[]
 }
 
-export function NavSidebar({ user, profile, ...props }: NavSidebarProps) {
-  // TODO: fetch lists from API?
-  const listNavItems = (profile.lists ?? []).map((list) => ({
-    title: list.name,
-    slug: list.slug,
-    isActive: false,
-  }))
-
+export function NavSidebar({
+  user,
+  selectedProfile,
+  allProfiles,
+  ...props
+}: NavSidebarProps) {
   return (
     <Sidebar variant="inset" collapsible="icon" {...props}>
       <SidebarHeader>
@@ -59,7 +60,7 @@ export function NavSidebar({ user, profile, ...props }: NavSidebarProps) {
             <SidebarMenuButton size="lg" asChild className="active:bg-sidebar">
               <Link
                 to="/dashboard/$profileSlug"
-                params={{ profileSlug: profile.slug }}
+                params={{ profileSlug: selectedProfile.slug }}
               >
                 <div className="flex items-center justify-center">
                   <img
@@ -74,9 +75,15 @@ export function NavSidebar({ user, profile, ...props }: NavSidebarProps) {
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
+
+        {/*  profile switcher */}
+        <ProfileSwitcher
+          profiles={allProfiles}
+          currentSlug={selectedProfile.slug}
+        />
       </SidebarHeader>
       <SidebarContent className="pt-4">
-        <NavMain profileSlug={profile.slug} items={listNavItems} />
+        <NavMain profileSlug={selectedProfile.slug} />
       </SidebarContent>
       <SidebarSeparator />
       <NavSecondary items={navData.navSecondary} />

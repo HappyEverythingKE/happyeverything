@@ -9,34 +9,36 @@ import { NavSidebar } from '@/components/dashboard/nav-sidebar'
 export const Route = createFileRoute('/_authed/dashboard/$profileSlug')({
   beforeLoad: async ({ context, params }) => {
     const queryClient = context.queryClient
-    const user = context.user
+    const allProfiles = context.profiles
 
     const profileSlug = params.profileSlug
-    const profile = user.profiles.find(
+    const selectedProfile = allProfiles.find(
       (profile) => profile.slug === profileSlug,
     )
 
-    if (!profile) {
+    if (!selectedProfile) {
       throw new Error('Profile not found')
     }
 
-    await queryClient.ensureQueryData(profileListsQueryOptions(profile.slug))
+    // load lists for the profile
+    await queryClient.ensureQueryData(profileListsQueryOptions(profileSlug))
 
-    return {
-      user,
-      profile,
-    }
+    return { selectedProfile, allProfiles }
   },
   component: RouteComponent,
 })
 
 function RouteComponent() {
-  const { user, profile } = Route.useRouteContext()
+  const { user, selectedProfile, allProfiles } = Route.useRouteContext()
 
   return (
     <>
       <SidebarProvider>
-        <NavSidebar user={user} profile={profile} />
+        <NavSidebar
+          user={user}
+          selectedProfile={selectedProfile}
+          allProfiles={allProfiles}
+        />
         <SidebarInset>
           <NavHeader user={user} />
           <main className="flex-1">

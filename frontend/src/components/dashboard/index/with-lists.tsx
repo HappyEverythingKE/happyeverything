@@ -1,12 +1,15 @@
+import { Link } from '@tanstack/react-router'
+
 import type { List } from '@shared/types'
 
 import { Button } from '@/components/ui/button'
 
 interface WithListsProps {
+  profileSlug: string
   lists: List[]
 }
 
-export function WithLists({ lists }: WithListsProps) {
+export function WithLists({ profileSlug, lists }: WithListsProps) {
   return (
     <div className="w-full px-8 py-4">
       <h4 className="mb-4 text-lg font-semibold">Your wish lists</h4>
@@ -32,12 +35,13 @@ export function WithLists({ lists }: WithListsProps) {
                   )}
                 </div>
                 <div className="grid">
-                  <Button
-                    variant="outline"
-                    className="mt-2 w-full"
-                    onClick={() => console.log(`View list: ${list.slug}`)}
-                  >
-                    View List
+                  <Button variant="outline" className="mt-2 w-full" asChild>
+                    <Link
+                      to="/dashboard/$profileSlug/lists/$listSlug"
+                      params={{ profileSlug, listSlug: list.slug }}
+                    >
+                      View List
+                    </Link>
                   </Button>
                 </div>
               </div>

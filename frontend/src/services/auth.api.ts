@@ -90,7 +90,7 @@ export const sessionQueryOptions = queryOptions({
   staleTime: Infinity,
 })
 
-export const getCurrentUserProfile = async () => {
+export const getCurrentUser = async () => {
   const res = await client.auth.me.$get({})
 
   if (res.ok) {
@@ -101,9 +101,9 @@ export const getCurrentUserProfile = async () => {
   throw new Error(data.error ?? 'Failed to fetch user')
 }
 
-export const profileQueryOptions = queryOptions({
+export const userQueryOptions = queryOptions({
   queryKey: ['current-user'],
-  queryFn: getCurrentUserProfile,
+  queryFn: getCurrentUser,
 })
 
 export const getLogout = async () => {

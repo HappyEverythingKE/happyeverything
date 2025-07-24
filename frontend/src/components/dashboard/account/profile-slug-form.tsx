@@ -1,8 +1,7 @@
-import { useNavigate, useRouter } from '@tanstack/react-router'
+import { useNavigate } from '@tanstack/react-router'
 import { useForm } from '@tanstack/react-form'
-import { useQueryClient } from '@tanstack/react-query'
 
-import { postProfile } from '@/services/profile.api'
+import { useCreateProfile } from '@/services/profile.api'
 import { ProfileSlugSchema } from '@shared/types'
 import { toast } from 'sonner'
 import type { z } from 'zod'
@@ -23,40 +22,56 @@ const defaultValues = {
 } as z.infer<typeof ProfileSlugSchema>
 
 export function ProfileSlugForm() {
-  const router = useRouter()
-  const queryClient = useQueryClient()
   const navigate = useNavigate()
+  const { mutateAsync: createProfile } = useCreateProfile()
 
   const form = useForm({
     defaultValues: defaultValues,
     validators: { onChange: ProfileSlugSchema },
     onSubmit: async ({ value }) => {
-      const res = await postProfile(value.slug)
-      if (res.success) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        queryClient.setQueryData(['current-user'], (prev: any) => {
-          if (!prev?.data) return prev
-          return {
-            ...prev,
-            data: {
-              ...prev.data,
-              slug: res.data.slug,
-            },
-          }
-        })
-
-        router.invalidate()
-        navigate({
-          to: '/dashboard/$profileSlug',
-          params: { profileSlug: res.data.slug },
-        })
-      } else {
-        toast.error('An error occured', { description: res.error })
-        form.setErrorMap({
-          // @ts-expect-error error is a string but onSubmit expects an object mapping to the fields
-          onSubmit: res.error || 'Unexpected error',
-        })
+      try {
+        const res = await createProfile(value.slug)
+        if (res.success) {
+          navigate({
+            to: '/dashboard/$profileSlug',
+            params: { profileSlug: res.data.slug },
+          })
+        } else {
+          toast.error('An error occurred', { description: res.error })
+          form.setErrorMap({
+            // @ts-expect-error error is a string but onSubmit expects an object mapping to the fields
+            onSubmit: res.error || 'Unexpected error',
+          })
+        }
+      } catch (error) {
+        console.error('Error creating list:', error)
+        toast.error('Failed to create list.')
       }
+      // const res = await postProfile(value.slug)
+      // if (res.success) {
+      //   // // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      //   // queryClient.setQueryData(['current-user'], (prev: any) => {
+      //   //   if (!prev?.data) return prev
+      //   //   return {
+      //   //     ...prev,
+      //   //     data: {
+      //   //       ...prev.data,
+      //   //       slug: res.data.slug,
+      //   //     },
+      //   //   }
+      //   // })
+
+      // navigate({
+      //   to: '/dashboard/$profileSlug',
+      //   params: { profileSlug: res.data.slug },
+      // })
+      // } else {
+      // toast.error('An error occured', { description: res.error })
+      // form.setErrorMap({
+      //   // @ts-expect-error error is a string but onSubmit expects an object mapping to the fields
+      //   onSubmit: res.error || 'Unexpected error',
+      // })
+      // }
     },
   })
 

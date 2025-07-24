@@ -1,3 +1,10 @@
+import { useRouter } from '@tanstack/react-router'
+import {
+  queryOptions,
+  useMutation,
+  useQueryClient,
+} from '@tanstack/react-query'
+
 import type { ErrorResponse, Profile, SuccessResponse } from '@shared/types'
 
 import { client } from '@/lib/api'
@@ -25,6 +32,19 @@ export const postProfile = async (slug: string) => {
   }
 }
 
+export const useCreateProfile = () => {
+  const queryClient = useQueryClient()
+  const router = useRouter()
+
+  return useMutation({
+    mutationFn: postProfile,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['profiles'] })
+      router.invalidate()
+    },
+  })
+}
+
 export const getProfiles = async () => {
   const res = await client.profile.$get({})
 
@@ -36,3 +56,9 @@ export const getProfiles = async () => {
   const data = (await res.json()) as ErrorResponse
   throw new Error(data.error ?? 'Failed to fetch profiles')
 }
+
+export const allProfilesQueryOptions = queryOptions({
+  queryKey: ['profiles'],
+  queryFn: getProfiles,
+  staleTime: Infinity,
+})

@@ -1,6 +1,7 @@
 import { createFileRoute, Outlet, redirect } from '@tanstack/react-router'
 
-import { profileQueryOptions } from '@/services/auth.api'
+import { userQueryOptions } from '@/services/auth.api'
+import { allProfilesQueryOptions } from '@/services/profile.api'
 
 import { useAuthSubscription } from '@/hooks/use-auth-subscription'
 
@@ -10,15 +11,16 @@ export const Route = createFileRoute('/_authed')({
       throw redirect({ to: '/login' })
     }
 
-    const data = await context.queryClient.fetchQuery(profileQueryOptions)
+    const user = await context.queryClient.fetchQuery(userQueryOptions)
+    const profiles = await context.queryClient.fetchQuery(
+      allProfilesQueryOptions,
+    )
 
-    if (data.profiles.length === 0) {
+    if (profiles.length === 0) {
       throw redirect({ to: '/onboarding' })
     }
 
-    return {
-      user: data,
-    }
+    return { user, profiles }
   },
   component: RouteComponent,
 })

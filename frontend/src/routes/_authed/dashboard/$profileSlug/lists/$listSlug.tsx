@@ -10,7 +10,7 @@ export const Route = createFileRoute(
   '/_authed/dashboard/$profileSlug/lists/$listSlug',
 )({
   loader: async ({ context, params }) => {
-    const list = await context.queryClient.ensureQueryData(
+    const list = await context.queryClient.fetchQuery(
       singleListQueryOptions(params.profileSlug, params.listSlug),
     )
     return { list }

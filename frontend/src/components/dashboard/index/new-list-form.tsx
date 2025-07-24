@@ -51,14 +51,14 @@ export function NewListForm({
 }: NewListFormProps) {
   const router = useRouter()
   const queryClient = useQueryClient()
-  const { mutateAsync, isPending } = useCreateList(profileSlug)
+  const { mutateAsync: createList, isPending } = useCreateList(profileSlug)
 
   const form = useForm({
     defaultValues: defaultValues,
     validators: { onChange: ListCreateSchema },
     onSubmit: async ({ value }) => {
       try {
-        const res = await mutateAsync(value)
+        const res = await createList(value)
         if (res.success) {
           queryClient.invalidateQueries({ queryKey: ['lists', profileSlug] })
           router.invalidate()
