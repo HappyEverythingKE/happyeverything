@@ -60,7 +60,7 @@ export function NewListForm({
       try {
         const res = await createList(value)
         if (res.success) {
-          queryClient.invalidateQueries({ queryKey: ['lists', profileSlug] })
+          queryClient.invalidateQueries({ queryKey: [profileSlug, 'lists'] })
           router.invalidate()
           onFormSubmit()
         } else {

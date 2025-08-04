@@ -4,7 +4,7 @@ import { useNavigate, useRouter } from '@tanstack/react-router'
 import { useQueryClient } from '@tanstack/react-query'
 
 import { getLogout } from '@/services/auth.api'
-import type { CurrentUser } from '@shared/types'
+import type { CurrentUser, Profile } from '@shared/types'
 import { BadgeCheck, Bell, ChevronsUpDown, LogOut } from 'lucide-react'
 
 import { supabase } from '@/lib/supabase'
@@ -24,6 +24,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from '@/components/ui/sidebar'
+import { ProfileSwitcher } from '@/components/dashboard/profile-switcher'
 
 const prettifyInitials = (name: string | undefined) => {
   if (!name) return '^_^'
@@ -35,7 +36,15 @@ const prettifyInitials = (name: string | undefined) => {
     .toUpperCase()
 }
 
-export function NavUser({ user }: { user: CurrentUser }) {
+export function NavUser({
+  user,
+  profiles,
+  currentSlug,
+}: {
+  user: CurrentUser
+  profiles: Profile[]
+  currentSlug: string
+}) {
   const { isMobile } = useSidebar()
   const navigate = useNavigate()
   const router = useRouter()
@@ -95,6 +104,7 @@ export function NavUser({ user }: { user: CurrentUser }) {
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
+              <ProfileSwitcher profiles={profiles} currentSlug={currentSlug} />
               <DropdownMenuItem>
                 <BadgeCheck />
                 Account

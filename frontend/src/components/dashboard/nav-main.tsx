@@ -69,7 +69,10 @@ export function NavMain({ profileSlug }: { profileSlug: string }) {
         <SidebarMenu>
           {lists.map((item) => (
             <SidebarMenuItem key={item.slug}>
-              <SidebarMenuButton asChild isActive={false}>
+              <SidebarMenuButton
+                asChild
+                isActive={location.pathname.includes(item.slug)}
+              >
                 <Link
                   to="/dashboard/$profileSlug/lists/$listSlug"
                   params={{ profileSlug, listSlug: item.slug }}

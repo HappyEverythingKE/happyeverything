@@ -3,8 +3,9 @@
 import { Link } from '@tanstack/react-router'
 
 import type { Profile } from '@shared/types'
-import { ChevronsUpDown, Plus, User } from 'lucide-react'
+import { AtSign, ChevronsUpDown, Plus } from 'lucide-react'
 
+import { cn } from '@/lib/utils'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -37,18 +38,10 @@ export function ProfileSwitcher({
       <SidebarMenuItem>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <SidebarMenuButton
-              size="lg"
-              className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
-            >
-              <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
-                <User className="size-4" />
-              </div>
-              <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-medium">
-                  {activeProfile.slug}
-                </span>
-                <span className="truncate text-xs">Profile</span>
+            <SidebarMenuButton className="data-[state=open]:bg-muted data-[state=open]:text-muted-foreground">
+              <div className="flex items-center gap-2">
+                <AtSign className="size-4" />
+                <span className="text-sm">Profiles</span>
               </div>
               <ChevronsUpDown className="ml-auto" />
             </SidebarMenuButton>
@@ -68,19 +61,19 @@ export function ProfileSwitcher({
               <DropdownMenuItem
                 asChild
                 key={profile.slug}
-                className="gap-2 p-2"
+                className={cn(
+                  'gap-2 p-2',
+                  profile.slug === currentSlug && 'bg-accent',
+                )}
               >
                 <Link
                   to="/dashboard/$profileSlug"
                   params={{ profileSlug: profile.slug }}
                 >
-                  <div className="flex size-6 items-center justify-center rounded-md border">
-                    <User className="size-3.5 shrink-0" />
+                  <div className="size-4.5 flex items-center justify-center rounded-md border border-black/80">
+                    {index + 1}
                   </div>
                   {profile.slug}
-                  <div className="text-muted-foreground ml-auto text-xs">
-                    ⌘{index + 1}
-                  </div>
                 </Link>
               </DropdownMenuItem>
             ))}

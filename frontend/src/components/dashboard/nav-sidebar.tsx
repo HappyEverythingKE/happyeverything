@@ -22,8 +22,6 @@ import { NavMain } from '@/components/dashboard/nav-main'
 import { NavSecondary } from '@/components/dashboard/nav-secondary'
 import { NavUser } from '@/components/dashboard/nav-user'
 
-import { ProfileSwitcher } from './profile-switcher'
-
 // Sidebar nav data
 const navData = {
   navSecondary: [
@@ -75,12 +73,6 @@ export function NavSidebar({
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
-
-        {/*  profile switcher */}
-        <ProfileSwitcher
-          profiles={allProfiles}
-          currentSlug={selectedProfile.slug}
-        />
       </SidebarHeader>
       <SidebarContent className="pt-4">
         <NavMain profileSlug={selectedProfile.slug} />
@@ -89,7 +81,11 @@ export function NavSidebar({
       <NavSecondary items={navData.navSecondary} />
       <SidebarSeparator />
       <SidebarFooter>
-        <NavUser user={user} />
+        <NavUser
+          user={user}
+          profiles={allProfiles}
+          currentSlug={selectedProfile.slug}
+        />
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>
