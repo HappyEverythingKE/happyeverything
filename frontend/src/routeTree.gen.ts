@@ -19,6 +19,7 @@ import { Route as MarketingImport } from './routes/_marketing'
 import { Route as AuthedImport } from './routes/_authed'
 import { Route as MarketingIndexImport } from './routes/_marketing.index'
 import { Route as MarketingContactImport } from './routes/_marketing.contact'
+import { Route as AuthedDashboardRouteImport } from './routes/_authed/dashboard/route'
 import { Route as AuthedDashboardProfileSlugRouteImport } from './routes/_authed/dashboard/$profileSlug/route'
 import { Route as AuthedDashboardProfileSlugIndexImport } from './routes/_authed/dashboard/$profileSlug/index'
 import { Route as AuthedDashboardProfileSlugListsListSlugImport } from './routes/_authed/dashboard/$profileSlug/lists/$listSlug'
@@ -71,11 +72,17 @@ const MarketingContactRoute = MarketingContactImport.update({
   getParentRoute: () => MarketingRoute,
 } as any)
 
+const AuthedDashboardRouteRoute = AuthedDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => AuthedRoute,
+} as any)
+
 const AuthedDashboardProfileSlugRouteRoute =
   AuthedDashboardProfileSlugRouteImport.update({
-    id: '/dashboard/$profileSlug',
-    path: '/dashboard/$profileSlug',
-    getParentRoute: () => AuthedRoute,
+    id: '/$profileSlug',
+    path: '/$profileSlug',
+    getParentRoute: () => AuthedDashboardRouteRoute,
   } as any)
 
 const AuthedDashboardProfileSlugIndexRoute =
@@ -138,6 +145,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SignupImport
       parentRoute: typeof rootRoute
     }
+    '/_authed/dashboard': {
+      id: '/_authed/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof AuthedDashboardRouteImport
+      parentRoute: typeof AuthedImport
+    }
     '/_marketing/contact': {
       id: '/_marketing/contact'
       path: '/contact'
@@ -154,10 +168,10 @@ declare module '@tanstack/react-router' {
     }
     '/_authed/dashboard/$profileSlug': {
       id: '/_authed/dashboard/$profileSlug'
-      path: '/dashboard/$profileSlug'
+      path: '/$profileSlug'
       fullPath: '/dashboard/$profileSlug'
       preLoaderRoute: typeof AuthedDashboardProfileSlugRouteImport
-      parentRoute: typeof AuthedImport
+      parentRoute: typeof AuthedDashboardRouteImport
     }
     '/_authed/dashboard/$profileSlug/': {
       id: '/_authed/dashboard/$profileSlug/'
@@ -195,13 +209,24 @@ const AuthedDashboardProfileSlugRouteRouteWithChildren =
     AuthedDashboardProfileSlugRouteRouteChildren,
   )
 
-interface AuthedRouteChildren {
+interface AuthedDashboardRouteRouteChildren {
   AuthedDashboardProfileSlugRouteRoute: typeof AuthedDashboardProfileSlugRouteRouteWithChildren
 }
 
-const AuthedRouteChildren: AuthedRouteChildren = {
+const AuthedDashboardRouteRouteChildren: AuthedDashboardRouteRouteChildren = {
   AuthedDashboardProfileSlugRouteRoute:
     AuthedDashboardProfileSlugRouteRouteWithChildren,
+}
+
+const AuthedDashboardRouteRouteWithChildren =
+  AuthedDashboardRouteRoute._addFileChildren(AuthedDashboardRouteRouteChildren)
+
+interface AuthedRouteChildren {
+  AuthedDashboardRouteRoute: typeof AuthedDashboardRouteRouteWithChildren
+}
+
+const AuthedRouteChildren: AuthedRouteChildren = {
+  AuthedDashboardRouteRoute: AuthedDashboardRouteRouteWithChildren,
 }
 
 const AuthedRouteWithChildren =
@@ -227,6 +252,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/onboarding': typeof OnboardingRoute
   '/signup': typeof SignupRoute
+  '/dashboard': typeof AuthedDashboardRouteRouteWithChildren
   '/contact': typeof MarketingContactRoute
   '/': typeof MarketingIndexRoute
   '/dashboard/$profileSlug': typeof AuthedDashboardProfileSlugRouteRouteWithChildren
@@ -240,6 +266,7 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/onboarding': typeof OnboardingRoute
   '/signup': typeof SignupRoute
+  '/dashboard': typeof AuthedDashboardRouteRouteWithChildren
   '/contact': typeof MarketingContactRoute
   '/': typeof MarketingIndexRoute
   '/dashboard/$profileSlug': typeof AuthedDashboardProfileSlugIndexRoute
@@ -254,6 +281,7 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/onboarding': typeof OnboardingRoute
   '/signup': typeof SignupRoute
+  '/_authed/dashboard': typeof AuthedDashboardRouteRouteWithChildren
   '/_marketing/contact': typeof MarketingContactRoute
   '/_marketing/': typeof MarketingIndexRoute
   '/_authed/dashboard/$profileSlug': typeof AuthedDashboardProfileSlugRouteRouteWithChildren
@@ -269,6 +297,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/onboarding'
     | '/signup'
+    | '/dashboard'
     | '/contact'
     | '/'
     | '/dashboard/$profileSlug'
@@ -281,6 +310,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/onboarding'
     | '/signup'
+    | '/dashboard'
     | '/contact'
     | '/'
     | '/dashboard/$profileSlug'
@@ -293,6 +323,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/onboarding'
     | '/signup'
+    | '/_authed/dashboard'
     | '/_marketing/contact'
     | '/_marketing/'
     | '/_authed/dashboard/$profileSlug'
@@ -340,7 +371,7 @@ export const routeTree = rootRoute
     "/_authed": {
       "filePath": "_authed.tsx",
       "children": [
-        "/_authed/dashboard/$profileSlug"
+        "/_authed/dashboard"
       ]
     },
     "/_marketing": {
@@ -362,6 +393,13 @@ export const routeTree = rootRoute
     "/signup": {
       "filePath": "signup.tsx"
     },
+    "/_authed/dashboard": {
+      "filePath": "_authed/dashboard/route.tsx",
+      "parent": "/_authed",
+      "children": [
+        "/_authed/dashboard/$profileSlug"
+      ]
+    },
     "/_marketing/contact": {
       "filePath": "_marketing.contact.tsx",
       "parent": "/_marketing"
@@ -372,7 +410,7 @@ export const routeTree = rootRoute
     },
     "/_authed/dashboard/$profileSlug": {
       "filePath": "_authed/dashboard/$profileSlug/route.tsx",
-      "parent": "/_authed",
+      "parent": "/_authed/dashboard",
       "children": [
         "/_authed/dashboard/$profileSlug/",
         "/_authed/dashboard/$profileSlug/lists/$listSlug"

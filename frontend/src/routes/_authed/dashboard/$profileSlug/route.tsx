@@ -25,6 +25,9 @@ export const Route = createFileRoute('/_authed/dashboard/$profileSlug')({
 
     return { selectedProfile, allProfiles }
   },
+  loader: () => ({
+    crumb: 'Home',
+  }),
   component: RouteComponent,
 })
 

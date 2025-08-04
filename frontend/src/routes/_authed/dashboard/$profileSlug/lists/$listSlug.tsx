@@ -13,7 +13,7 @@ export const Route = createFileRoute(
     const list = await context.queryClient.fetchQuery(
       singleListQueryOptions(params.profileSlug, params.listSlug),
     )
-    return { list }
+    return { list, crumb: list.name }
   },
   component: RouteComponent,
 })

@@ -44,13 +44,11 @@ export function NavMain({ profileSlug }: { profileSlug: string }) {
   if (!lists || lists.length === 0) {
     return (
       <SidebarGroup>
-        <SidebarGroupLabel>No wish lists</SidebarGroupLabel>
-        <SidebarMenuItem>
-          <SidebarMenuButton disabled>
-            <Gift />
-            <span>Nothing here yet</span>
-          </SidebarMenuButton>
-        </SidebarMenuItem>
+        <SidebarGroupLabel>Your wish lists</SidebarGroupLabel>
+        <SidebarMenuButton disabled>
+          <Gift />
+          <span>Nothing here yet</span>
+        </SidebarMenuButton>
       </SidebarGroup>
     )
   }
