@@ -38,7 +38,7 @@ export function ProfileSwitcher({
       <SidebarMenuItem>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <SidebarMenuButton className="data-[state=open]:bg-muted data-[state=open]:text-muted-foreground">
+            <SidebarMenuButton className="hover:bg-muted data-[state=open]:bg-muted data-[state=open]:text-muted-foreground">
               <div className="flex items-center gap-2">
                 <AtSign className="size-4" />
                 <span className="text-sm">Profiles</span>
@@ -63,15 +63,15 @@ export function ProfileSwitcher({
                 key={profile.slug}
                 className={cn(
                   'gap-2 p-2',
-                  profile.slug === currentSlug && 'bg-accent',
+                  profile.slug === currentSlug && 'bg-sidebar-accent',
                 )}
               >
                 <Link
                   to="/dashboard/$profileSlug"
                   params={{ profileSlug: profile.slug }}
                 >
-                  <div className="size-4.5 flex items-center justify-center rounded-md border border-black/80">
-                    {index + 1}
+                  <div className="flex size-4 items-center justify-center rounded-md border border-black">
+                    <p className="text-xs">{index + 1}</p>
                   </div>
                   {profile.slug}
                 </Link>
@@ -84,9 +84,12 @@ export function ProfileSwitcher({
               <div className="flex size-6 items-center justify-center rounded-md border bg-transparent">
                 <Plus className="size-4" />
               </div>
-              <div className="text-muted-foreground font-medium">
+              <Link
+                to="/onboarding"
+                className="text-muted-foreground font-medium"
+              >
                 Add profile
-              </div>
+              </Link>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

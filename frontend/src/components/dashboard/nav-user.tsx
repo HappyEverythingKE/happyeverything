@@ -65,10 +65,7 @@ export function NavUser({
       <SidebarMenuItem>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <SidebarMenuButton
-              size="lg"
-              className="data-[state=open]:bg-accent data-[state=open]:text-accent-foreground"
-            >
+            <SidebarMenuButton size="lg">
               <Avatar className="h-8 w-8 rounded-lg">
                 <AvatarImage src={user.avatar} alt={'User Avatar'} />
                 <AvatarFallback className="rounded-lg">

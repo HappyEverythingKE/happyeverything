@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Link } from '@tanstack/react-router'
+import { Link, useMatchRoute } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
 
 import { profileListsQueryOptions } from '@/services/list.api'
@@ -20,6 +20,7 @@ import {
 import { NewListForm } from '@/components/dashboard/index/new-list-form'
 
 export function NavMain({ profileSlug }: { profileSlug: string }) {
+  const matchRoute = useMatchRoute()
   const [isSheetOpen, setIsSheetOpen] = useState(false)
 
   const { data: lists, isLoading } = useQuery(
@@ -71,7 +72,12 @@ export function NavMain({ profileSlug }: { profileSlug: string }) {
             <SidebarMenuItem key={item.slug}>
               <SidebarMenuButton
                 asChild
-                isActive={location.pathname.includes(item.slug)}
+                isActive={
+                  !!matchRoute({
+                    to: '/dashboard/$profileSlug/lists/$listSlug',
+                    params: { profileSlug, listSlug: item.slug },
+                  })
+                }
               >
                 <Link
                   to="/dashboard/$profileSlug/lists/$listSlug"

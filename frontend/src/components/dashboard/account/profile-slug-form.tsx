@@ -47,31 +47,6 @@ export function ProfileSlugForm() {
         console.error('Error creating list:', error)
         toast.error('Failed to create list.')
       }
-      // const res = await postProfile(value.slug)
-      // if (res.success) {
-      //   // // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      //   // queryClient.setQueryData(['current-user'], (prev: any) => {
-      //   //   if (!prev?.data) return prev
-      //   //   return {
-      //   //     ...prev,
-      //   //     data: {
-      //   //       ...prev.data,
-      //   //       slug: res.data.slug,
-      //   //     },
-      //   //   }
-      //   // })
-
-      // navigate({
-      //   to: '/dashboard/$profileSlug',
-      //   params: { profileSlug: res.data.slug },
-      // })
-      // } else {
-      // toast.error('An error occured', { description: res.error })
-      // form.setErrorMap({
-      //   // @ts-expect-error error is a string but onSubmit expects an object mapping to the fields
-      //   onSubmit: res.error || 'Unexpected error',
-      // })
-      // }
     },
   })
 
@@ -123,7 +98,7 @@ export function ProfileSlugForm() {
             children={([slugValue]) => (
               <div className="text-center">
                 <span className="text-sm text-gray-500">
-                  myhappyeverything.com/u/{slugValue || ''}
+                  myhappyeverything.com/{slugValue || ''}
                 </span>
               </div>
             )}
