@@ -22,6 +22,9 @@ export type ErrorResponse = {
   isFormError?: boolean
 }
 
+export const StatusType = z.enum(['active', 'archived', 'dormant'])
+export type StatusType = z.infer<typeof StatusType>
+
 export type AuthContext = {
   isAuthenticated: boolean
 }
@@ -29,7 +32,14 @@ export type AuthContext = {
 export type CurrentUser = {
   email: string
   name: string
+  status: StatusType
   avatar: string | undefined
+}
+
+export type Profile = {
+  slug: string
+  status: StatusType
+  lists?: List[]
 }
 
 export type List = {
@@ -37,16 +47,10 @@ export type List = {
   name: string
   slug: string
   description?: string
-  private: boolean
+  isPrivate: boolean
   password?: string
-  status: string
+  status: StatusType
   createdAt: string
-}
-
-export type Profile = {
-  slug: string
-  status: string
-  lists?: List[]
 }
 
 export const SignupSchema = z.object({
@@ -85,10 +89,7 @@ export const ListCreateSchema = z.object({
   listType: z.string().optional(),
 })
 
-export const ListUpdateSchema = z.object({
-  name: z.string().min(1).optional(),
-  description: z.string().optional(),
+export const ListUpdateSchema = ListCreateSchema.extend({
   isPrivate: z.boolean().optional(),
   password: z.string().optional(),
-  status: z.string().optional(),
 })

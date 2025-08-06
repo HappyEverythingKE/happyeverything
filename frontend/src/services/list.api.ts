@@ -1,6 +1,16 @@
-import { queryOptions, useMutation } from '@tanstack/react-query'
+import { useRouter } from '@tanstack/react-router'
+import {
+  queryOptions,
+  useMutation,
+  useQueryClient,
+} from '@tanstack/react-query'
 
-import type { ErrorResponse, List, SuccessResponse } from '@shared/types'
+import type {
+  ErrorResponse,
+  List,
+  StatusType,
+  SuccessResponse,
+} from '@shared/types'
 
 import { client } from '@/lib/api'
 
@@ -47,10 +57,17 @@ export const postList = async (
   }
 }
 
-export function useCreateList(profileSlug: string) {
+export const useCreateList = (profileSlug: string) => {
+  const queryClient = useQueryClient()
+  const router = useRouter()
+
   return useMutation({
     mutationFn: (values: Parameters<typeof postList>[1]) =>
       postList(profileSlug, values),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [profileSlug, 'lists'] })
+      router.invalidate()
+    },
   })
 }
 
@@ -67,7 +84,111 @@ export const fetchList = async (profileSlug: string, listSlug: string) => {
 
 export const singleListQueryOptions = (profileSlug: string, listSlug: string) =>
   queryOptions({
-    queryKey: ['listDetail', profileSlug, listSlug],
+    queryKey: [profileSlug, 'listDetail', listSlug],
     queryFn: () => fetchList(profileSlug, listSlug),
     enabled: !!profileSlug && !!listSlug,
   })
+
+export const updateList = async (
+  profileSlug: string,
+  listSlug: string,
+  listData: Partial<List>,
+) => {
+  try {
+    const res = await client.lists[profileSlug].lists[listSlug].$patch({
+      form: listData,
+    })
+
+    if (res.ok) {
+      const data = (await res.json()) as SuccessResponse<List>
+      return data
+    }
+
+    const data = (await res.json()) as unknown as ErrorResponse
+    return data
+  } catch (error) {
+    return {
+      success: false,
+      error: String(error),
+      isFormError: false,
+    } as ErrorResponse
+  }
+}
+
+export const useUpdateList = (profileSlug: string, listSlug: string) => {
+  const queryClient = useQueryClient()
+  const router = useRouter()
+
+  return useMutation({
+    mutationFn: (values: Parameters<typeof updateList>[2]) =>
+      updateList(profileSlug, listSlug, values),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [profileSlug, 'lists'] })
+      queryClient.invalidateQueries({
+        queryKey: [profileSlug, 'lists', listSlug],
+      })
+      router.invalidate()
+    },
+  })
+}
+
+export const updateListStatus = async (
+  profileSlug: string,
+  listSlug: string,
+  status: StatusType,
+) => {
+  const res = await client.lists[profileSlug].lists[listSlug].status.$patch({
+    json: { status },
+  })
+
+  if (res.ok) {
+    const data = (await res.json()) as SuccessResponse<List>
+    return data
+  }
+
+  const data = (await res.json()) as ErrorResponse
+  throw new Error(data.error ?? 'Failed to update list status')
+}
+
+export const useUpdateListStatus = (profileSlug: string, listSlug: string) => {
+  const queryClient = useQueryClient()
+  const router = useRouter()
+
+  return useMutation({
+    mutationFn: (status: StatusType) =>
+      updateListStatus(profileSlug, listSlug, status),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [profileSlug, 'lists'] })
+      queryClient.invalidateQueries({
+        queryKey: [profileSlug, 'lists', listSlug],
+      })
+      router.invalidate()
+    },
+  })
+}
+
+export const deleteList = async (profileSlug: string, listSlug: string) => {
+  const res = await client.lists[profileSlug].lists[listSlug].$delete({})
+  console.log('deleteList response:', res)
+
+  if (!res.ok) {
+    const data = (await res.json()) as ErrorResponse
+    throw new Error(data.error ?? 'Failed to delete list')
+  }
+}
+
+export const useDeleteList = (profileSlug: string, listSlug: string) => {
+  const queryClient = useQueryClient()
+  const router = useRouter()
+
+  return useMutation({
+    mutationFn: () => deleteList(profileSlug, listSlug),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [profileSlug, 'lists'] })
+      queryClient.invalidateQueries({
+        queryKey: [profileSlug, 'lists', listSlug],
+      })
+      router.invalidate()
+    },
+  })
+}
