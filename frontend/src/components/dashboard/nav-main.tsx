@@ -17,7 +17,7 @@ import {
   SidebarMenuItem,
   SidebarMenuSkeleton,
 } from '@/components/ui/sidebar'
-import { NewListForm } from '@/components/dashboard/index/new-list-form'
+import { NewListForm } from '@/components/dashboard/forms/new-list-form'
 
 export function NavMain({ profileSlug }: { profileSlug: string }) {
   const matchRoute = useMatchRoute()

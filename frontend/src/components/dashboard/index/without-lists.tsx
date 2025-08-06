@@ -5,7 +5,7 @@ import { Gift, Heart, Sparkles } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardHeader, CardTitle } from '@/components/ui/card'
 import { SheetForm } from '@/components/ui/sheet-form'
-import { NewListForm } from '@/components/dashboard/index/new-list-form'
+import { NewListForm } from '@/components/dashboard/forms/new-list-form'
 
 export const WithoutLists = ({ profileSlug }: { profileSlug: string }) => {
   const [isSheetOpen, setIsSheetOpen] = useState(false)

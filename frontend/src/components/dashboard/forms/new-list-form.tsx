@@ -1,6 +1,4 @@
-import { useRouter } from '@tanstack/react-router'
 import { useForm } from '@tanstack/react-form'
-import { useQueryClient } from '@tanstack/react-query'
 
 import { useCreateList } from '@/services/list.api'
 import { ListCreateSchema } from '@shared/types'
@@ -49,8 +47,6 @@ export function NewListForm({
   onFormSubmit,
   onFormCancel,
 }: NewListFormProps) {
-  const router = useRouter()
-  const queryClient = useQueryClient()
   const { mutateAsync: createList, isPending } = useCreateList(profileSlug)
 
   const form = useForm({
@@ -60,8 +56,7 @@ export function NewListForm({
       try {
         const res = await createList(value)
         if (res.success) {
-          queryClient.invalidateQueries({ queryKey: [profileSlug, 'lists'] })
-          router.invalidate()
+          toast.success('New list created successfully.')
           onFormSubmit()
         } else {
           toast.error('An error occurred', { description: res.error })
@@ -193,14 +188,6 @@ export function NewListForm({
               ) : null
             }
           />
-
-          {/* Info text */}
-          <div className="bg-accent/40 rounded-sm p-4">
-            <div className="space-y-1 text-center text-sm text-gray-800">
-              <p>Lists are automatically archived 60 days after creation.</p>
-              <p>You can unarchive them anytime from your dashboard.</p>
-            </div>
-          </div>
         </div>
 
         {/* Form submission */}
