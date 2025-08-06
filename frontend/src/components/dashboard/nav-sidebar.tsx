@@ -55,11 +55,8 @@ export function NavSidebar({
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton size="lg" asChild className="active:bg-sidebar">
-              <Link
-                to="/dashboard/$profileSlug"
-                params={{ profileSlug: selectedProfile.slug }}
-              >
+            <SidebarMenuButton size="lg" asChild className="hover:bg-sidebar">
+              <Link to="/">
                 <div className="flex items-center justify-center">
                   <img
                     src={IconLogo}

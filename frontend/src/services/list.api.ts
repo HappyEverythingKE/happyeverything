@@ -72,7 +72,7 @@ export const useCreateList = (profileSlug: string) => {
 }
 
 export const fetchList = async (profileSlug: string, listSlug: string) => {
-  const res = await client.lists[profileSlug].lists[listSlug].$get({})
+  const res = await client.lists[profileSlug][listSlug].$get({})
 
   if (res.ok) {
     const { data } = (await res.json()) as SuccessResponse<List>
@@ -84,7 +84,7 @@ export const fetchList = async (profileSlug: string, listSlug: string) => {
 
 export const singleListQueryOptions = (profileSlug: string, listSlug: string) =>
   queryOptions({
-    queryKey: [profileSlug, 'listDetail', listSlug],
+    queryKey: [profileSlug, 'lists', listSlug],
     queryFn: () => fetchList(profileSlug, listSlug),
     enabled: !!profileSlug && !!listSlug,
   })
@@ -95,7 +95,7 @@ export const updateList = async (
   listData: Partial<List>,
 ) => {
   try {
-    const res = await client.lists[profileSlug].lists[listSlug].$patch({
+    const res = await client.lists[profileSlug][listSlug].$patch({
       form: listData,
     })
 
@@ -123,10 +123,10 @@ export const useUpdateList = (profileSlug: string, listSlug: string) => {
     mutationFn: (values: Parameters<typeof updateList>[2]) =>
       updateList(profileSlug, listSlug, values),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [profileSlug, 'lists'] })
       queryClient.invalidateQueries({
         queryKey: [profileSlug, 'lists', listSlug],
       })
+      queryClient.invalidateQueries({ queryKey: [profileSlug, 'lists'] })
       router.invalidate()
     },
   })
@@ -137,7 +137,7 @@ export const updateListStatus = async (
   listSlug: string,
   status: StatusType,
 ) => {
-  const res = await client.lists[profileSlug].lists[listSlug].status.$patch({
+  const res = await client.lists[profileSlug][listSlug].status.$patch({
     json: { status },
   })
 
@@ -158,18 +158,17 @@ export const useUpdateListStatus = (profileSlug: string, listSlug: string) => {
     mutationFn: (status: StatusType) =>
       updateListStatus(profileSlug, listSlug, status),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [profileSlug, 'lists'] })
       queryClient.invalidateQueries({
         queryKey: [profileSlug, 'lists', listSlug],
       })
+      queryClient.invalidateQueries({ queryKey: [profileSlug, 'lists'] })
       router.invalidate()
     },
   })
 }
 
 export const deleteList = async (profileSlug: string, listSlug: string) => {
-  const res = await client.lists[profileSlug].lists[listSlug].$delete({})
-  console.log('deleteList response:', res)
+  const res = await client.lists[profileSlug][listSlug].$delete({})
 
   if (!res.ok) {
     const data = (await res.json()) as ErrorResponse
@@ -184,10 +183,10 @@ export const useDeleteList = (profileSlug: string, listSlug: string) => {
   return useMutation({
     mutationFn: () => deleteList(profileSlug, listSlug),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [profileSlug, 'lists'] })
       queryClient.invalidateQueries({
         queryKey: [profileSlug, 'lists', listSlug],
       })
+      queryClient.invalidateQueries({ queryKey: [profileSlug, 'lists'] })
       router.invalidate()
     },
   })

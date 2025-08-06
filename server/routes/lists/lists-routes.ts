@@ -8,15 +8,21 @@ import slugify from '@sindresorhus/slugify'
 
 import {
   ListCreateSchema,
-  ProfileSlugSchema,
+  ListUpdateSchema,
+  StatusType,
   type AppEnv,
   type List,
   type SuccessResponse,
 } from '@/shared/types'
+import {
+  resolveListIdFromSlug,
+  resolveProfileIdFromSlug,
+} from '@/lib/slug-id-lookup'
 
 export const listsRoutes = new Hono()
-  .get('/:profileId', async (c) => {
-    const profileId = c.req.param('profileId')
+  .get('/:profileSlug', async (c) => {
+    const { profileSlug } = c.req.param()
+    const profileId = await resolveProfileIdFromSlug(c, profileSlug)
     const supabase = getSupabase(c)
 
     const { data: lists, error: listsError } = await supabase
@@ -25,21 +31,20 @@ export const listsRoutes = new Hono()
       .eq('profile_id', profileId)
       .order('created_at', { ascending: false })
 
-    console.log('API Fetched lists:', lists, listsError)
-
     if (listsError) {
       throw new HTTPException(500, {
         message: listsError.message,
       })
     }
 
-    return c.json<SuccessResponse<{ lists: List[] }>>({
+    return c.json<SuccessResponse<List[]>>({
       success: true,
-      data: { lists },
+      data: lists,
     })
   })
-  .post('/:profileId', zValidator('form', ListCreateSchema), async (c) => {
-    const profileId = c.req.param('profileId')
+  .post('/:profileSlug', zValidator('form', ListCreateSchema), async (c) => {
+    const { profileSlug } = c.req.param()
+    const profileId = await resolveProfileIdFromSlug(c, profileSlug)
     const supabase = getSupabase(c)
     const { name, description } = c.req.valid('form') // TODO: add list type
 
@@ -100,8 +105,6 @@ export const listsRoutes = new Hono()
       .select('*')
       .single()
 
-    console.log('API Inserted list:', data, insertError)
-
     if (insertError) {
       throw new HTTPException(500, {
         message: 'Failed to create your list',
@@ -116,45 +119,126 @@ export const listsRoutes = new Hono()
       201,
     )
   })
-  .patch('/:listId', async (c) => {
-    const listId = c.req.param('listId')
-    const supabase = getSupabase(c)
-    const body = await c.req.json()
+  .get('/:profileSlug/:listSlug', async (c) => {
+    const { profileSlug, listSlug } = c.req.param()
 
-    const { error } = ProfileSlugSchema.partial().safeParse(body)
-    if (error) {
-      throw new HTTPException(400, {
-        message: error.message,
-        cause: { form: true },
+    const profileId = await resolveProfileIdFromSlug(c, profileSlug)
+    const listId = await resolveListIdFromSlug(c, profileId, listSlug)
+
+    const supabase = getSupabase(c)
+
+    const { data: list, error } = await supabase
+      .from('lists')
+      .select('*')
+      .eq('id', listId)
+      .eq('profile_id', profileId)
+      .single()
+
+    if (error || !list) {
+      throw new HTTPException(404, {
+        message: 'List not found',
       })
     }
 
-    // TODO: ensure the slug is unique to this user's lists. Pass in the profileId to the query
+    return c.json<SuccessResponse<List>>({
+      success: true,
+      data: { ...list, isPrivate: list.private }, // Convert 'private' to 'isPrivate'
+    })
+  })
+  .patch(
+    '/:profileSlug/:listSlug',
+    zValidator('form', ListUpdateSchema),
+    async (c) => {
+      const { profileSlug, listSlug } = c.req.param()
 
-    const { data, error: updateError } = await supabase
-      .from('lists')
-      .update({
-        name: body.name,
-        slug: body.slug,
-        description: body.description,
-        private: body.private,
-        password: body.password,
-      })
-      .eq('id', listId)
-      .select('*')
-      .single()
+      const profileId = await resolveProfileIdFromSlug(c, profileSlug)
+      const listId = await resolveListIdFromSlug(c, profileId, listSlug)
 
-    if (updateError) {
-      if (updateError.code === '23505') {
-        // Supabase/Postgres unique constraint violation
-        throw new HTTPException(409, {
-          message: 'You already have a list with this name. Try another!',
-          cause: { form: true },
+      const supabase = getSupabase(c)
+
+      const { name, description, isPrivate, password } = c.req.valid('form') // TODO: add list type
+
+      let generatedSlug = listSlug
+      // if name is being updated, generate the slug from the new name
+      if (name) {
+        generatedSlug = slugify(name)
+        // ensure the slug is unique to this user's lists (excluding current list)
+        const { data: existingList, error: existingError } = await supabase
+          .from('lists')
+          .select('id')
+          .eq('profile_id', profileId)
+          .eq('slug', generatedSlug)
+          .neq('id', listId)
+          .maybeSingle()
+
+        if (existingError) {
+          throw new HTTPException(500, {
+            message: existingError.message,
+          })
+        }
+
+        if (existingList) {
+          throw new HTTPException(409, {
+            message: 'You already have a list with that name. Try another!',
+            cause: { form: true },
+          })
+        }
+      }
+
+      // update the list
+      const { data, error: updateError } = await supabase
+        .from('lists')
+        .update({
+          name,
+          slug: generatedSlug,
+          description,
+          private: isPrivate,
+          password,
+        })
+        .eq('id', listId)
+        .eq('profile_id', profileId)
+        .select('*')
+        .single()
+
+      if (updateError) {
+        throw new HTTPException(500, {
+          message: updateError.message,
         })
       }
 
+      return c.json<SuccessResponse<List>>({
+        success: true,
+        data,
+      })
+    },
+  )
+  .patch('/:profileSlug/:listSlug/status', async (c) => {
+    const { profileSlug, listSlug } = c.req.param()
+    const { status } = await c.req.json()
+
+    // validate status
+    if (!StatusType.safeParse(status).success) {
+      throw new HTTPException(400, {
+        message: 'Invalid status',
+      })
+    }
+
+    const profileId = await resolveProfileIdFromSlug(c, profileSlug)
+    const listId = await resolveListIdFromSlug(c, profileId, listSlug)
+
+    const supabase = getSupabase(c)
+
+    const { data, error: updateError } = await supabase
+      .from('lists')
+      .update({ status })
+      .eq('id', listId)
+      .eq('profile_id', profileId)
+      .select()
+      .single()
+
+    if (updateError) {
       throw new HTTPException(500, {
-        message: updateError.message,
+        message: 'Failed to update list status',
       })
     }
 
@@ -163,17 +247,25 @@ export const listsRoutes = new Hono()
       data,
     })
   })
+  .delete('/:profileSlug/:listSlug', async (c) => {
+    const { profileSlug, listSlug } = c.req.param()
 
-// .delete('/:id', async (c) => {
-//   const supabase = getSupabase(c)
-//   const id = c.req.param('id')
+    const profileId = await resolveProfileIdFromSlug(c, profileSlug)
+    const listId = await resolveListIdFromSlug(c, profileId, listSlug)
 
-//   const { error } = await supabase.from('lists').delete().where('id', id)
+    const supabase = getSupabase(c)
 
-//   if (error) throw error
+    const { error: deleteError } = await supabase
+      .from('lists')
+      .delete()
+      .eq('id', listId)
+      .eq('profile_id', profileId)
 
-//   return c.json<SuccessResponse>({
-//     success: true,
-//     message: 'List deleted successfully',
-//   })
-// })
+    if (deleteError) {
+      throw new HTTPException(500, {
+        message: 'Failed to delete the list',
+      })
+    }
+
+    return c.body(null, 204)
+  })

@@ -37,7 +37,7 @@ export function WithLists({ profileSlug, lists }: WithListsProps) {
                 <div className="grid">
                   <Button variant="outline" className="mt-2 w-full" asChild>
                     <Link
-                      to="/dashboard/$profileSlug/lists/$listSlug"
+                      to="/dashboard/$profileSlug/$listSlug"
                       params={{ profileSlug, listSlug: list.slug }}
                     >
                       View List

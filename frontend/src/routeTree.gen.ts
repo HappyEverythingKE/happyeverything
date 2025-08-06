@@ -22,7 +22,7 @@ import { Route as MarketingContactImport } from './routes/_marketing.contact'
 import { Route as AuthedDashboardRouteImport } from './routes/_authed/dashboard/route'
 import { Route as AuthedDashboardProfileSlugRouteImport } from './routes/_authed/dashboard/$profileSlug/route'
 import { Route as AuthedDashboardProfileSlugIndexImport } from './routes/_authed/dashboard/$profileSlug/index'
-import { Route as AuthedDashboardProfileSlugListsListSlugImport } from './routes/_authed/dashboard/$profileSlug/lists/$listSlug'
+import { Route as AuthedDashboardProfileSlugListSlugImport } from './routes/_authed/dashboard/$profileSlug/$listSlug'
 
 // Create/Update Routes
 
@@ -92,10 +92,10 @@ const AuthedDashboardProfileSlugIndexRoute =
     getParentRoute: () => AuthedDashboardProfileSlugRouteRoute,
   } as any)
 
-const AuthedDashboardProfileSlugListsListSlugRoute =
-  AuthedDashboardProfileSlugListsListSlugImport.update({
-    id: '/lists/$listSlug',
-    path: '/lists/$listSlug',
+const AuthedDashboardProfileSlugListSlugRoute =
+  AuthedDashboardProfileSlugListSlugImport.update({
+    id: '/$listSlug',
+    path: '/$listSlug',
     getParentRoute: () => AuthedDashboardProfileSlugRouteRoute,
   } as any)
 
@@ -173,18 +173,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthedDashboardProfileSlugRouteImport
       parentRoute: typeof AuthedDashboardRouteImport
     }
+    '/_authed/dashboard/$profileSlug/$listSlug': {
+      id: '/_authed/dashboard/$profileSlug/$listSlug'
+      path: '/$listSlug'
+      fullPath: '/dashboard/$profileSlug/$listSlug'
+      preLoaderRoute: typeof AuthedDashboardProfileSlugListSlugImport
+      parentRoute: typeof AuthedDashboardProfileSlugRouteImport
+    }
     '/_authed/dashboard/$profileSlug/': {
       id: '/_authed/dashboard/$profileSlug/'
       path: '/'
       fullPath: '/dashboard/$profileSlug/'
       preLoaderRoute: typeof AuthedDashboardProfileSlugIndexImport
-      parentRoute: typeof AuthedDashboardProfileSlugRouteImport
-    }
-    '/_authed/dashboard/$profileSlug/lists/$listSlug': {
-      id: '/_authed/dashboard/$profileSlug/lists/$listSlug'
-      path: '/lists/$listSlug'
-      fullPath: '/dashboard/$profileSlug/lists/$listSlug'
-      preLoaderRoute: typeof AuthedDashboardProfileSlugListsListSlugImport
       parentRoute: typeof AuthedDashboardProfileSlugRouteImport
     }
   }
@@ -193,15 +193,15 @@ declare module '@tanstack/react-router' {
 // Create and export the route tree
 
 interface AuthedDashboardProfileSlugRouteRouteChildren {
+  AuthedDashboardProfileSlugListSlugRoute: typeof AuthedDashboardProfileSlugListSlugRoute
   AuthedDashboardProfileSlugIndexRoute: typeof AuthedDashboardProfileSlugIndexRoute
-  AuthedDashboardProfileSlugListsListSlugRoute: typeof AuthedDashboardProfileSlugListsListSlugRoute
 }
 
 const AuthedDashboardProfileSlugRouteRouteChildren: AuthedDashboardProfileSlugRouteRouteChildren =
   {
+    AuthedDashboardProfileSlugListSlugRoute:
+      AuthedDashboardProfileSlugListSlugRoute,
     AuthedDashboardProfileSlugIndexRoute: AuthedDashboardProfileSlugIndexRoute,
-    AuthedDashboardProfileSlugListsListSlugRoute:
-      AuthedDashboardProfileSlugListsListSlugRoute,
   }
 
 const AuthedDashboardProfileSlugRouteRouteWithChildren =
@@ -256,8 +256,8 @@ export interface FileRoutesByFullPath {
   '/contact': typeof MarketingContactRoute
   '/': typeof MarketingIndexRoute
   '/dashboard/$profileSlug': typeof AuthedDashboardProfileSlugRouteRouteWithChildren
+  '/dashboard/$profileSlug/$listSlug': typeof AuthedDashboardProfileSlugListSlugRoute
   '/dashboard/$profileSlug/': typeof AuthedDashboardProfileSlugIndexRoute
-  '/dashboard/$profileSlug/lists/$listSlug': typeof AuthedDashboardProfileSlugListsListSlugRoute
 }
 
 export interface FileRoutesByTo {
@@ -269,8 +269,8 @@ export interface FileRoutesByTo {
   '/dashboard': typeof AuthedDashboardRouteRouteWithChildren
   '/contact': typeof MarketingContactRoute
   '/': typeof MarketingIndexRoute
+  '/dashboard/$profileSlug/$listSlug': typeof AuthedDashboardProfileSlugListSlugRoute
   '/dashboard/$profileSlug': typeof AuthedDashboardProfileSlugIndexRoute
-  '/dashboard/$profileSlug/lists/$listSlug': typeof AuthedDashboardProfileSlugListsListSlugRoute
 }
 
 export interface FileRoutesById {
@@ -285,8 +285,8 @@ export interface FileRoutesById {
   '/_marketing/contact': typeof MarketingContactRoute
   '/_marketing/': typeof MarketingIndexRoute
   '/_authed/dashboard/$profileSlug': typeof AuthedDashboardProfileSlugRouteRouteWithChildren
+  '/_authed/dashboard/$profileSlug/$listSlug': typeof AuthedDashboardProfileSlugListSlugRoute
   '/_authed/dashboard/$profileSlug/': typeof AuthedDashboardProfileSlugIndexRoute
-  '/_authed/dashboard/$profileSlug/lists/$listSlug': typeof AuthedDashboardProfileSlugListsListSlugRoute
 }
 
 export interface FileRouteTypes {
@@ -301,8 +301,8 @@ export interface FileRouteTypes {
     | '/contact'
     | '/'
     | '/dashboard/$profileSlug'
+    | '/dashboard/$profileSlug/$listSlug'
     | '/dashboard/$profileSlug/'
-    | '/dashboard/$profileSlug/lists/$listSlug'
   fileRoutesByTo: FileRoutesByTo
   to:
     | ''
@@ -313,8 +313,8 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/contact'
     | '/'
+    | '/dashboard/$profileSlug/$listSlug'
     | '/dashboard/$profileSlug'
-    | '/dashboard/$profileSlug/lists/$listSlug'
   id:
     | '__root__'
     | '/_authed'
@@ -327,8 +327,8 @@ export interface FileRouteTypes {
     | '/_marketing/contact'
     | '/_marketing/'
     | '/_authed/dashboard/$profileSlug'
+    | '/_authed/dashboard/$profileSlug/$listSlug'
     | '/_authed/dashboard/$profileSlug/'
-    | '/_authed/dashboard/$profileSlug/lists/$listSlug'
   fileRoutesById: FileRoutesById
 }
 
@@ -412,16 +412,16 @@ export const routeTree = rootRoute
       "filePath": "_authed/dashboard/$profileSlug/route.tsx",
       "parent": "/_authed/dashboard",
       "children": [
-        "/_authed/dashboard/$profileSlug/",
-        "/_authed/dashboard/$profileSlug/lists/$listSlug"
+        "/_authed/dashboard/$profileSlug/$listSlug",
+        "/_authed/dashboard/$profileSlug/"
       ]
+    },
+    "/_authed/dashboard/$profileSlug/$listSlug": {
+      "filePath": "_authed/dashboard/$profileSlug/$listSlug.tsx",
+      "parent": "/_authed/dashboard/$profileSlug"
     },
     "/_authed/dashboard/$profileSlug/": {
       "filePath": "_authed/dashboard/$profileSlug/index.tsx",
-      "parent": "/_authed/dashboard/$profileSlug"
-    },
-    "/_authed/dashboard/$profileSlug/lists/$listSlug": {
-      "filePath": "_authed/dashboard/$profileSlug/lists/$listSlug.tsx",
       "parent": "/_authed/dashboard/$profileSlug"
     }
   }

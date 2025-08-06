@@ -102,7 +102,7 @@ export function EditListForm({
         if (res.success) {
           toast.success('Your list has been updated successfully.')
           navigate({
-            to: '/dashboard/$profileSlug/lists/$listSlug',
+            to: '/dashboard/$profileSlug/$listSlug',
             params: { profileSlug, listSlug: res.data.slug },
           })
           onFormSubmit()

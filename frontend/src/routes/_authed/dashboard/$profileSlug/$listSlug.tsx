@@ -10,7 +10,7 @@ import { SheetForm } from '@/components/ui/sheet-form'
 import { EditListForm } from '@/components/dashboard/forms/edit-list-form'
 
 export const Route = createFileRoute(
-  '/_authed/dashboard/$profileSlug/lists/$listSlug',
+  '/_authed/dashboard/$profileSlug/$listSlug',
 )({
   loader: async ({ context, params }) => {
     const { profileSlug, listSlug } = params
