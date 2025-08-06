@@ -34,7 +34,6 @@
     "@types/node": "^20.11.17",
     "eslint": "^9.27.0",
     "eslint-config-prettier": "^10.1.5",
-    "eslint-plugin-drizzle": "^0.2.3",
     "globals": "^16.2.0",
     "husky": "^9.1.7",
     "lint-staged": "^16.0.0",
