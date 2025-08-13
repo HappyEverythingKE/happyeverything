@@ -74,13 +74,13 @@ export function NavMain({ profileSlug }: { profileSlug: string }) {
                 asChild
                 isActive={
                   !!matchRoute({
-                    to: '/dashboard/$profileSlug/lists/$listSlug',
+                    to: '/dashboard/$profileSlug/$listSlug',
                     params: { profileSlug, listSlug: item.slug },
                   })
                 }
               >
                 <Link
-                  to="/dashboard/$profileSlug/lists/$listSlug"
+                  to="/dashboard/$profileSlug/$listSlug"
                   params={{ profileSlug, listSlug: item.slug }}
                 >
                   <Gift />

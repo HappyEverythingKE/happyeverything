@@ -12,22 +12,50 @@ import {
   StatusType,
   type AppEnv,
   type List,
+  type ListType,
   type SuccessResponse,
 } from '@/shared/types'
 import {
   resolveListIdFromSlug,
   resolveProfileIdFromSlug,
 } from '@/lib/slug-id-lookup'
+import { mapToListType } from '@/lib/utils'
 
 export const listsRoutes = new Hono()
+  .get('/list-type/search', async (c) => {
+    const { q } = c.req.query()
+    const supabase = getSupabase(c)
+
+    let supabaseQuery = supabase
+      .from('list_types_view')
+      .select('name')
+      .order('name', { ascending: true })
+
+    if (q) {
+      supabaseQuery = supabaseQuery.ilike('name', `%${q}%`)
+    }
+    const { data, error } = await supabaseQuery
+
+    if (error) {
+      console.error('Error fetching list types:', error)
+      return
+    }
+
+    return c.json<SuccessResponse<ListType[]>>({
+      success: true,
+      data,
+    })
+  })
   .get('/:profileSlug', async (c) => {
     const { profileSlug } = c.req.param()
     const profileId = await resolveProfileIdFromSlug(c, profileSlug)
     const supabase = getSupabase(c)
 
-    const { data: lists, error: listsError } = await supabase
+    const { data: allLists, error: listsError } = await supabase
       .from('lists')
-      .select('*')
+      .select(
+        'name, slug, list_type, description, private, password, status, created_at',
+      )
       .eq('profile_id', profileId)
       .order('created_at', { ascending: false })
 
@@ -39,14 +67,14 @@ export const listsRoutes = new Hono()
 
     return c.json<SuccessResponse<List[]>>({
       success: true,
-      data: lists,
+      data: allLists.map(mapToListType),
     })
   })
   .post('/:profileSlug', zValidator('form', ListCreateSchema), async (c) => {
     const { profileSlug } = c.req.param()
     const profileId = await resolveProfileIdFromSlug(c, profileSlug)
     const supabase = getSupabase(c)
-    const { name, description } = c.req.valid('form') // TODO: add list type
+    const { name, description, listType } = c.req.valid('form')
 
     // count existing lists belonging to this profile
     const { count, error: countError } = await supabase
@@ -93,14 +121,14 @@ export const listsRoutes = new Hono()
     }
 
     // insert the new list
-    // TODO: add list type
-    const { data, error: insertError } = await supabase
+    const { data: newList, error: insertError } = await supabase
       .from('lists')
       .insert({
         profile_id: profileId,
         name,
         slug: generatedSlug,
         description: description,
+        list_type: listType,
       })
       .select('*')
       .single()
@@ -114,7 +142,7 @@ export const listsRoutes = new Hono()
     return c.json<SuccessResponse<List>>(
       {
         success: true,
-        data,
+        data: mapToListType(newList),
       },
       201,
     )
@@ -142,7 +170,7 @@ export const listsRoutes = new Hono()
 
     return c.json<SuccessResponse<List>>({
       success: true,
-      data: { ...list, isPrivate: list.private }, // Convert 'private' to 'isPrivate'
+      data: mapToListType(list),
     })
   })
   .patch(
@@ -156,7 +184,8 @@ export const listsRoutes = new Hono()
 
       const supabase = getSupabase(c)
 
-      const { name, description, isPrivate, password } = c.req.valid('form') // TODO: add list type
+      const { name, description, listType, isPrivate, password } =
+        c.req.valid('form')
 
       let generatedSlug = listSlug
       // if name is being updated, generate the slug from the new name
@@ -186,12 +215,13 @@ export const listsRoutes = new Hono()
       }
 
       // update the list
-      const { data, error: updateError } = await supabase
+      const { data: updatedList, error: updateError } = await supabase
         .from('lists')
         .update({
           name,
           slug: generatedSlug,
           description,
+          list_type: listType,
           private: isPrivate,
           password,
         })
@@ -208,7 +238,7 @@ export const listsRoutes = new Hono()
 
       return c.json<SuccessResponse<List>>({
         success: true,
-        data,
+        data: mapToListType(updatedList),
       })
     },
   )
@@ -228,7 +258,7 @@ export const listsRoutes = new Hono()
 
     const supabase = getSupabase(c)
 
-    const { data, error: updateError } = await supabase
+    const { data: updatedList, error: updateError } = await supabase
       .from('lists')
       .update({ status })
       .eq('id', listId)
@@ -244,7 +274,7 @@ export const listsRoutes = new Hono()
 
     return c.json<SuccessResponse<List>>({
       success: true,
-      data,
+      data: mapToListType(updatedList),
     })
   })
   .delete('/:profileSlug/:listSlug', async (c) => {

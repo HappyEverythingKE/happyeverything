@@ -42,15 +42,47 @@ export type Profile = {
   lists?: List[]
 }
 
-export type List = {
-  profileSlug: string
+export type RawList = {
   name: string
   slug: string
+  list_type: string
+  description?: string
+  private: boolean
+  password?: string
+  status: StatusType
+  created_at: string
+}
+
+export type List = {
+  name: string
+  slug: string
+  listType: string
   description?: string
   isPrivate: boolean
   password?: string
   status: StatusType
   createdAt: string
+}
+
+export const ListCreateSchema = z.object({
+  name: z
+    .string()
+    .min(1, 'This field is required.')
+    .max(25, 'List name must be less than 25 characters.'),
+  description: z
+    .string()
+    .max(50, 'The description must be less than 100 characters')
+    .optional(),
+  listType: z.string(),
+})
+
+export const ListUpdateSchema = ListCreateSchema.extend({
+  isPrivate: z.boolean().optional(),
+  password: z.string().optional(),
+})
+
+export type ListType = {
+  name: string
 }
 
 export const SignupSchema = z.object({
@@ -75,21 +107,4 @@ export const ProfileSlugSchema = z.object({
       'Username cannot start or end with a hyphen.',
     )
     .transform((value) => value.toLowerCase()),
-})
-
-export const ListCreateSchema = z.object({
-  name: z
-    .string()
-    .min(1, 'This field is required.')
-    .max(25, 'List name must be less than 25 characters.'),
-  description: z
-    .string()
-    .max(50, 'The description must be less than 100 characters')
-    .optional(),
-  listType: z.string().optional(),
-})
-
-export const ListUpdateSchema = ListCreateSchema.extend({
-  isPrivate: z.boolean().optional(),
-  password: z.string().optional(),
 })

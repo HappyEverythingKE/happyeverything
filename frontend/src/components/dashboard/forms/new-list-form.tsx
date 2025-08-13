@@ -2,33 +2,15 @@ import { useForm } from '@tanstack/react-form'
 
 import { useCreateList } from '@/services/list.api'
 import { ListCreateSchema } from '@shared/types'
-import { startCase } from 'lodash'
 import { toast } from 'sonner'
 import type { z } from 'zod'
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
+import { ListTypeInput } from '@/components/ui/list-type-input'
 import { Textarea } from '@/components/ui/textarea'
 import { FieldInfo } from '@/components/field-info'
-
-const listTypes = [
-  'birthday',
-  'wedding',
-  'baby-shower',
-  'holiday',
-  'graduation',
-  'housewarming',
-  'anniversary',
-  'other',
-] as const
 
 interface NewListFormProps {
   profileSlug: string
@@ -148,28 +130,11 @@ export function NewListForm({
               children={(field) => {
                 return (
                   <>
-                    <Label htmlFor={field.name}>Choose a list type</Label>
-                    <Select
-                      value={field.state.value}
-                      onValueChange={(value) =>
-                        field.handleChange(value as string)
-                      }
-                    >
-                      <SelectTrigger
-                        id={field.name}
-                        onBlur={field.handleBlur}
-                        className="w-full"
-                      >
-                        <SelectValue placeholder="Select an occasion or theme" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {listTypes.map((type) => (
-                          <SelectItem key={type} value={type}>
-                            {startCase(type)}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <Label htmlFor={field.name}>Enter your list type</Label>
+                    <ListTypeInput
+                      inputValue={field.state.value}
+                      onChange={field.handleChange}
+                    />
                     <FieldInfo field={field} />
                   </>
                 )
