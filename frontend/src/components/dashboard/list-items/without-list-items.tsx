@@ -1,13 +1,19 @@
 import { useState } from 'react'
 
-import { Gift, Heart, Sparkles } from 'lucide-react'
+import { Sparkles } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
 import { Card, CardHeader, CardTitle } from '@/components/ui/card'
 import { SheetForm } from '@/components/ui/sheet-form'
-import { NewListForm } from '@/components/dashboard/forms/new-list-form'
+import { NewListItemForm } from '@/components/dashboard/forms/new-list-item-form'
 
-export const WithoutLists = ({ profileSlug }: { profileSlug: string }) => {
+export const WithoutListItems = ({
+  profileSlug,
+  listSlug,
+}: {
+  profileSlug: string
+  listSlug: string
+}) => {
   const [isSheetOpen, setIsSheetOpen] = useState(false)
 
   const handleSubmit = () => {
@@ -20,8 +26,6 @@ export const WithoutLists = ({ profileSlug }: { profileSlug: string }) => {
 
   return (
     <div className="mx-auto w-full p-8">
-      <h1 className="text-xl">Let&apos;s get started</h1>
-
       <div className="flex h-full flex-col items-center justify-center">
         <Button
           variant="ghost"
@@ -39,7 +43,7 @@ export const WithoutLists = ({ profileSlug }: { profileSlug: string }) => {
 
             <CardHeader>
               <CardTitle className="text-pretty font-serif md:text-lg">
-                Create your first wish list
+                Add your first gift item
               </CardTitle>
             </CardHeader>
           </Card>
@@ -48,24 +52,9 @@ export const WithoutLists = ({ profileSlug }: { profileSlug: string }) => {
         {/* supporting text */}
         <div className="mt-12 max-w-lg text-center">
           <p className="mb-4 text-sm leading-relaxed text-gray-500">
-            Create wish lists for any occasion - birthdays, holidays, weddings,
-            or just because. Share them with loved ones so they know exactly
-            what would make you smile.
+            Add a gift item to your wish list to get started. Try to include as
+            much detail as possible, like links, prices, and descriptions.
           </p>
-          <div className="flex items-center justify-center space-x-6 text-xs text-gray-500">
-            <div className="flex items-center space-x-1">
-              <Gift className="h-3 w-3" />
-              <span>Easy to share</span>
-            </div>
-            <div className="flex items-center space-x-1">
-              <Heart className="h-3 w-3" />
-              <span>Always updated</span>
-            </div>
-            <div className="flex items-center space-x-1">
-              <Sparkles className="h-3 w-3" />
-              <span>Surprise-proof</span>
-            </div>
-          </div>
         </div>
       </div>
 
@@ -73,11 +62,12 @@ export const WithoutLists = ({ profileSlug }: { profileSlug: string }) => {
       <SheetForm
         isOpen={isSheetOpen}
         onClose={handleCancel}
-        title="New List"
-        description="Create a new wish list"
+        title="Add Gift"
+        description="Add a new gift to your wish list"
       >
-        <NewListForm
+        <NewListItemForm
           profileSlug={profileSlug}
+          listSlug={listSlug}
           onFormSubmit={handleSubmit}
           onFormCancel={handleCancel}
         />
@@ -86,4 +76,4 @@ export const WithoutLists = ({ profileSlug }: { profileSlug: string }) => {
   )
 }
 
-export default WithoutLists
+export default WithoutListItems

@@ -9,6 +9,7 @@ export type AppEnv = {
   MAX_PROFILES_PER_USER: number
   MAX_LISTS_PER_PROFILE: number
   MAX_ITEMS_PER_LIST: number
+  MAX_TOP_PICKS_PER_LIST: number
 }
 
 export type SuccessResponse<T = void> = {
@@ -42,17 +43,6 @@ export type Profile = {
   lists?: List[]
 }
 
-export type RawList = {
-  name: string
-  slug: string
-  list_type: string
-  description?: string
-  private: boolean
-  password?: string
-  status: StatusType
-  created_at: string
-}
-
 export type List = {
   name: string
   slug: string
@@ -84,6 +74,55 @@ export const ListUpdateSchema = ListCreateSchema.extend({
 export type ListType = {
   name: string
 }
+
+export type ListItem = {
+  id: string
+  listId: string
+  name: string
+  quantity: number
+  topPick: boolean
+  size: string | undefined
+  colour: string | undefined
+  imageUrl: string | undefined
+  productUrl: string | undefined
+  shopName: string | undefined
+  createdAt: string
+  updatedAt: string
+}
+
+export const ListItemCreateSchema = z.object({
+  name: z
+    .string()
+    .min(1, 'This field is required.')
+    .max(200, 'Item name must be less than 200 characters.'),
+  quantity: z.coerce.number().min(1, 'Quantity must be at least 1.'),
+  topPick: z.coerce.boolean(),
+  size: z.string().max(50, 'Size must be less than 50 characters.').optional(),
+  colour: z
+    .string()
+    .max(50, 'Colour must be less than 50 characters.')
+    .optional(),
+  imageUrl: z
+    .string()
+    .transform((value) => value.trim())
+    .refine((value) => value === '' || /^https?:\/\/.+/.test(value), {
+      message: 'Please enter a valid URL starting with http:// or https://',
+    })
+    .transform((value) => (value === '' ? undefined : value))
+    .optional(),
+  productUrl: z
+    .string()
+    .transform((value) => value.trim())
+    .refine((value) => value === '' || /^https?:\/\/.+/.test(value), {
+      message: 'Please enter a valid URL starting with http:// or https://',
+    })
+    .transform((value) => (value === '' ? undefined : value))
+    .optional(),
+  shopName: z
+    .string()
+    .max(50, 'Shop name must be less than 50 characters.')
+    .optional(),
+})
 
 export const SignupSchema = z.object({
   email: z.string().email('Please enter a valid email.'),

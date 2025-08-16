@@ -21,7 +21,7 @@ import {
 } from '@/lib/slug-id-lookup'
 import { mapToListType } from '@/lib/utils'
 
-export const listsRoutes = new Hono()
+export const listRoutes = new Hono()
   .get('/list-type/search', async (c) => {
     const { q } = c.req.query()
     const supabase = getSupabase(c)

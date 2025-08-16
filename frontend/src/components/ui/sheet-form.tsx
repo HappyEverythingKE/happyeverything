@@ -1,6 +1,7 @@
 import {
   Sheet,
   SheetContent,
+  SheetDescription,
   SheetHeader,
   SheetTitle,
 } from '@/components/ui/sheet'
@@ -9,11 +10,19 @@ type SheetProps = {
   isOpen: boolean
   onClose: () => void
   title: React.ReactNode
+  description?: React.ReactNode
   children: React.ReactNode
   footer?: React.ReactNode
 }
 
-function SheetForm({ isOpen, onClose, title, children, footer }: SheetProps) {
+function SheetForm({
+  isOpen,
+  onClose,
+  title,
+  description,
+  children,
+  footer,
+}: SheetProps) {
   if (!isOpen) return null
 
   return (
@@ -23,8 +32,11 @@ function SheetForm({ isOpen, onClose, title, children, footer }: SheetProps) {
           <div className="flex h-full flex-col">
             <SheetHeader className="border-sidebar-border border-b p-6">
               <SheetTitle className="text-lg font-semibold">{title}</SheetTitle>
-              {/* 
-              <button
+              {description && (
+                <SheetDescription>{description}</SheetDescription>
+              )}
+
+              {/* <button
                 onClick={onClose}
                 className="rounded-full p-2 transition-colors hover:bg-gray-100"
               >

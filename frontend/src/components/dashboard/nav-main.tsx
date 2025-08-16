@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { Link, useMatchRoute } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
 
-import { profileListsQueryOptions } from '@/services/list.api'
+import { listsByProfileQueryOptions } from '@/services/list.api'
 import { Gift, PlusCircle } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
@@ -24,7 +24,7 @@ export function NavMain({ profileSlug }: { profileSlug: string }) {
   const [isSheetOpen, setIsSheetOpen] = useState(false)
 
   const { data: lists, isLoading } = useQuery(
-    profileListsQueryOptions(profileSlug),
+    listsByProfileQueryOptions(profileSlug),
   )
 
   const handleSubmit = () => setIsSheetOpen(false)
@@ -93,7 +93,12 @@ export function NavMain({ profileSlug }: { profileSlug: string }) {
       </SidebarGroup>
 
       {/* Sheet Form */}
-      <SheetForm isOpen={isSheetOpen} onClose={handleCancel} title="New List">
+      <SheetForm
+        isOpen={isSheetOpen}
+        onClose={handleCancel}
+        title="New List"
+        description="Create a new wish list"
+      >
         <NewListForm
           profileSlug={profileSlug}
           onFormSubmit={handleSubmit}

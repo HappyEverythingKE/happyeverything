@@ -48,8 +48,7 @@ export function NewListForm({
           })
         }
       } catch (error) {
-        console.error('Error creating list:', error)
-        toast.error('Failed to create list.')
+        toast.error('Failed to create list.', { description: String(error) })
       }
     },
   })
@@ -156,7 +155,7 @@ export function NewListForm({
         </div>
 
         {/* Form submission */}
-        <div className="mt-auto">
+        <div className="mt-auto pb-8">
           <form.Subscribe
             selector={(state) => [
               state.canSubmit,

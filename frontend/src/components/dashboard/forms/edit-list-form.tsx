@@ -95,8 +95,7 @@ export function EditListForm({
           })
         }
       } catch (error) {
-        console.error('Error updating list:', error)
-        toast.error('Failed to update list.')
+        toast.error('Failed to update list.', { description: String(error) })
       }
     },
   })
@@ -251,7 +250,7 @@ export function EditListForm({
       </div>
 
       {/* Delete list */}
-      <div className="flex flex-col space-y-4 border-t py-4">
+      <div className="flex flex-col space-y-4 border-t pb-8 pt-4">
         <Label className="text-md font-bold">Delete List</Label>
         <p className="text-sm">
           Permanently remove this list and all its items.
@@ -264,7 +263,7 @@ export function EditListForm({
             onClick={handleDeleteList}
             disabled={isDeleting}
           >
-            Delete List
+            {isDeleting ? 'Deleting...' : 'Delete List'}
           </Button>
         </div>
       </div>

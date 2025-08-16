@@ -1,7 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
 
-import { profileListsQueryOptions } from '@/services/list.api'
+import { listsByProfileQueryOptions } from '@/services/list.api'
 
 import { ListsSkeleton } from '@/components/ui/lists-skeleton'
 import { WithLists } from '@/components/dashboard/index/with-lists'
@@ -18,7 +18,7 @@ function RouteComponent() {
     data: lists,
     isLoading,
     isError,
-  } = useQuery(profileListsQueryOptions(selectedProfile.slug))
+  } = useQuery(listsByProfileQueryOptions(selectedProfile.slug))
 
   const hasLists = lists && lists.length > 0
 

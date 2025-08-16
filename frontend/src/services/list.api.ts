@@ -28,14 +28,14 @@ export const getListsByProfile = async (profileSlug: string) => {
   throw new Error(data.error ?? 'Failed to fetch lists')
 }
 
-export const profileListsQueryOptions = (profileSlug: string) =>
+export const listsByProfileQueryOptions = (profileSlug: string) =>
   queryOptions({
     queryKey: [profileSlug, 'lists'],
     queryFn: () => getListsByProfile(profileSlug!),
     enabled: !!profileSlug,
   })
 
-export const postList = async (
+export const createList = async (
   profileSlug: string,
   listData: Partial<List>,
 ) => {
@@ -65,8 +65,8 @@ export const useCreateList = (profileSlug: string) => {
   const router = useRouter()
 
   return useMutation({
-    mutationFn: (values: Parameters<typeof postList>[1]) =>
-      postList(profileSlug, values),
+    mutationFn: (values: Parameters<typeof createList>[1]) =>
+      createList(profileSlug, values),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [profileSlug, 'lists'] })
       router.invalidate()
@@ -85,7 +85,7 @@ export const fetchList = async (profileSlug: string, listSlug: string) => {
   throw new Error(data.error ?? 'Failed to fetch list')
 }
 
-export const singleListQueryOptions = (profileSlug: string, listSlug: string) =>
+export const fetchListQueryOptions = (profileSlug: string, listSlug: string) =>
   queryOptions({
     queryKey: [profileSlug, 'lists', listSlug],
     queryFn: () => fetchList(profileSlug, listSlug),

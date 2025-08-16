@@ -1,0 +1,217 @@
+import { Hono } from 'hono'
+import { env } from 'hono/adapter'
+import { HTTPException } from 'hono/http-exception'
+
+import { getSupabase } from '@/middleware/auth.middleware'
+import { zValidator } from '@hono/zod-validator'
+
+import {
+  ListItemCreateSchema,
+  type AppEnv,
+  type ListItem,
+  type SuccessResponse,
+} from '@/shared/types'
+import {
+  resolveListIdFromSlug,
+  resolveProfileIdFromSlug,
+} from '@/lib/slug-id-lookup'
+import { mapToListItemType } from '@/lib/utils'
+
+export const listItemRoutes = new Hono()
+  .get('/:profileSlug/:listSlug/items', async (c) => {
+    const { profileSlug, listSlug } = c.req.param()
+
+    const profileId = await resolveProfileIdFromSlug(c, profileSlug)
+    const listId = await resolveListIdFromSlug(c, profileId, listSlug)
+
+    const supabase = getSupabase(c)
+
+    const { data, error } = await supabase
+      .from('list_items')
+      .select('*')
+      .eq('list_id', listId)
+      .order('top_pick', { ascending: false })
+      .order('created_at', { ascending: true })
+
+    if (error) {
+      throw new HTTPException(500, {
+        message: error.message,
+      })
+    }
+
+    return c.json<SuccessResponse<ListItem[]>>({
+      success: true,
+      data: data.map(mapToListItemType),
+    })
+  })
+  .post(
+    '/:profileSlug/:listSlug/items',
+    zValidator('form', ListItemCreateSchema),
+    async (c) => {
+      const { profileSlug, listSlug } = c.req.param()
+
+      const profileId = await resolveProfileIdFromSlug(c, profileSlug)
+      const listId = await resolveListIdFromSlug(c, profileId, listSlug)
+
+      const supabase = getSupabase(c)
+      const {
+        name,
+        quantity,
+        topPick,
+        size,
+        colour,
+        imageUrl,
+        productUrl,
+        shopName,
+      } = c.req.valid('form')
+
+      // check if adding another top pick would exceed the limit
+      if (topPick) {
+        const { count, error: countError } = await supabase
+          .from('list_items')
+          .select('*', { count: 'exact', head: true })
+          .eq('list_id', listId)
+          .eq('top_pick', true)
+
+        if (countError) {
+          throw new HTTPException(500, {
+            message: countError.message,
+          })
+        }
+
+        const { MAX_TOP_PICKS_PER_LIST } = env<AppEnv>(c)
+
+        if ((count ?? 0) >= MAX_TOP_PICKS_PER_LIST) {
+          throw new HTTPException(400, {
+            message: `You can only have up to ${MAX_TOP_PICKS_PER_LIST} top picks per list`,
+            cause: { form: true },
+          })
+        }
+      }
+
+      const { data, error: insertError } = await supabase
+        .from('list_items')
+        .insert({
+          list_id: listId,
+          name,
+          quantity,
+          top_pick: topPick,
+          size,
+          colour,
+          image_url: imageUrl,
+          product_url: productUrl,
+          shop_name: shopName,
+        })
+        .select('*')
+        .single()
+
+      if (insertError) {
+        throw new HTTPException(500, {
+          message: insertError.message,
+          cause: { form: true },
+        })
+      }
+
+      return c.json<SuccessResponse<ListItem>>({
+        success: true,
+        data: mapToListItemType(data),
+      })
+    },
+  )
+  .patch(
+    '/:profileSlug/:listSlug/items/:itemId',
+    zValidator('form', ListItemCreateSchema),
+    async (c) => {
+      const { profileSlug, listSlug, itemId } = c.req.param()
+
+      const profileId = await resolveProfileIdFromSlug(c, profileSlug)
+      const listId = await resolveListIdFromSlug(c, profileId, listSlug)
+
+      const supabase = getSupabase(c)
+      const {
+        name,
+        quantity,
+        topPick,
+        size,
+        colour,
+        imageUrl,
+        productUrl,
+        shopName,
+      } = c.req.valid('form')
+
+      // check if adding another top pick would exceed the limit
+      if (topPick) {
+        const { count, error: countError } = await supabase
+          .from('list_items')
+          .select('*', { count: 'exact', head: true })
+          .eq('list_id', listId)
+          .eq('top_pick', true)
+
+        if (countError) {
+          throw new HTTPException(500, {
+            message: countError.message,
+            cause: { form: true },
+          })
+        }
+
+        const { MAX_TOP_PICKS_PER_LIST } = env<AppEnv>(c)
+
+        if ((count ?? 0) >= MAX_TOP_PICKS_PER_LIST) {
+          throw new HTTPException(400, {
+            message: `You can have up to ${MAX_TOP_PICKS_PER_LIST} top picks per list`,
+            cause: { form: true },
+          })
+        }
+      }
+
+      const { data, error: updateError } = await supabase
+        .from('list_items')
+        .update({
+          name,
+          quantity,
+          top_pick: topPick,
+          size,
+          colour,
+          image_url: imageUrl,
+          product_url: productUrl,
+          shop_name: shopName,
+        })
+        .eq('id', itemId)
+        .select('*')
+        .single()
+
+      if (updateError) {
+        throw new HTTPException(500, {
+          message: updateError.message,
+          cause: { form: true },
+        })
+      }
+
+      return c.json<SuccessResponse<ListItem>>({
+        success: true,
+        data: mapToListItemType(data),
+      })
+    },
+  )
+  .delete('/:profileSlug/:listSlug/items/:itemId', async (c) => {
+    const { profileSlug, listSlug, itemId } = c.req.param()
+
+    const profileId = await resolveProfileIdFromSlug(c, profileSlug)
+    const listId = await resolveListIdFromSlug(c, profileId, listSlug)
+
+    const supabase = getSupabase(c)
+
+    const { error: deleteError } = await supabase
+      .from('list_items')
+      .delete()
+      .eq('id', itemId)
+      .eq('list_id', listId)
+
+    if (deleteError) {
+      throw new HTTPException(500, {
+        message: deleteError.message,
+      })
+    }
+
+    return c.body(null, 204)
+  })

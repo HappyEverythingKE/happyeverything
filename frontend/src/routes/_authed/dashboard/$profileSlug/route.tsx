@@ -1,6 +1,6 @@
 import { createFileRoute, Outlet } from '@tanstack/react-router'
 
-import { profileListsQueryOptions } from '@/services/list.api'
+import { listsByProfileQueryOptions } from '@/services/list.api'
 
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar'
 import NavHeader from '@/components/dashboard/nav-header'
@@ -21,7 +21,7 @@ export const Route = createFileRoute('/_authed/dashboard/$profileSlug')({
     }
 
     // load lists for the profile
-    await queryClient.ensureQueryData(profileListsQueryOptions(profileSlug))
+    await queryClient.ensureQueryData(listsByProfileQueryOptions(profileSlug))
 
     return { selectedProfile, allProfiles }
   },
