@@ -6,7 +6,9 @@ import { getSupabase } from '@/middleware/auth.middleware'
 import { zValidator } from '@hono/zod-validator'
 
 import {
+  GiftedBySchema,
   ListItemCreateSchema,
+  TopPickSchema,
   type AppEnv,
   type ListItem,
   type SuccessResponse,
@@ -66,7 +68,7 @@ export const listItemRoutes = new Hono()
       } = c.req.valid('form')
 
       // check if adding another top pick would exceed the limit
-      if (topPick) {
+      if (topPick === true) {
         const { count, error: countError } = await supabase
           .from('list_items')
           .select('*', { count: 'exact', head: true })
@@ -128,19 +130,52 @@ export const listItemRoutes = new Hono()
       const listId = await resolveListIdFromSlug(c, profileId, listSlug)
 
       const supabase = getSupabase(c)
-      const {
-        name,
-        quantity,
-        topPick,
-        size,
-        colour,
-        imageUrl,
-        productUrl,
-        shopName,
-      } = c.req.valid('form')
+      const { name, quantity, size, colour, imageUrl, productUrl, shopName } =
+        c.req.valid('form')
+
+      const { data, error: updateError } = await supabase
+        .from('list_items')
+        .update({
+          name,
+          quantity,
+          size: size || null,
+          colour: colour || null,
+          image_url: imageUrl || null,
+          product_url: productUrl || null,
+          shop_name: shopName || null,
+        })
+        .eq('id', itemId)
+        .eq('list_id', listId)
+        .select('*')
+        .single()
+
+      if (updateError) {
+        throw new HTTPException(500, {
+          message: updateError.message,
+          cause: { form: true },
+        })
+      }
+
+      return c.json<SuccessResponse<ListItem>>({
+        success: true,
+        data: mapToListItemType(data),
+      })
+    },
+  )
+  .patch(
+    '/:profileSlug/:listSlug/items/:itemId/priority',
+    zValidator('form', TopPickSchema),
+    async (c) => {
+      const { profileSlug, listSlug, itemId } = c.req.param()
+      const { topPick } = c.req.valid('form')
+
+      const supabase = getSupabase(c)
+
+      const profileId = await resolveProfileIdFromSlug(c, profileSlug)
+      const listId = await resolveListIdFromSlug(c, profileId, listSlug)
 
       // check if adding another top pick would exceed the limit
-      if (topPick) {
+      if (topPick === true) {
         const { count, error: countError } = await supabase
           .from('list_items')
           .select('*', { count: 'exact', head: true })
@@ -166,24 +201,53 @@ export const listItemRoutes = new Hono()
 
       const { data, error: updateError } = await supabase
         .from('list_items')
+        .update({ top_pick: topPick })
+        .eq('id', itemId)
+        .eq('list_id', listId)
+        .select('*')
+        .single()
+
+      console.log('updateError', updateError)
+      console.log('data', data)
+      if (updateError) {
+        throw new HTTPException(500, {
+          message: updateError.message,
+        })
+      }
+
+      return c.json<SuccessResponse<ListItem>>({
+        success: true,
+        data: mapToListItemType(data),
+      })
+    },
+  )
+  .patch(
+    '/:profileSlug/:listSlug/items/:itemId/status',
+    zValidator('form', GiftedBySchema),
+    async (c) => {
+      const { profileSlug, listSlug, itemId } = c.req.param()
+
+      const profileId = await resolveProfileIdFromSlug(c, profileSlug)
+      const listId = await resolveListIdFromSlug(c, profileId, listSlug)
+
+      const supabase = getSupabase(c)
+      const { giftedBy, quantityGifted } = c.req.valid('form')
+
+      const { data, error: updateError } = await supabase
+        .from('list_items')
         .update({
-          name,
-          quantity,
-          top_pick: topPick,
-          size,
-          colour,
-          image_url: imageUrl,
-          product_url: productUrl,
-          shop_name: shopName,
+          status: 'gifted',
+          gifted_by: giftedBy,
+          quantity_gifted: quantityGifted,
         })
         .eq('id', itemId)
+        .eq('list_id', listId)
         .select('*')
         .single()
 
       if (updateError) {
         throw new HTTPException(500, {
           message: updateError.message,
-          cause: { form: true },
         })
       }
 

@@ -26,6 +26,9 @@ export type ErrorResponse = {
 export const StatusType = z.enum(['active', 'archived', 'dormant'])
 export type StatusType = z.infer<typeof StatusType>
 
+export const ListItemStatusType = z.enum(['active', 'gifted'])
+export type ListItemStatusType = z.infer<typeof ListItemStatusType>
+
 export type AuthContext = {
   isAuthenticated: boolean
 }
@@ -75,6 +78,25 @@ export type ListType = {
   name: string
 }
 
+export const TopPickSchema = z.object({
+  topPick: z.string().transform((value) => {
+    if (value === 'true') {
+      return true
+    } else if (value === 'false') {
+      return false
+    } else {
+      throw new Error("Invalid boolean string. Must be 'true' or 'false'.")
+    }
+  }),
+})
+
+export type TopPickType = z.infer<typeof TopPickSchema>
+
+export const GiftedBySchema = z.object({
+  giftedBy: z.string().optional(),
+  quantityGifted: z.coerce.number(),
+})
+
 export type ListItem = {
   id: string
   listId: string
@@ -86,6 +108,9 @@ export type ListItem = {
   imageUrl: string | undefined
   productUrl: string | undefined
   shopName: string | undefined
+  status: ListItemStatusType
+  giftedBy: string | undefined
+  quantityGifted: number
   createdAt: string
   updatedAt: string
 }

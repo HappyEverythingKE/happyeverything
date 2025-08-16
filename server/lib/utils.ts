@@ -27,6 +27,9 @@ export const mapToListItemType = (item: any): ListItem => {
     imageUrl: item.image_url,
     productUrl: item.product_url,
     shopName: item.shop_name,
+    status: item.status,
+    giftedBy: item.gifted_by,
+    quantityGifted: item.quantity_gifted,
     createdAt: item.created_at,
     updatedAt: item.updated_at,
   }

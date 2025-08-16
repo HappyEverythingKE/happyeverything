@@ -51,8 +51,9 @@ export function EditListForm({
       toast.success('Your list has been updated successfully.')
       onFormSubmit()
     } catch (error) {
-      console.error('Error archiving list:', error)
-      toast.error('Failed to update the list status.')
+      toast.error('Failed to update the list status.', {
+        description: JSON.stringify(error),
+      })
     }
   }
 

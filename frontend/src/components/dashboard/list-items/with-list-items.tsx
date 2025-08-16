@@ -32,14 +32,13 @@ export const WithListItems = ({
           </Button>
         </div>
 
-        {/* <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3"> */}
-        <div className="grid w-full auto-cols-fr grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <div className="mx-auto grid w-full grid-cols-1 gap-6 md:max-w-[75%] lg:max-w-full lg:grid-cols-2 xl:grid-cols-3">
           {listItems.map((item) => (
             <ListItemCard
               key={item.id}
               profileSlug={profileSlug}
               listSlug={listSlug}
-              listItem={item}
+              item={item}
             />
           ))}
         </div>

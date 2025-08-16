@@ -146,6 +146,49 @@ export const useUpdateListItem = (
   })
 }
 
+export const updateListItemPriority = async (
+  profileSlug: string,
+  listSlug: string,
+  itemId: string,
+  topPick: boolean,
+) => {
+  const res = await client.lists[profileSlug][listSlug].items[
+    itemId
+  ].priority.$patch({
+    form: { topPick: Boolean(topPick) },
+  })
+
+  if (res.ok) {
+    const data = (await res.json()) as SuccessResponse<ListItem>
+    return data
+  }
+  const data = (await res.json()) as ErrorResponse
+  throw new Error(data.error ?? 'Failed to update top pick status')
+}
+
+export const useUpdateListItemPriority = (
+  profileSlug: string,
+  listSlug: string,
+  itemId: string,
+) => {
+  const queryClient = useQueryClient()
+  const router = useRouter()
+
+  return useMutation({
+    mutationFn: (topPick: boolean) =>
+      updateListItemPriority(profileSlug, listSlug, itemId, topPick),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [profileSlug, listSlug, 'items', itemId],
+      })
+      queryClient.invalidateQueries({
+        queryKey: [profileSlug, listSlug, 'items'],
+      })
+      router.invalidate()
+    },
+  })
+}
+
 export const deleteListItem = async (
   profileSlug: string,
   listSlug: string,

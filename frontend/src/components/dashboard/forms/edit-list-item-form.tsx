@@ -9,13 +9,6 @@ import type { z } from 'zod'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
 import { FieldInfo } from '@/components/field-info'
 
 interface EditListItemFormProps {
@@ -62,7 +55,6 @@ export function EditListItemForm({
     defaultValues: {
       name: listItem.name,
       quantity: listItem.quantity,
-      topPick: listItem.topPick,
       imageUrl: listItem.imageUrl ?? '',
       size: listItem.size ?? '',
       colour: listItem.colour ?? '',
@@ -96,7 +88,7 @@ export function EditListItemForm({
   return (
     <div className="flex h-full flex-col gap-12 md:grid md:grid-rows-[auto_1fr]">
       <form
-        className="flex h-full flex-col gap-6 md:grid md:grid-rows-[auto_1fr]"
+        className="space-y-6"
         onSubmit={(e) => {
           e.preventDefault()
           e.stopPropagation()
@@ -295,44 +287,6 @@ export function EditListItemForm({
                     <p className="-mt-1 text-xs text-gray-500">
                       Tip: If the item is available online, you can paste the
                       link here. If not, you can leave this blank.
-                    </p>
-                    <FieldInfo field={field} />
-                  </>
-                )
-              }}
-            />
-          </div>
-
-          <div className="space-y-3">
-            <form.Field
-              name="topPick"
-              children={(field) => {
-                return (
-                  <>
-                    <Label htmlFor={field.name}>
-                      Is this a top pick for you?
-                    </Label>
-                    <Select
-                      value={field.state.value ? 'true' : 'false'}
-                      onValueChange={(value) =>
-                        field.handleChange(value === 'true')
-                      }
-                    >
-                      <SelectTrigger
-                        id={field.name}
-                        onBlur={field.handleBlur}
-                        className="w-full"
-                      >
-                        <SelectValue placeholder="Select an option" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="true">Yes</SelectItem>
-                        <SelectItem value="false">No</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <p className="-mt-1 text-xs text-gray-500">
-                      Tip: If the item is a top pick for you, you can select
-                      &quot;Yes&quot; and it will be highlighted in the list.
                     </p>
                     <FieldInfo field={field} />
                   </>
