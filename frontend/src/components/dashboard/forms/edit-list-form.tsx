@@ -48,11 +48,11 @@ export function EditListForm({
   const handleListStatus = async (status: StatusType) => {
     try {
       await updateStatus(status)
-      toast.success('Your list has been updated successfully.')
+      toast.success('List updated successfully.')
       onFormSubmit()
     } catch (error) {
-      toast.error('Failed to update the list status.', {
-        description: JSON.stringify(error),
+      toast.error('An error occurred.', {
+        description: String(error),
       })
     }
   }
@@ -60,14 +60,14 @@ export function EditListForm({
   const handleDeleteList = async () => {
     try {
       await deleteList()
-      toast.success('Your list has been deleted.')
+      toast.success('List has been deleted.')
       navigate({
         to: '/dashboard/$profileSlug',
         params: { profileSlug },
       })
       onFormCancel()
     } catch (error) {
-      console.error('Error deleting list:', error)
+      toast.error('An error occurred.', { description: String(error) })
     }
   }
 
@@ -79,24 +79,22 @@ export function EditListForm({
     } as z.infer<typeof ListUpdateSchema>,
     validators: { onChange: ListUpdateSchema },
     onSubmit: async ({ value }) => {
-      try {
-        const res = await updateList(value)
-        if (res.success) {
-          toast.success('Your list has been updated successfully.')
-          navigate({
-            to: '/dashboard/$profileSlug/$listSlug',
-            params: { profileSlug, listSlug: res.data.slug },
-          })
-          onFormSubmit()
-        } else {
-          toast.error('An error occurred', { description: res.error })
+      const res = await updateList(value)
+      if (res.success) {
+        toast.success('List updated successfully.')
+        navigate({
+          to: '/dashboard/$profileSlug/$listSlug',
+          params: { profileSlug, listSlug: res.data.slug },
+        })
+        onFormSubmit()
+      } else {
+        toast.error('An error occurred', { description: res.error })
+        if (res.isFormError) {
           form.setErrorMap({
             // @ts-expect-error error is a string but onSubmit expects an object mapping to the fields
             onSubmit: res.error || 'Unexpected error',
           })
         }
-      } catch (error) {
-        toast.error('Failed to update list.', { description: String(error) })
       }
     },
   })

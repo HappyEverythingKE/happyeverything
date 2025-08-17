@@ -28,14 +28,14 @@ export const WithListItems = ({
         <div className="flex justify-start">
           <Button variant="buttonIcon" onClick={() => setIsSheetOpen(true)}>
             <PlusCircle />
-            <span>New item</span>
+            <span>Add a gift item</span>
           </Button>
         </div>
 
         <div className="mx-auto grid w-full grid-cols-1 gap-6 md:max-w-[75%] lg:max-w-full lg:grid-cols-2 xl:grid-cols-3">
           {listItems.map((item) => (
             <ListItemCard
-              key={item.id}
+              key={item.publicId}
               profileSlug={profileSlug}
               listSlug={listSlug}
               item={item}

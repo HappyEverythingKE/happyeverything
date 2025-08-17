@@ -35,20 +35,18 @@ export function NewListForm({
     defaultValues: defaultValues,
     validators: { onChange: ListCreateSchema },
     onSubmit: async ({ value }) => {
-      try {
-        const res = await createList(value)
-        if (res.success) {
-          toast.success('New list created successfully.')
-          onFormSubmit()
-        } else {
-          toast.error('An error occurred', { description: res.error })
+      const res = await createList(value)
+      if (res.success) {
+        toast.success('New list created successfully.')
+        onFormSubmit()
+      } else {
+        toast.error('An error occurred', { description: res.error })
+        if (res.isFormError) {
           form.setErrorMap({
             // @ts-expect-error error is a string but onSubmit expects an object mapping to the fields
             onSubmit: res.error || 'Unexpected error',
           })
         }
-      } catch (error) {
-        toast.error('Failed to create list.', { description: String(error) })
       }
     },
   })

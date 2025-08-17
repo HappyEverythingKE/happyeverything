@@ -17,8 +17,7 @@ export const mapToListType = (list: any): List => {
 /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
 export const mapToListItemType = (item: any): ListItem => {
   return {
-    id: item.id,
-    listId: item.list_id,
+    publicId: item.public_id,
     name: item.name,
     quantity: item.quantity,
     topPick: item.top_pick,

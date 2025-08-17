@@ -6,13 +6,13 @@ import { getSupabase } from '@/middleware/auth.middleware'
 import { zValidator } from '@hono/zod-validator'
 
 import {
-  GiftedBySchema,
   ListItemCreateSchema,
   TopPickSchema,
   type AppEnv,
   type ListItem,
   type SuccessResponse,
 } from '@/shared/types'
+import { resolveListItemIdFromPublicId } from '@/lib/public-id-lookup'
 import {
   resolveListIdFromSlug,
   resolveProfileIdFromSlug,
@@ -121,15 +121,17 @@ export const listItemRoutes = new Hono()
     },
   )
   .patch(
-    '/:profileSlug/:listSlug/items/:itemId',
+    '/:profileSlug/:listSlug/items/:itemPublicId',
     zValidator('form', ListItemCreateSchema),
     async (c) => {
-      const { profileSlug, listSlug, itemId } = c.req.param()
+      const { profileSlug, listSlug, itemPublicId } = c.req.param()
 
       const profileId = await resolveProfileIdFromSlug(c, profileSlug)
       const listId = await resolveListIdFromSlug(c, profileId, listSlug)
+      const itemId = await resolveListItemIdFromPublicId(c, itemPublicId)
 
       const supabase = getSupabase(c)
+
       const { name, quantity, size, colour, imageUrl, productUrl, shopName } =
         c.req.valid('form')
 
@@ -143,6 +145,7 @@ export const listItemRoutes = new Hono()
           image_url: imageUrl || null,
           product_url: productUrl || null,
           shop_name: shopName || null,
+          updated_at: new Date().toISOString(),
         })
         .eq('id', itemId)
         .eq('list_id', listId)
@@ -163,16 +166,17 @@ export const listItemRoutes = new Hono()
     },
   )
   .patch(
-    '/:profileSlug/:listSlug/items/:itemId/priority',
+    '/:profileSlug/:listSlug/items/:itemPublicId/priority',
     zValidator('form', TopPickSchema),
     async (c) => {
-      const { profileSlug, listSlug, itemId } = c.req.param()
+      const { profileSlug, listSlug, itemPublicId } = c.req.param()
       const { topPick } = c.req.valid('form')
 
       const supabase = getSupabase(c)
 
       const profileId = await resolveProfileIdFromSlug(c, profileSlug)
       const listId = await resolveListIdFromSlug(c, profileId, listSlug)
+      const itemId = await resolveListItemIdFromPublicId(c, itemPublicId)
 
       // check if adding another top pick would exceed the limit
       if (topPick === true) {
@@ -201,45 +205,7 @@ export const listItemRoutes = new Hono()
 
       const { data, error: updateError } = await supabase
         .from('list_items')
-        .update({ top_pick: topPick })
-        .eq('id', itemId)
-        .eq('list_id', listId)
-        .select('*')
-        .single()
-
-      console.log('updateError', updateError)
-      console.log('data', data)
-      if (updateError) {
-        throw new HTTPException(500, {
-          message: updateError.message,
-        })
-      }
-
-      return c.json<SuccessResponse<ListItem>>({
-        success: true,
-        data: mapToListItemType(data),
-      })
-    },
-  )
-  .patch(
-    '/:profileSlug/:listSlug/items/:itemId/status',
-    zValidator('form', GiftedBySchema),
-    async (c) => {
-      const { profileSlug, listSlug, itemId } = c.req.param()
-
-      const profileId = await resolveProfileIdFromSlug(c, profileSlug)
-      const listId = await resolveListIdFromSlug(c, profileId, listSlug)
-
-      const supabase = getSupabase(c)
-      const { giftedBy, quantityGifted } = c.req.valid('form')
-
-      const { data, error: updateError } = await supabase
-        .from('list_items')
-        .update({
-          status: 'gifted',
-          gifted_by: giftedBy,
-          quantity_gifted: quantityGifted,
-        })
+        .update({ top_pick: topPick, updated_at: new Date().toISOString() })
         .eq('id', itemId)
         .eq('list_id', listId)
         .select('*')
@@ -257,11 +223,12 @@ export const listItemRoutes = new Hono()
       })
     },
   )
-  .delete('/:profileSlug/:listSlug/items/:itemId', async (c) => {
-    const { profileSlug, listSlug, itemId } = c.req.param()
+  .delete('/:profileSlug/:listSlug/items/:itemPublicId', async (c) => {
+    const { profileSlug, listSlug, itemPublicId } = c.req.param()
 
     const profileId = await resolveProfileIdFromSlug(c, profileSlug)
     const listId = await resolveListIdFromSlug(c, profileId, listSlug)
+    const itemId = await resolveListItemIdFromPublicId(c, itemPublicId)
 
     const supabase = getSupabase(c)
 
@@ -279,3 +246,39 @@ export const listItemRoutes = new Hono()
 
     return c.body(null, 204)
   })
+// .patch(
+//   '/:profileSlug/:listSlug/items/:itemId/status',
+//   zValidator('form', GiftedBySchema),
+//   async (c) => {
+//     const { profileSlug, listSlug, itemId } = c.req.param()
+
+//     const profileId = await resolveProfileIdFromSlug(c, profileSlug)
+//     const listId = await resolveListIdFromSlug(c, profileId, listSlug)
+
+//     const supabase = getSupabase(c)
+//     const { giftedBy, quantityGifted } = c.req.valid('form')
+
+//     const { data, error: updateError } = await supabase
+//       .from('list_items')
+//       .update({
+//         status: 'gifted',
+//         gifted_by: giftedBy,
+//         quantity_gifted: quantityGifted,
+//       })
+//       .eq('id', itemId)
+//       .eq('list_id', listId)
+//       .select('*')
+//       .single()
+
+//     if (updateError) {
+//       throw new HTTPException(500, {
+//         message: updateError.message,
+//       })
+//     }
+
+//     return c.json<SuccessResponse<ListItem>>({
+//       success: true,
+//       data: mapToListItemType(data),
+//     })
+//   },
+// )

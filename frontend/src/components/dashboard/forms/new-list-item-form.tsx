@@ -50,20 +50,18 @@ export function NewListItemForm({
     defaultValues: defaultValues,
     validators: { onChange: ListItemCreateSchema },
     onSubmit: async ({ value }) => {
-      try {
-        const res = await createListItem(value)
-        if (res.success) {
-          toast.success('New item added successfully.')
-          onFormSubmit()
-        } else {
-          toast.error('An error occurred', { description: res.error })
+      const res = await createListItem(value)
+      if (res.success) {
+        toast.success('New gift item added successfully.')
+        onFormSubmit()
+      } else {
+        toast.error('An error occurred', { description: res.error })
+        if (res.isFormError) {
           form.setErrorMap({
             // @ts-expect-error error is a string but onSubmit expects an object mapping to the fields
             onSubmit: res.error || 'Unexpected error',
           })
         }
-      } catch (error) {
-        toast.error('Failed to create item.', { description: String(error) })
       }
     },
   })
@@ -85,7 +83,9 @@ export function NewListItemForm({
               children={(field) => {
                 return (
                   <>
-                    <Label htmlFor={field.name}>What is the item?</Label>
+                    <Label htmlFor={field.name}>
+                      Item name <span className="text-red-400">*</span>
+                    </Label>
                     <Input
                       type="text"
                       id={field.name}
@@ -95,10 +95,10 @@ export function NewListItemForm({
                       onChange={(e) => field.handleChange(e.target.value)}
                       aria-invalid={!field.state.meta.isValid}
                       placeholder="Keep it short and sweet (e.g. wireless headphones)"
-                      maxLength={50}
+                      maxLength={150}
                     />
                     <p className="-mt-1 ml-1 text-xs text-gray-500">
-                      {field.state.value.length}/50 characters
+                      {field.state.value.length}/150 characters
                     </p>
                     <FieldInfo field={field} />
                   </>
@@ -113,7 +113,9 @@ export function NewListItemForm({
               children={(field) => {
                 return (
                   <>
-                    <Label htmlFor={field.name}>Quantity</Label>
+                    <Label htmlFor={field.name}>
+                      Quantity <span className="text-red-400">*</span>
+                    </Label>
                     <Input
                       type="number"
                       id={field.name}
@@ -182,7 +184,7 @@ export function NewListItemForm({
                       maxLength={50}
                     />
                     <p className="-mt-1 ml-1 text-xs text-gray-500">
-                      Tip: If the item has no size, you can leave this blank.
+                      {field.state.value?.length ?? 0}/50 characters
                     </p>
                     <FieldInfo field={field} />
                   </>
@@ -208,6 +210,9 @@ export function NewListItemForm({
                       aria-invalid={!field.state.meta.isValid}
                       maxLength={50}
                     />
+                    <p className="-mt-1 ml-1 text-xs text-gray-500">
+                      {field.state.value?.length ?? 0}/50 characters
+                    </p>
                     <FieldInfo field={field} />
                   </>
                 )
@@ -215,8 +220,8 @@ export function NewListItemForm({
             />
           </div>
 
-          <div className="space-y-3">
-            <p className="text-sm font-semibold leading-none">Where to buy</p>
+          <div className="space-y-3 border-t pt-6">
+            <p className="text-base font-semibold leading-none">Where to buy</p>
             <p className="-mt-1 text-xs text-gray-500">
               Add a website link or shop name to help others find it easily.
             </p>
@@ -265,9 +270,8 @@ export function NewListItemForm({
                       aria-invalid={!field.state.meta.isValid}
                       maxLength={50}
                     />
-                    <p className="-mt-1 text-xs text-gray-500">
-                      Tip: If the item is available online, you can paste the
-                      link here. If not, you can leave this blank.
+                    <p className="-mt-1 ml-1 text-xs text-gray-500">
+                      {field.state.value?.length ?? 0}/50 characters
                     </p>
                     <FieldInfo field={field} />
                   </>
@@ -306,6 +310,7 @@ export function NewListItemForm({
                     <p className="-mt-1 text-xs text-gray-500">
                       Tip: If the item is a top pick for you, you can select
                       &quot;Yes&quot; and it will be highlighted in the list.
+                      You can have up to 3 top picks.
                     </p>
                     <FieldInfo field={field} />
                   </>

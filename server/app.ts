@@ -5,6 +5,7 @@ import { logger } from 'hono/logger'
 
 import { supabaseMiddleware } from '@/middleware/auth.middleware'
 import { authRoutes } from '@/routes/auth'
+import { giftReservationRoutes } from '@/routes/gift-reservation-routes'
 import { listItemRoutes } from '@/routes/lists/list-item-routes'
 import { listRoutes } from '@/routes/lists/list-routes'
 import { profileRoutes } from '@/routes/profile'
@@ -27,6 +28,7 @@ const apiRoutes = app
   .route('/profile', profileRoutes)
   .route('/lists', listRoutes)
   .route('/lists', listItemRoutes)
+  .route('/reservations', giftReservationRoutes)
 // .route('/lists', listAccessRoutes)
 
 app.onError((err, c) => {

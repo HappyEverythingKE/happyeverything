@@ -35,24 +35,17 @@ export const createListItem = async (
   listSlug: string,
   listItemData: Partial<ListItem>,
 ) => {
-  try {
-    const res = await client.lists[profileSlug][listSlug].items.$post({
-      form: listItemData,
-    })
+  const res = await client.lists[profileSlug][listSlug].items.$post({
+    form: listItemData,
+  })
 
-    if (res.ok) {
-      const data = (await res.json()) as SuccessResponse<ListItem>
-      return data
-    }
-    const data = (await res.json()) as ErrorResponse
-    throw new Error(data.error ?? 'Failed to create item')
-  } catch (error) {
-    return {
-      success: false,
-      error: String(error),
-      isFormError: false,
-    } as ErrorResponse
+  if (res.ok) {
+    const data = (await res.json()) as SuccessResponse<ListItem>
+    return data
   }
+
+  const data = (await res.json()) as ErrorResponse
+  return data
 }
 
 export const useCreateListItem = (profileSlug: string, listSlug: string) => {
@@ -71,73 +64,39 @@ export const useCreateListItem = (profileSlug: string, listSlug: string) => {
   })
 }
 
-export const fetchListItem = async (
-  profileSlug: string,
-  listSlug: string,
-  itemId: string,
-) => {
-  const res = await client.lists[profileSlug][listSlug].items[itemId].$get({})
-
-  if (res.ok) {
-    const { data } = (await res.json()) as SuccessResponse<ListItem>
-    return data
-  }
-  const data = (await res.json()) as ErrorResponse
-  throw new Error(data.error ?? 'Failed to fetch item')
-}
-
-export const fetchListItemQueryOptions = (
-  profileSlug: string,
-  listSlug: string,
-  itemId: string,
-) =>
-  queryOptions({
-    queryKey: [profileSlug, listSlug, 'items', itemId],
-    queryFn: () => fetchListItem(profileSlug, listSlug, itemId),
-    enabled: !!profileSlug && !!listSlug && !!itemId,
-  })
-
 export const updateListItem = async (
   profileSlug: string,
   listSlug: string,
-  itemId: string,
+  itemPublicId: string,
   listItemData: Partial<ListItem>,
 ) => {
-  try {
-    const res = await client.lists[profileSlug][listSlug].items[itemId].$patch({
-      form: listItemData,
-    })
+  const res = await client.lists[profileSlug][listSlug].items[
+    itemPublicId
+  ].$patch({
+    form: listItemData,
+  })
 
-    if (res.ok) {
-      const data = (await res.json()) as SuccessResponse<ListItem>
-      return data
-    }
-    const data = (await res.json()) as ErrorResponse
-    throw new Error(data.error ?? 'Failed to update item')
-  } catch (error) {
-    return {
-      success: false,
-      error: String(error),
-      isFormError: false,
-    } as ErrorResponse
+  if (res.ok) {
+    const data = (await res.json()) as SuccessResponse<ListItem>
+    return data
   }
+
+  const data = (await res.json()) as ErrorResponse
+  return data
 }
 
 export const useUpdateListItem = (
   profileSlug: string,
   listSlug: string,
-  itemId: string,
+  itemPublicId: string,
 ) => {
   const queryClient = useQueryClient()
   const router = useRouter()
 
   return useMutation({
     mutationFn: (listItemData: Partial<ListItem>) =>
-      updateListItem(profileSlug, listSlug, itemId, listItemData),
+      updateListItem(profileSlug, listSlug, itemPublicId, listItemData),
     onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: [profileSlug, listSlug, 'items', itemId],
-      })
       queryClient.invalidateQueries({
         queryKey: [profileSlug, listSlug, 'items'],
       })
@@ -149,11 +108,11 @@ export const useUpdateListItem = (
 export const updateListItemPriority = async (
   profileSlug: string,
   listSlug: string,
-  itemId: string,
+  itemPublicId: string,
   topPick: boolean,
 ) => {
   const res = await client.lists[profileSlug][listSlug].items[
-    itemId
+    itemPublicId
   ].priority.$patch({
     form: { topPick: Boolean(topPick) },
   })
@@ -162,6 +121,7 @@ export const updateListItemPriority = async (
     const data = (await res.json()) as SuccessResponse<ListItem>
     return data
   }
+
   const data = (await res.json()) as ErrorResponse
   throw new Error(data.error ?? 'Failed to update top pick status')
 }
@@ -169,18 +129,15 @@ export const updateListItemPriority = async (
 export const useUpdateListItemPriority = (
   profileSlug: string,
   listSlug: string,
-  itemId: string,
+  itemPublicId: string,
 ) => {
   const queryClient = useQueryClient()
   const router = useRouter()
 
   return useMutation({
     mutationFn: (topPick: boolean) =>
-      updateListItemPriority(profileSlug, listSlug, itemId, topPick),
+      updateListItemPriority(profileSlug, listSlug, itemPublicId, topPick),
     onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: [profileSlug, listSlug, 'items', itemId],
-      })
       queryClient.invalidateQueries({
         queryKey: [profileSlug, listSlug, 'items'],
       })
@@ -192,11 +149,11 @@ export const useUpdateListItemPriority = (
 export const deleteListItem = async (
   profileSlug: string,
   listSlug: string,
-  itemId: string,
+  itemPublicId: string,
 ) => {
-  const res = await client.lists[profileSlug][listSlug].items[itemId].$delete(
-    {},
-  )
+  const res = await client.lists[profileSlug][listSlug].items[
+    itemPublicId
+  ].$delete({})
 
   if (!res.ok) {
     const data = (await res.json()) as ErrorResponse
@@ -207,17 +164,14 @@ export const deleteListItem = async (
 export const useDeleteListItem = (
   profileSlug: string,
   listSlug: string,
-  itemId: string,
+  itemPublicId: string,
 ) => {
   const queryClient = useQueryClient()
   const router = useRouter()
 
   return useMutation({
-    mutationFn: () => deleteListItem(profileSlug, listSlug, itemId),
+    mutationFn: () => deleteListItem(profileSlug, listSlug, itemPublicId),
     onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: [profileSlug, listSlug, 'items', itemId],
-      })
       queryClient.invalidateQueries({
         queryKey: [profileSlug, listSlug, 'items'],
       })
@@ -225,3 +179,30 @@ export const useDeleteListItem = (
     },
   })
 }
+
+// maybe for use later with publicItemId if needed:
+// export const fetchListItem = async (
+//   profileSlug: string,
+//   listSlug: string,
+//   itemId: string,
+// ) => {
+//   const res = await client.lists[profileSlug][listSlug].items[itemId].$get({})
+
+//   if (res.ok) {
+//     const { data } = (await res.json()) as SuccessResponse<ListItem>
+//     return data
+//   }
+//   const data = (await res.json()) as ErrorResponse
+//   throw new Error(data.error ?? 'Failed to fetch item')
+// }
+
+// export const fetchListItemQueryOptions = (
+//   profileSlug: string,
+//   listSlug: string,
+//   itemId: string,
+// ) =>
+//   queryOptions({
+//     queryKey: [profileSlug, listSlug, 'items', itemId],
+//     queryFn: () => fetchListItem(profileSlug, listSlug, itemId),
+//     enabled: !!profileSlug && !!listSlug && !!itemId,
+//   })

@@ -92,14 +92,26 @@ export const TopPickSchema = z.object({
 
 export type TopPickType = z.infer<typeof TopPickSchema>
 
-export const GiftedBySchema = z.object({
-  giftedBy: z.string().optional(),
-  quantityGifted: z.coerce.number(),
+export const GiftReservationCreateSchema = z.object({
+  gifterName: z
+    .string()
+    .max(50, 'This field must be less than 50 characters.')
+    .optional(),
+  quantityReserved: z.coerce
+    .number()
+    .int()
+    .positive()
+    .min(1, 'Please enter a quantity.'),
 })
 
+export type GiftReservationType = {
+  gifterName: string | undefined
+  quantityReserved: number
+  createdAt: string
+}
+
 export type ListItem = {
-  id: string
-  listId: string
+  publicId: string
   name: string
   quantity: number
   topPick: boolean
@@ -119,7 +131,7 @@ export const ListItemCreateSchema = z.object({
   name: z
     .string()
     .min(1, 'This field is required.')
-    .max(200, 'Item name must be less than 200 characters.'),
+    .max(150, 'Item name must be less than 150 characters.'),
   quantity: z.coerce.number().min(1, 'Quantity must be at least 1.'),
   topPick: z.coerce.boolean(),
   size: z.string().max(50, 'Size must be less than 50 characters.').optional(),

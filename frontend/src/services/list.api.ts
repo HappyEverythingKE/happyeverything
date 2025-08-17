@@ -39,25 +39,17 @@ export const createList = async (
   profileSlug: string,
   listData: Partial<List>,
 ) => {
-  try {
-    const res = await client.lists[profileSlug].$post({
-      form: listData,
-    })
+  const res = await client.lists[profileSlug].$post({
+    form: listData,
+  })
 
-    if (res.ok) {
-      const data = (await res.json()) as SuccessResponse<List>
-      return data
-    }
-
-    const data = (await res.json()) as unknown as ErrorResponse
+  if (res.ok) {
+    const data = (await res.json()) as SuccessResponse<List>
     return data
-  } catch (error) {
-    return {
-      success: false,
-      error: String(error),
-      isFormError: false,
-    } as ErrorResponse
   }
+
+  const data = (await res.json()) as unknown as ErrorResponse
+  return data
 }
 
 export const useCreateList = (profileSlug: string) => {
@@ -97,25 +89,17 @@ export const updateList = async (
   listSlug: string,
   listData: Partial<List>,
 ) => {
-  try {
-    const res = await client.lists[profileSlug][listSlug].$patch({
-      form: listData,
-    })
+  const res = await client.lists[profileSlug][listSlug].$patch({
+    form: listData,
+  })
 
-    if (res.ok) {
-      const data = (await res.json()) as SuccessResponse<List>
-      return data
-    }
-
-    const data = (await res.json()) as unknown as ErrorResponse
+  if (res.ok) {
+    const data = (await res.json()) as SuccessResponse<List>
     return data
-  } catch (error) {
-    return {
-      success: false,
-      error: String(error),
-      isFormError: false,
-    } as ErrorResponse
   }
+
+  const data = (await res.json()) as unknown as ErrorResponse
+  return data
 }
 
 export const useUpdateList = (profileSlug: string, listSlug: string) => {
@@ -175,7 +159,7 @@ export const deleteList = async (profileSlug: string, listSlug: string) => {
 
   if (!res.ok) {
     const data = (await res.json()) as ErrorResponse
-    throw new Error(data.error ?? 'Failed to delete list')
+    throw new Error(data.error ?? 'Failed to delete the list')
   }
 }
 

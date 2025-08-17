@@ -31,23 +31,25 @@ export function EditListItemForm({
   const { mutateAsync: updateListItem, isPending } = useUpdateListItem(
     profileSlug,
     listSlug,
-    listItem.id,
+    listItem.publicId,
   )
   // delete list item
   const { mutateAsync: deleteListItem, isPending: isDeleting } =
-    useDeleteListItem(profileSlug, listSlug, listItem.id)
+    useDeleteListItem(profileSlug, listSlug, listItem.publicId)
 
   const handleDeleteItem = async () => {
     try {
       await deleteListItem()
-      toast.success('Your item has been deleted.')
+      toast.success('Gift item has been deleted.')
       navigate({
         to: '/dashboard/$profileSlug/$listSlug',
         params: { profileSlug, listSlug: listSlug },
       })
       onFormCancel()
     } catch (error) {
-      toast.error('Failed to delete item.', { description: String(error) })
+      toast.error('An error occurred.', {
+        description: String(error),
+      })
     }
   }
 
@@ -63,24 +65,22 @@ export function EditListItemForm({
     } as z.infer<typeof ListItemCreateSchema>,
     validators: { onChange: ListItemCreateSchema },
     onSubmit: async ({ value }) => {
-      try {
-        const res = await updateListItem(value)
-        if (res.success) {
-          toast.success('Your item has been updated successfully.')
-          navigate({
-            to: '/dashboard/$profileSlug/$listSlug',
-            params: { profileSlug, listSlug: listSlug },
-          })
-          onFormSubmit()
-        } else {
-          toast.error('An error occurred', { description: res.error })
+      const res = await updateListItem(value)
+      if (res.success) {
+        toast.success('Gift item updated successfully.')
+        navigate({
+          to: '/dashboard/$profileSlug/$listSlug',
+          params: { profileSlug, listSlug: listSlug },
+        })
+        onFormSubmit()
+      } else {
+        toast.error('An error occurred', { description: res.error })
+        if (res.isFormError) {
           form.setErrorMap({
             // @ts-expect-error error is a string but onSubmit expects an object mapping to the fields
             onSubmit: res.error || 'Unexpected error',
           })
         }
-      } catch (error) {
-        toast.error('Error updating item.', { description: String(error) })
       }
     },
   })
@@ -88,7 +88,7 @@ export function EditListItemForm({
   return (
     <div className="flex h-full flex-col gap-12 md:grid md:grid-rows-[auto_1fr]">
       <form
-        className="space-y-6"
+        className="flex h-full flex-col gap-6 md:grid md:grid-rows-[auto_1fr]"
         onSubmit={(e) => {
           e.preventDefault()
           e.stopPropagation()
@@ -102,7 +102,9 @@ export function EditListItemForm({
               children={(field) => {
                 return (
                   <>
-                    <Label htmlFor={field.name}>What is the item?</Label>
+                    <Label htmlFor={field.name}>
+                      Item name <span className="text-red-400">*</span>
+                    </Label>
                     <Input
                       type="text"
                       id={field.name}
@@ -111,11 +113,11 @@ export function EditListItemForm({
                       onBlur={field.handleBlur}
                       onChange={(e) => field.handleChange(e.target.value)}
                       aria-invalid={!field.state.meta.isValid}
-                      placeholder="For example: wireless headphones)"
-                      maxLength={50}
+                      placeholder="Keep it short and sweet (e.g. wireless headphones)"
+                      maxLength={150}
                     />
                     <p className="-mt-1 ml-1 text-xs text-gray-500">
-                      {field.state.value.length}/50 characters
+                      {field.state.value.length}/150 characters
                     </p>
                     <FieldInfo field={field} />
                   </>
@@ -130,7 +132,9 @@ export function EditListItemForm({
               children={(field) => {
                 return (
                   <>
-                    <Label htmlFor={field.name}>Quantity</Label>
+                    <Label htmlFor={field.name}>
+                      Quantity <span className="text-red-400">*</span>
+                    </Label>
                     <Input
                       type="number"
                       id={field.name}
@@ -168,7 +172,6 @@ export function EditListItemForm({
                       onBlur={field.handleBlur}
                       onChange={(e) => field.handleChange(e.target.value)}
                       placeholder="Paste a link to an image of the gift"
-                      aria-invalid={!field.state.meta.isValid}
                     />
                     <p className="-mt-1 ml-1 text-xs text-gray-500">
                       Tip: On desktop, find an image of your gift. Right-click
@@ -200,7 +203,7 @@ export function EditListItemForm({
                       maxLength={50}
                     />
                     <p className="-mt-1 ml-1 text-xs text-gray-500">
-                      Tip: If the item has no size, you can leave this blank.
+                      {field.state.value?.length ?? 0}/50 characters
                     </p>
                     <FieldInfo field={field} />
                   </>
@@ -226,6 +229,9 @@ export function EditListItemForm({
                       aria-invalid={!field.state.meta.isValid}
                       maxLength={50}
                     />
+                    <p className="-mt-1 ml-1 text-xs text-gray-500">
+                      {field.state.value?.length ?? 0}/50 characters
+                    </p>
                     <FieldInfo field={field} />
                   </>
                 )
@@ -233,8 +239,8 @@ export function EditListItemForm({
             />
           </div>
 
-          <div className="space-y-3">
-            <p className="text-sm font-semibold leading-none">Where to buy</p>
+          <div className="space-y-3 border-t pt-6">
+            <p className="text-base font-semibold leading-none">Where to buy</p>
             <p className="-mt-1 text-xs text-gray-500">
               Add a website link or shop name to help others find it easily.
             </p>
@@ -254,7 +260,6 @@ export function EditListItemForm({
                       onBlur={field.handleBlur}
                       onChange={(e) => field.handleChange(e.target.value)}
                       placeholder="Paste a URL (e.g. https://www.shop.com/item)"
-                      aria-invalid={!field.state.meta.isValid}
                     />
                     <p className="-mt-1 text-xs text-gray-500">
                       Tip: If the item is available online, you can paste the
@@ -284,9 +289,8 @@ export function EditListItemForm({
                       aria-invalid={!field.state.meta.isValid}
                       maxLength={50}
                     />
-                    <p className="-mt-1 text-xs text-gray-500">
-                      Tip: If the item is available online, you can paste the
-                      link here. If not, you can leave this blank.
+                    <p className="-mt-1 ml-1 text-xs text-gray-500">
+                      {field.state.value?.length ?? 0}/50 characters
                     </p>
                     <FieldInfo field={field} />
                   </>
@@ -309,7 +313,7 @@ export function EditListItemForm({
         </div>
 
         {/* Form submission */}
-        <div className="mt-auto">
+        <div className="mt-auto pb-8">
           <form.Subscribe
             selector={(state) => [
               state.canSubmit,

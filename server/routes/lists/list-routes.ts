@@ -224,6 +224,7 @@ export const listRoutes = new Hono()
           list_type: listType,
           private: isPrivate,
           password,
+          updated_at: new Date().toISOString(),
         })
         .eq('id', listId)
         .eq('profile_id', profileId)
@@ -260,7 +261,7 @@ export const listRoutes = new Hono()
 
     const { data: updatedList, error: updateError } = await supabase
       .from('lists')
-      .update({ status })
+      .update({ status, updated_at: new Date().toISOString() })
       .eq('id', listId)
       .eq('profile_id', profileId)
       .select()

@@ -26,7 +26,7 @@ export const ListItemCard = ({
   const handleCancel = () => setIsSheetOpen(false)
 
   const { mutateAsync: updateListItemPriority, isPending } =
-    useUpdateListItemPriority(profileSlug, listSlug, item.id)
+    useUpdateListItemPriority(profileSlug, listSlug, item.publicId)
 
   const handleTopPickToggle = async () => {
     try {
@@ -36,8 +36,8 @@ export const ListItemCard = ({
         newTopPickValue ? 'Added to Top Picks' : 'Removed from Top Picks',
       )
     } catch (error) {
-      toast.error('Failed to update top pick status', {
-        description: JSON.stringify(error),
+      toast.error('An error occurred.', {
+        description: String(error),
       })
     }
   }
@@ -47,7 +47,7 @@ export const ListItemCard = ({
   return (
     <>
       <Card
-        key={item.id}
+        key={item.publicId}
         className="overflow-hidden border-stone-200 bg-white p-6 transition-shadow hover:shadow-md"
       >
         <div className="relative mb-4">
