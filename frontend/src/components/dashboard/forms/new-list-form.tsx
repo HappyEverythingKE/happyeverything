@@ -59,9 +59,9 @@ export function NewListForm({
   })
 
   return (
-    <>
+    <div className="flex h-full flex-col gap-12 md:grid md:grid-rows-[auto_1fr]">
       <form
-        className="flex h-full flex-col gap-6 md:grid md:grid-rows-[auto_1fr]"
+        className="space-y-6"
         onSubmit={(e) => {
           e.preventDefault()
           e.stopPropagation()
@@ -209,6 +209,6 @@ export function NewListForm({
           />
         </div>
       </form>
-    </>
+    </div>
   )
 }

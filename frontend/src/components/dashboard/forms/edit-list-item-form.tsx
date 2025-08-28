@@ -88,7 +88,7 @@ export function EditListItemForm({
   return (
     <div className="flex h-full flex-col gap-12 md:grid md:grid-rows-[auto_1fr]">
       <form
-        className="flex h-full flex-col gap-6 md:grid md:grid-rows-[auto_1fr]"
+        className="space-y-6"
         onSubmit={(e) => {
           e.preventDefault()
           e.stopPropagation()
@@ -313,7 +313,7 @@ export function EditListItemForm({
         </div>
 
         {/* Form submission */}
-        <div className="mt-auto pb-8">
+        <div className="mt-auto">
           <form.Subscribe
             selector={(state) => [
               state.canSubmit,

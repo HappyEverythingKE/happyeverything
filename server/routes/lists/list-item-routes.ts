@@ -56,40 +56,8 @@ export const listItemRoutes = new Hono()
       const listId = await resolveListIdFromSlug(c, profileId, listSlug)
 
       const supabase = getSupabase(c)
-      const {
-        name,
-        quantity,
-        topPick,
-        size,
-        colour,
-        imageUrl,
-        productUrl,
-        shopName,
-      } = c.req.valid('form')
-
-      // check if adding another top pick would exceed the limit
-      if (topPick === true) {
-        const { count, error: countError } = await supabase
-          .from('list_items')
-          .select('*', { count: 'exact', head: true })
-          .eq('list_id', listId)
-          .eq('top_pick', true)
-
-        if (countError) {
-          throw new HTTPException(500, {
-            message: countError.message,
-          })
-        }
-
-        const { MAX_TOP_PICKS_PER_LIST } = env<AppEnv>(c)
-
-        if ((count ?? 0) >= MAX_TOP_PICKS_PER_LIST) {
-          throw new HTTPException(400, {
-            message: `You can only have up to ${MAX_TOP_PICKS_PER_LIST} top picks per list`,
-            cause: { form: true },
-          })
-        }
-      }
+      const { name, quantity, size, colour, imageUrl, productUrl, shopName } =
+        c.req.valid('form')
 
       const { data, error: insertError } = await supabase
         .from('list_items')
@@ -97,7 +65,6 @@ export const listItemRoutes = new Hono()
           list_id: listId,
           name,
           quantity,
-          top_pick: topPick,
           size,
           colour,
           image_url: imageUrl,

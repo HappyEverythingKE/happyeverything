@@ -136,7 +136,6 @@ export const ListItemCreateSchema = z.object({
     .min(1, 'This field is required.')
     .max(150, 'Item name must be less than 150 characters.'),
   quantity: z.coerce.number().min(1, 'Quantity must be at least 1.'),
-  topPick: z.coerce.boolean(),
   size: z.string().max(50, 'Size must be less than 50 characters.').optional(),
   colour: z
     .string()
