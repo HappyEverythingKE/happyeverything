@@ -22,28 +22,28 @@ import {
 import { mapToListType } from '@/lib/utils'
 
 export const listRoutes = new Hono()
-  .get('/list-type/search', async (c) => {
-    const { q } = c.req.query()
+  .get('/list-types', async (c) => {
     const supabase = getSupabase(c)
 
-    let supabaseQuery = supabase
-      .from('list_types_view')
-      .select('name')
-      .order('name', { ascending: true })
-
-    if (q) {
-      supabaseQuery = supabaseQuery.ilike('name', `%${q}%`)
-    }
-    const { data, error } = await supabaseQuery
+    const { data, error } = await supabase
+      .from('list_types')
+      .select('*')
+      .order('name')
 
     if (error) {
-      console.error('Error fetching list types:', error)
-      return
+      throw new HTTPException(500, {
+        message: error.message,
+      })
     }
 
     return c.json<SuccessResponse<ListType[]>>({
       success: true,
-      data,
+      data: data.map((item) => ({
+        id: item.id,
+        name: item.name,
+        imageUrl: item.image_url,
+        isCustom: item.is_custom,
+      })),
     })
   })
   .get('/:profileSlug', async (c) => {
@@ -54,7 +54,7 @@ export const listRoutes = new Hono()
     const { data: allLists, error: listsError } = await supabase
       .from('lists')
       .select(
-        'name, slug, list_type, description, private, password, status, created_at',
+        'name, slug, description, private, password, status, created_at, list_types!inner(id, name, image_url, is_custom)',
       )
       .eq('profile_id', profileId)
       .order('created_at', { ascending: false })
@@ -74,7 +74,7 @@ export const listRoutes = new Hono()
     const { profileSlug } = c.req.param()
     const profileId = await resolveProfileIdFromSlug(c, profileSlug)
     const supabase = getSupabase(c)
-    const { name, description, listType } = c.req.valid('form')
+    const { name, description, listTypeId } = c.req.valid('form')
 
     // count existing lists belonging to this profile
     const { count, error: countError } = await supabase
@@ -128,9 +128,11 @@ export const listRoutes = new Hono()
         name,
         slug: generatedSlug,
         description: description,
-        list_type: listType,
+        list_type_id: listTypeId,
       })
-      .select('*')
+      .select(
+        'name, slug, description, private, password, status, created_at, list_types!inner(id, name, image_url, is_custom)',
+      )
       .single()
 
     if (insertError) {
@@ -157,7 +159,9 @@ export const listRoutes = new Hono()
 
     const { data: list, error } = await supabase
       .from('lists')
-      .select('*')
+      .select(
+        'name, slug, description, private, password, status, created_at, list_types!inner(id, name, image_url, is_custom)',
+      )
       .eq('id', listId)
       .eq('profile_id', profileId)
       .single()
@@ -184,7 +188,7 @@ export const listRoutes = new Hono()
 
       const supabase = getSupabase(c)
 
-      const { name, description, listType, isPrivate, password } =
+      const { name, description, listTypeId, isPrivate, password } =
         c.req.valid('form')
 
       let generatedSlug = listSlug
@@ -221,14 +225,16 @@ export const listRoutes = new Hono()
           name,
           slug: generatedSlug,
           description,
-          list_type: listType,
+          list_type_id: listTypeId,
           private: isPrivate,
           password,
           updated_at: new Date().toISOString(),
         })
         .eq('id', listId)
         .eq('profile_id', profileId)
-        .select('*')
+        .select(
+          'name, slug, description, private, password, status, created_at, list_types!inner(id, name, image_url, is_custom)',
+        )
         .single()
 
       if (updateError) {
@@ -264,7 +270,9 @@ export const listRoutes = new Hono()
       .update({ status, updated_at: new Date().toISOString() })
       .eq('id', listId)
       .eq('profile_id', profileId)
-      .select()
+      .select(
+        'name, slug, description, private, password, status, created_at, list_types!inner(id, name, image_url, is_custom)',
+      )
       .single()
 
     if (updateError) {

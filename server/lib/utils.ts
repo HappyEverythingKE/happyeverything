@@ -5,12 +5,17 @@ export const mapToListType = (list: any): List => {
   return {
     name: list.name,
     slug: list.slug,
-    listType: list.list_type,
     description: list.description,
     isPrivate: list.private,
     password: list.password,
     status: list.status as StatusType,
     createdAt: list.created_at,
+    listType: {
+      id: list.list_types.id,
+      name: list.list_types.name,
+      imageUrl: list.list_types.image_url,
+      isCustom: list.list_types.is_custom,
+    },
   }
 }
 

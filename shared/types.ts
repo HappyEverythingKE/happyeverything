@@ -49,7 +49,7 @@ export type Profile = {
 export type List = {
   name: string
   slug: string
-  listType: string
+  listType: ListType
   description?: string
   isPrivate: boolean
   password?: string
@@ -66,7 +66,7 @@ export const ListCreateSchema = z.object({
     .string()
     .max(50, 'The description must be less than 100 characters')
     .optional(),
-  listType: z.string(),
+  listTypeId: z.string(),
 })
 
 export const ListUpdateSchema = ListCreateSchema.extend({
@@ -75,7 +75,10 @@ export const ListUpdateSchema = ListCreateSchema.extend({
 })
 
 export type ListType = {
+  id: string
   name: string
+  imageUrl: string | null
+  isCustom: boolean
 }
 
 export const TopPickSchema = z.object({

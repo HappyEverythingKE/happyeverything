@@ -1,14 +1,16 @@
 import { useForm } from '@tanstack/react-form'
+import { useQuery } from '@tanstack/react-query'
 
-import { useCreateList } from '@/services/list.api'
+import { listTypesQueryOptions, useCreateList } from '@/services/list.api'
 import { ListCreateSchema } from '@shared/types'
+import { startCase } from 'lodash'
 import { toast } from 'sonner'
 import type { z } from 'zod'
 
 import { Button } from '@/components/ui/button'
+import { Combobox } from '@/components/ui/combobox'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { ListTypeInput } from '@/components/ui/list-type-input'
 import { Textarea } from '@/components/ui/textarea'
 import { FieldInfo } from '@/components/field-info'
 
@@ -21,7 +23,6 @@ interface NewListFormProps {
 const defaultValues = {
   name: '',
   description: '',
-  listType: '',
 } as z.infer<typeof ListCreateSchema>
 
 export function NewListForm({
@@ -30,6 +31,12 @@ export function NewListForm({
   onFormCancel,
 }: NewListFormProps) {
   const { mutateAsync: createList, isPending } = useCreateList(profileSlug)
+  // get list types
+  const {
+    data: listTypes,
+    isLoading: isListTypesLoading,
+    error: listTypesError,
+  } = useQuery(listTypesQueryOptions())
 
   const form = useForm({
     defaultValues: defaultValues,
@@ -122,16 +129,41 @@ export function NewListForm({
           </div>
 
           <div className="space-y-3">
+            {listTypesError && (
+              <p className="text-destructive text-sm font-medium">
+                {listTypesError.message}
+                Trouble loading list types. Please try again later.
+              </p>
+            )}
             <form.Field
-              name="listType"
+              name="listTypeId"
               children={(field) => {
                 return (
                   <>
-                    <Label htmlFor={field.name}>Enter your list type</Label>
-                    <ListTypeInput
-                      inputValue={field.state.value}
-                      onChange={field.handleChange}
+                    <Label htmlFor={field.name}>Select a list type</Label>
+                    <Combobox
+                      fieldId={field.name}
+                      value={field.state.value}
+                      onValueChange={(value) => field.handleChange(value)}
+                      onBlur={field.handleBlur}
+                      aria-invalid={!field.state.meta.isValid}
+                      placeholder="Birthday, etc."
+                      searchPlaceholder="Search list types..."
+                      emptyMessage="No list type found."
+                      disabled={isListTypesLoading}
+                      options={
+                        isListTypesLoading
+                          ? [{ value: 'loading', label: 'Loading...' }]
+                          : listTypes?.map((type) => ({
+                              value: type.id,
+                              label: startCase(type.name),
+                            })) || []
+                      }
                     />
+                    <p className="-mt-1 text-xs text-gray-500">
+                      Reach out to us if you don&apos;t see the list type
+                      you&apos;re looking for.
+                    </p>
                     <FieldInfo field={field} />
                   </>
                 )

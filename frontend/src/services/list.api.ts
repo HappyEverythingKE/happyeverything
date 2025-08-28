@@ -2,7 +2,6 @@ import { useRouter } from '@tanstack/react-router'
 import {
   queryOptions,
   useMutation,
-  useQuery,
   useQueryClient,
 } from '@tanstack/react-query'
 
@@ -15,7 +14,6 @@ import type {
 } from '@shared/types'
 
 import { client } from '@/lib/api'
-import { useDebounce } from '@/lib/utils'
 
 export const getListsByProfile = async (profileSlug: string) => {
   const res = await client.lists[profileSlug].$get({})
@@ -179,10 +177,8 @@ export const useDeleteList = (profileSlug: string, listSlug: string) => {
   })
 }
 
-export const fetchListType = async (query: string) => {
-  const res = await client.lists['list-type']['search'].$get({
-    q: { query },
-  })
+export const getListTypes = async () => {
+  const res = await client.lists['list-types'].$get({})
 
   if (res.ok) {
     const { data } = (await res.json()) as SuccessResponse<ListType[]>
@@ -192,13 +188,8 @@ export const fetchListType = async (query: string) => {
   throw new Error(data.error ?? 'Failed to fetch list types')
 }
 
-export const useFetchListType = (query: string) => {
-  const debouncedQuery = useDebounce(query, 500)
-
-  return useQuery({
-    queryKey: ['list-types', debouncedQuery],
-    queryFn: () => fetchListType(debouncedQuery),
-    enabled: !!debouncedQuery,
-    staleTime: 5 * 60 * 1000, // 5 minutes
+export const listTypesQueryOptions = () =>
+  queryOptions({
+    queryKey: ['list-types'],
+    queryFn: () => getListTypes(),
   })
-}
