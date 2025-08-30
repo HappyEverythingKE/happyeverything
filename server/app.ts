@@ -4,8 +4,11 @@ import { HTTPException } from 'hono/http-exception'
 import { logger } from 'hono/logger'
 
 import { supabaseMiddleware } from '@/middleware/auth.middleware'
-import { accountRoutes } from '@/routes/account'
 import { authRoutes } from '@/routes/auth'
+import { giftReservationRoutes } from '@/routes/gift-reservation-routes'
+import { listItemRoutes } from '@/routes/lists/list-item-routes'
+import { listRoutes } from '@/routes/lists/list-routes'
+import { profileRoutes } from '@/routes/profile'
 import type { UserContext } from '@/user-context'
 import { serveStatic } from '@hono/node-server/serve-static'
 
@@ -22,7 +25,11 @@ const apiRoutes = app
   .use('*', supabaseMiddleware())
   // routes
   .route('/auth', authRoutes)
-  .route('/account', accountRoutes)
+  .route('/profile', profileRoutes)
+  .route('/lists', listRoutes)
+  .route('/lists', listItemRoutes)
+  .route('/reservations', giftReservationRoutes)
+// .route('/lists', listAccessRoutes)
 
 app.onError((err, c) => {
   // handle expected errors

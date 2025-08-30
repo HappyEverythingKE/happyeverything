@@ -2,6 +2,7 @@ import type { CurrentUser } from '@shared/types'
 import { Bell } from 'lucide-react'
 
 import { SidebarTrigger } from '@/components/ui/sidebar'
+import NavBreadcrumb from '@/components/dashboard/nav-breadcrumb'
 
 interface NavHeaderProps {
   user: CurrentUser
@@ -15,7 +16,7 @@ export default function NavHeader({ user }: NavHeaderProps) {
       <div className="flex items-center gap-2">
         <SidebarTrigger className="-ml-1" />
         <div className="bg-sidebar-border mr-2 h-4 w-[1px]" />
-        <h1 className="md:text-md">Welcome, {firstName}</h1>
+        <NavBreadcrumb userName={firstName} />
       </div>
       <div className="hidden lg:block">
         <Bell className="size-4 lg:size-5" />

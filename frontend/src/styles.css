@@ -60,6 +60,7 @@
 
 :root {
   --color-brand-tangerine: #f08f3a;
+  --color-dark-tangerine: #e37311;
   --color-brand-coral: #e96a67;
   --color-brand-blush: #c05d88;
   --color-brand-amethyst: #835c90;
@@ -140,6 +141,9 @@
 
 @theme inline {
   --color-tangerine: var(--color-brand-tangerine);
+  --color-dark-tangerine: var(--color-dark-tangerine);
+  --color-coral: var(--color-brand-coral);
+  --color-blush: var(--color-brand-blush);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);

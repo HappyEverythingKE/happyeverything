@@ -2,14 +2,14 @@ import { useEffect, useRef, useState } from 'react'
 import {
   createFileRoute,
   Link,
-  redirect,
   useNavigate,
   useRouter,
 } from '@tanstack/react-router'
 import { useQueryClient } from '@tanstack/react-query'
 import { fallback } from '@tanstack/zod-adapter'
 
-import { getUserProfileStatus, getVerifyOTP } from '@/services/auth.api'
+import { getVerifyOTP } from '@/services/auth.api'
+import { getProfiles } from '@/services/profile.api'
 import { toast } from 'sonner'
 import { z } from 'zod'
 
@@ -30,11 +30,12 @@ const OtpSearchSchema = z.object({
 
 export const Route = createFileRoute('/auth-confirm')({
   validateSearch: OtpSearchSchema,
-  beforeLoad: async ({ context }) => {
-    if (context.authState.isAuthenticated) {
-      throw redirect({ to: '/dashboard' })
-    }
-  },
+  //TODO: decide if keep this or not
+  // beforeLoad: async ({ context }) => {
+  //   if (context.authState.isAuthenticated) {
+  //     throw redirect({ to: '/dashboard' })
+  //   }
+  // },
   component: RouteComponent,
 })
 
@@ -64,9 +65,18 @@ function RouteComponent() {
       await router.invalidate()
 
       // navigate user based on profile status
-      const { hasProfile } = await getUserProfileStatus()
+      const profiles = await getProfiles()
+
       setStatus('success')
-      navigate({ to: hasProfile ? '/dashboard' : '/onboarding' })
+
+      if (!profiles || profiles.length === 0) {
+        navigate({ to: '/onboarding' })
+      } else {
+        navigate({
+          to: '/dashboard/$profileSlug',
+          params: { profileSlug: profiles[0].slug },
+        })
+      }
     } catch (error) {
       const message = (error as Error).message
       setStatus('error')

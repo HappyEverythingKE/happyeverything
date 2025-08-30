@@ -128,7 +128,6 @@ export const authRoutes = new Hono()
   )
   .get('/confirm', async (c) => {
     // callback url gets called every time user logs/signs-in with magic link
-
     const token_hash = c.req.query('token_hash')!
     const type = c.req.query('type')
 
@@ -163,30 +162,6 @@ export const authRoutes = new Hono()
       isAuthenticated: true,
     })
   })
-  .get('/hasProfile', getUserSession, async (c) => {
-    const user = c.get('user')!
-    const supabase = getSupabase(c)
-
-    const { data: profile, error } = await supabase
-      .from('profiles')
-      .select('id')
-      .eq('account_id', user.id)
-      .limit(1)
-      .maybeSingle()
-
-    if (error) {
-      throw new HTTPException(500, {
-        message: error.message,
-      })
-    }
-
-    return c.json<SuccessResponse<{ hasProfile: boolean }>>({
-      success: true,
-      data: {
-        hasProfile: !!profile,
-      },
-    })
-  })
   .get('/me', getUserSession, async (c) => {
     const user = c.get('user')!
     const providerAvatar = user.user_metadata?.['avatar_url'] || undefined
@@ -195,7 +170,7 @@ export const authRoutes = new Hono()
 
     const { data: account, error: accountError } = await supabase
       .from('accounts')
-      .select('email, name, avatar')
+      .select('email, name, status, avatar')
       .eq('id', user.id)
       .single()
 
@@ -205,24 +180,11 @@ export const authRoutes = new Hono()
       })
     }
 
-    const { data: profiles, error: profileError } = await supabase
-      .from('profiles')
-      .select('id, slug, status')
-      .eq('account_id', user.id)
-      .order('created_at', { ascending: false })
-      .limit(3)
-
-    if (profileError) {
-      throw new HTTPException(500, {
-        message: profileError.message,
-      })
-    }
-
     const userData: CurrentUser = {
       email: account.email,
       name: account.name,
+      status: account.status,
       avatar: account.avatar || providerAvatar,
-      profiles: profiles ?? [],
     }
 
     return c.json<SuccessResponse<CurrentUser>>(

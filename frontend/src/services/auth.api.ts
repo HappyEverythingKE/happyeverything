@@ -70,13 +70,12 @@ export const getVerifyOTP = async (token_hash: string, type: string) => {
     },
   })
 
-  if (!res.ok) {
-    const data = (await res.json()) as ErrorResponse
-    throw new Error(data.error ?? 'Verification failed')
+  if (res.ok) {
+    const data = (await res.json()) as SuccessResponse
+    return data
   }
-
-  const data = (await res.json()) as SuccessResponse
-  return data
+  const data = (await res.json()) as ErrorResponse
+  throw new Error(data.error ?? 'Verification failed')
 }
 
 export const getSession = async () => {
@@ -91,34 +90,20 @@ export const sessionQueryOptions = queryOptions({
   staleTime: Infinity,
 })
 
-export const getUserProfileStatus = async () => {
-  const res = await client.auth.hasProfile.$get({})
-  if (!res.ok) {
-    const data = (await res.json()) as ErrorResponse
-    throw new Error(data.error ?? 'Failed to check profile status')
-  }
-
-  const { data } = (await res.json()) as SuccessResponse<{
-    hasProfile: boolean
-  }>
-  return data
-}
-
-export const getCurrentUserProfile = async () => {
+export const getCurrentUser = async () => {
   const res = await client.auth.me.$get({})
 
-  if (!res.ok) {
-    const data = (await res.json()) as ErrorResponse
-    throw new Error(data.error ?? 'Failed to fetch user')
+  if (res.ok) {
+    const { data } = (await res.json()) as SuccessResponse<CurrentUser>
+    return data
   }
-
-  const { data } = (await res.json()) as SuccessResponse<CurrentUser>
-  return data
+  const data = (await res.json()) as ErrorResponse
+  throw new Error(data.error ?? 'Failed to fetch user')
 }
 
-export const profileQueryOptions = queryOptions({
+export const userQueryOptions = queryOptions({
   queryKey: ['current-user'],
-  queryFn: getCurrentUserProfile,
+  queryFn: getCurrentUser,
 })
 
 export const getLogout = async () => {

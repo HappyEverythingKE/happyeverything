@@ -1,0 +1,40 @@
+import type { List, ListItem, StatusType } from '@/shared/types'
+
+/* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+export const mapToListType = (list: any): List => {
+  return {
+    name: list.name,
+    slug: list.slug,
+    description: list.description,
+    isPrivate: list.private,
+    password: list.password,
+    status: list.status as StatusType,
+    createdAt: list.created_at,
+    listType: {
+      id: list.list_types.id,
+      name: list.list_types.name,
+      imageUrl: list.list_types.image_url,
+      isCustom: list.list_types.is_custom,
+    },
+  }
+}
+
+/* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+export const mapToListItemType = (item: any): ListItem => {
+  return {
+    publicId: item.public_id,
+    name: item.name,
+    quantity: item.quantity,
+    topPick: item.top_pick,
+    size: item.size,
+    colour: item.colour,
+    imageUrl: item.image_url,
+    productUrl: item.product_url,
+    shopName: item.shop_name,
+    status: item.status,
+    giftedBy: item.gifted_by,
+    quantityGifted: item.quantity_gifted,
+    createdAt: item.created_at,
+    updatedAt: item.updated_at,
+  }
+}

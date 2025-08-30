@@ -19,6 +19,7 @@
   "dependencies": {
     "@hono/node-server": "^1.14.2",
     "@hono/zod-validator": "^0.7.0",
+    "@sindresorhus/slugify": "^2.2.1",
     "@supabase/ssr": "^0.6.1",
     "@supabase/supabase-js": "^2.49.8",
     "@tanstack/zod-adapter": "^1.121.2",
@@ -33,7 +34,6 @@
     "@types/node": "^20.11.17",
     "eslint": "^9.27.0",
     "eslint-config-prettier": "^10.1.5",
-    "eslint-plugin-drizzle": "^0.2.3",
     "globals": "^16.2.0",
     "husky": "^9.1.7",
     "lint-staged": "^16.0.0",

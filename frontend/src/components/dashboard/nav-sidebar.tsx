@@ -4,8 +4,8 @@ import * as React from 'react'
 import { Link } from '@tanstack/react-router'
 
 import IconLogo from '@/assets/logos/logo-icon.svg'
-import type { CurrentUser } from '@shared/types'
-import { Gift, LifeBuoy, Send } from 'lucide-react'
+import type { CurrentUser, Profile } from '@shared/types'
+import { LifeBuoy, Send } from 'lucide-react'
 
 import {
   Sidebar,
@@ -22,26 +22,8 @@ import { NavMain } from '@/components/dashboard/nav-main'
 import { NavSecondary } from '@/components/dashboard/nav-secondary'
 import { NavUser } from '@/components/dashboard/nav-user'
 
-// Sample data for lists and nav items
+// Sidebar nav data
 const navData = {
-  userLists: [
-    {
-      title: "Mark and Samantha's Wedding",
-      icon: Gift,
-      url: '#',
-      isActive: true,
-    },
-    {
-      title: 'List 2',
-      icon: Gift,
-      url: '#',
-    },
-    {
-      title: 'List 3',
-      icon: Gift,
-      url: '#',
-    },
-  ],
   navSecondary: [
     {
       title: 'Support',
@@ -58,16 +40,23 @@ const navData = {
 
 interface NavSidebarProps extends React.ComponentProps<typeof Sidebar> {
   user: CurrentUser
+  selectedProfile: Profile
+  allProfiles: Profile[]
 }
 
-export function NavSidebar({ user, ...props }: NavSidebarProps) {
+export function NavSidebar({
+  user,
+  selectedProfile,
+  allProfiles,
+  ...props
+}: NavSidebarProps) {
   return (
     <Sidebar variant="inset" collapsible="icon" {...props}>
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton size="lg" asChild className="active:bg-sidebar">
-              <Link to="/dashboard">
+            <SidebarMenuButton size="lg" asChild className="hover:bg-sidebar">
+              <Link to="/">
                 <div className="flex items-center justify-center">
                   <img
                     src={IconLogo}
@@ -83,13 +72,17 @@ export function NavSidebar({ user, ...props }: NavSidebarProps) {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent className="pt-4">
-        <NavMain items={navData.userLists} />
+        <NavMain profileSlug={selectedProfile.slug} />
       </SidebarContent>
       <SidebarSeparator />
       <NavSecondary items={navData.navSecondary} />
       <SidebarSeparator />
       <SidebarFooter>
-        <NavUser user={user} />
+        <NavUser
+          user={user}
+          profiles={allProfiles}
+          currentSlug={selectedProfile.slug}
+        />
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>

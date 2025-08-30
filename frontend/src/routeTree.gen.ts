@@ -20,7 +20,9 @@ import { Route as AuthedImport } from './routes/_authed'
 import { Route as MarketingIndexImport } from './routes/_marketing.index'
 import { Route as MarketingContactImport } from './routes/_marketing.contact'
 import { Route as AuthedDashboardRouteImport } from './routes/_authed/dashboard/route'
-import { Route as AuthedDashboardIndexImport } from './routes/_authed/dashboard/index'
+import { Route as AuthedDashboardProfileSlugRouteImport } from './routes/_authed/dashboard/$profileSlug/route'
+import { Route as AuthedDashboardProfileSlugIndexImport } from './routes/_authed/dashboard/$profileSlug/index'
+import { Route as AuthedDashboardProfileSlugListSlugImport } from './routes/_authed/dashboard/$profileSlug/$listSlug'
 
 // Create/Update Routes
 
@@ -76,11 +78,26 @@ const AuthedDashboardRouteRoute = AuthedDashboardRouteImport.update({
   getParentRoute: () => AuthedRoute,
 } as any)
 
-const AuthedDashboardIndexRoute = AuthedDashboardIndexImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => AuthedDashboardRouteRoute,
-} as any)
+const AuthedDashboardProfileSlugRouteRoute =
+  AuthedDashboardProfileSlugRouteImport.update({
+    id: '/$profileSlug',
+    path: '/$profileSlug',
+    getParentRoute: () => AuthedDashboardRouteRoute,
+  } as any)
+
+const AuthedDashboardProfileSlugIndexRoute =
+  AuthedDashboardProfileSlugIndexImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthedDashboardProfileSlugRouteRoute,
+  } as any)
+
+const AuthedDashboardProfileSlugListSlugRoute =
+  AuthedDashboardProfileSlugListSlugImport.update({
+    id: '/$listSlug',
+    path: '/$listSlug',
+    getParentRoute: () => AuthedDashboardProfileSlugRouteRoute,
+  } as any)
 
 // Populate the FileRoutesByPath interface
 
@@ -149,24 +166,56 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MarketingIndexImport
       parentRoute: typeof MarketingImport
     }
-    '/_authed/dashboard/': {
-      id: '/_authed/dashboard/'
-      path: '/'
-      fullPath: '/dashboard/'
-      preLoaderRoute: typeof AuthedDashboardIndexImport
+    '/_authed/dashboard/$profileSlug': {
+      id: '/_authed/dashboard/$profileSlug'
+      path: '/$profileSlug'
+      fullPath: '/dashboard/$profileSlug'
+      preLoaderRoute: typeof AuthedDashboardProfileSlugRouteImport
       parentRoute: typeof AuthedDashboardRouteImport
+    }
+    '/_authed/dashboard/$profileSlug/$listSlug': {
+      id: '/_authed/dashboard/$profileSlug/$listSlug'
+      path: '/$listSlug'
+      fullPath: '/dashboard/$profileSlug/$listSlug'
+      preLoaderRoute: typeof AuthedDashboardProfileSlugListSlugImport
+      parentRoute: typeof AuthedDashboardProfileSlugRouteImport
+    }
+    '/_authed/dashboard/$profileSlug/': {
+      id: '/_authed/dashboard/$profileSlug/'
+      path: '/'
+      fullPath: '/dashboard/$profileSlug/'
+      preLoaderRoute: typeof AuthedDashboardProfileSlugIndexImport
+      parentRoute: typeof AuthedDashboardProfileSlugRouteImport
     }
   }
 }
 
 // Create and export the route tree
 
+interface AuthedDashboardProfileSlugRouteRouteChildren {
+  AuthedDashboardProfileSlugListSlugRoute: typeof AuthedDashboardProfileSlugListSlugRoute
+  AuthedDashboardProfileSlugIndexRoute: typeof AuthedDashboardProfileSlugIndexRoute
+}
+
+const AuthedDashboardProfileSlugRouteRouteChildren: AuthedDashboardProfileSlugRouteRouteChildren =
+  {
+    AuthedDashboardProfileSlugListSlugRoute:
+      AuthedDashboardProfileSlugListSlugRoute,
+    AuthedDashboardProfileSlugIndexRoute: AuthedDashboardProfileSlugIndexRoute,
+  }
+
+const AuthedDashboardProfileSlugRouteRouteWithChildren =
+  AuthedDashboardProfileSlugRouteRoute._addFileChildren(
+    AuthedDashboardProfileSlugRouteRouteChildren,
+  )
+
 interface AuthedDashboardRouteRouteChildren {
-  AuthedDashboardIndexRoute: typeof AuthedDashboardIndexRoute
+  AuthedDashboardProfileSlugRouteRoute: typeof AuthedDashboardProfileSlugRouteRouteWithChildren
 }
 
 const AuthedDashboardRouteRouteChildren: AuthedDashboardRouteRouteChildren = {
-  AuthedDashboardIndexRoute: AuthedDashboardIndexRoute,
+  AuthedDashboardProfileSlugRouteRoute:
+    AuthedDashboardProfileSlugRouteRouteWithChildren,
 }
 
 const AuthedDashboardRouteRouteWithChildren =
@@ -206,7 +255,9 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof AuthedDashboardRouteRouteWithChildren
   '/contact': typeof MarketingContactRoute
   '/': typeof MarketingIndexRoute
-  '/dashboard/': typeof AuthedDashboardIndexRoute
+  '/dashboard/$profileSlug': typeof AuthedDashboardProfileSlugRouteRouteWithChildren
+  '/dashboard/$profileSlug/$listSlug': typeof AuthedDashboardProfileSlugListSlugRoute
+  '/dashboard/$profileSlug/': typeof AuthedDashboardProfileSlugIndexRoute
 }
 
 export interface FileRoutesByTo {
@@ -215,9 +266,11 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/onboarding': typeof OnboardingRoute
   '/signup': typeof SignupRoute
+  '/dashboard': typeof AuthedDashboardRouteRouteWithChildren
   '/contact': typeof MarketingContactRoute
   '/': typeof MarketingIndexRoute
-  '/dashboard': typeof AuthedDashboardIndexRoute
+  '/dashboard/$profileSlug/$listSlug': typeof AuthedDashboardProfileSlugListSlugRoute
+  '/dashboard/$profileSlug': typeof AuthedDashboardProfileSlugIndexRoute
 }
 
 export interface FileRoutesById {
@@ -231,7 +284,9 @@ export interface FileRoutesById {
   '/_authed/dashboard': typeof AuthedDashboardRouteRouteWithChildren
   '/_marketing/contact': typeof MarketingContactRoute
   '/_marketing/': typeof MarketingIndexRoute
-  '/_authed/dashboard/': typeof AuthedDashboardIndexRoute
+  '/_authed/dashboard/$profileSlug': typeof AuthedDashboardProfileSlugRouteRouteWithChildren
+  '/_authed/dashboard/$profileSlug/$listSlug': typeof AuthedDashboardProfileSlugListSlugRoute
+  '/_authed/dashboard/$profileSlug/': typeof AuthedDashboardProfileSlugIndexRoute
 }
 
 export interface FileRouteTypes {
@@ -245,7 +300,9 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/contact'
     | '/'
-    | '/dashboard/'
+    | '/dashboard/$profileSlug'
+    | '/dashboard/$profileSlug/$listSlug'
+    | '/dashboard/$profileSlug/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | ''
@@ -253,9 +310,11 @@ export interface FileRouteTypes {
     | '/login'
     | '/onboarding'
     | '/signup'
+    | '/dashboard'
     | '/contact'
     | '/'
-    | '/dashboard'
+    | '/dashboard/$profileSlug/$listSlug'
+    | '/dashboard/$profileSlug'
   id:
     | '__root__'
     | '/_authed'
@@ -267,7 +326,9 @@ export interface FileRouteTypes {
     | '/_authed/dashboard'
     | '/_marketing/contact'
     | '/_marketing/'
-    | '/_authed/dashboard/'
+    | '/_authed/dashboard/$profileSlug'
+    | '/_authed/dashboard/$profileSlug/$listSlug'
+    | '/_authed/dashboard/$profileSlug/'
   fileRoutesById: FileRoutesById
 }
 
@@ -336,7 +397,7 @@ export const routeTree = rootRoute
       "filePath": "_authed/dashboard/route.tsx",
       "parent": "/_authed",
       "children": [
-        "/_authed/dashboard/"
+        "/_authed/dashboard/$profileSlug"
       ]
     },
     "/_marketing/contact": {
@@ -347,9 +408,21 @@ export const routeTree = rootRoute
       "filePath": "_marketing.index.tsx",
       "parent": "/_marketing"
     },
-    "/_authed/dashboard/": {
-      "filePath": "_authed/dashboard/index.tsx",
-      "parent": "/_authed/dashboard"
+    "/_authed/dashboard/$profileSlug": {
+      "filePath": "_authed/dashboard/$profileSlug/route.tsx",
+      "parent": "/_authed/dashboard",
+      "children": [
+        "/_authed/dashboard/$profileSlug/$listSlug",
+        "/_authed/dashboard/$profileSlug/"
+      ]
+    },
+    "/_authed/dashboard/$profileSlug/$listSlug": {
+      "filePath": "_authed/dashboard/$profileSlug/$listSlug.tsx",
+      "parent": "/_authed/dashboard/$profileSlug"
+    },
+    "/_authed/dashboard/$profileSlug/": {
+      "filePath": "_authed/dashboard/$profileSlug/index.tsx",
+      "parent": "/_authed/dashboard/$profileSlug"
     }
   }
 }

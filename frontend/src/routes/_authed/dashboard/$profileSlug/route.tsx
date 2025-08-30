@@ -1,0 +1,54 @@
+import { createFileRoute, Outlet } from '@tanstack/react-router'
+
+import { listsByProfileQueryOptions } from '@/services/list.api'
+
+import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar'
+import NavHeader from '@/components/dashboard/nav-header'
+import { NavSidebar } from '@/components/dashboard/nav-sidebar'
+
+export const Route = createFileRoute('/_authed/dashboard/$profileSlug')({
+  beforeLoad: async ({ context, params }) => {
+    const queryClient = context.queryClient
+    const allProfiles = context.profiles
+
+    const profileSlug = params.profileSlug
+    const selectedProfile = allProfiles.find(
+      (profile) => profile.slug === profileSlug,
+    )
+
+    if (!selectedProfile) {
+      throw new Error('Profile not found')
+    }
+
+    // load lists for the profile
+    await queryClient.ensureQueryData(listsByProfileQueryOptions(profileSlug))
+
+    return { selectedProfile, allProfiles }
+  },
+  loader: () => ({
+    crumb: 'Home',
+  }),
+  component: RouteComponent,
+})
+
+function RouteComponent() {
+  const { user, selectedProfile, allProfiles } = Route.useRouteContext()
+
+  return (
+    <>
+      <SidebarProvider>
+        <NavSidebar
+          user={user}
+          selectedProfile={selectedProfile}
+          allProfiles={allProfiles}
+        />
+        <SidebarInset>
+          <NavHeader user={user} />
+          <main className="flex-1">
+            <Outlet />
+          </main>
+        </SidebarInset>
+      </SidebarProvider>
+    </>
+  )
+}
