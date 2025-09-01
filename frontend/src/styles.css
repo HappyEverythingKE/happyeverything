@@ -144,6 +144,9 @@
   --color-dark-tangerine: var(--color-dark-tangerine);
   --color-coral: var(--color-brand-coral);
   --color-blush: var(--color-brand-blush);
+  --color-amethyst: var(--color-brand-amethyst);
+  --color-dusk: var(--color-brand-dusk);
+  --color-harbor: var(--color-brand-harbor);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);

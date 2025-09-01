@@ -19,3 +19,13 @@ export const useDebounce = <T>(value: T, delay: number): T => {
 
   return debounced
 }
+
+export const prettifyInitials = (name: string | undefined) => {
+  if (!name) return '^_^'
+
+  return name
+    .split(' ')
+    .map((word) => word[0])
+    .join('')
+    .toUpperCase()
+}

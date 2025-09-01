@@ -30,7 +30,9 @@ export const listItemRoutes = new Hono()
 
     const { data, error } = await supabase
       .from('list_items')
-      .select('*')
+      .select(
+        'public_id, name, quantity, size, colour, image_url, product_url, shop_name, top_pick, created_at, updated_at',
+      )
       .eq('list_id', listId)
       .order('top_pick', { ascending: false })
       .order('created_at', { ascending: true })
@@ -71,7 +73,9 @@ export const listItemRoutes = new Hono()
           product_url: productUrl,
           shop_name: shopName,
         })
-        .select('*')
+        .select(
+          'public_id, name, quantity, size, colour, image_url, product_url, shop_name, top_pick, created_at, updated_at',
+        )
         .single()
 
       if (insertError) {
@@ -116,7 +120,9 @@ export const listItemRoutes = new Hono()
         })
         .eq('id', itemId)
         .eq('list_id', listId)
-        .select('*')
+        .select(
+          'public_id, name, quantity, size, colour, image_url, product_url, shop_name, top_pick, created_at, updated_at',
+        )
         .single()
 
       if (updateError) {
@@ -175,7 +181,9 @@ export const listItemRoutes = new Hono()
         .update({ top_pick: topPick, updated_at: new Date().toISOString() })
         .eq('id', itemId)
         .eq('list_id', listId)
-        .select('*')
+        .select(
+          'public_id, name, quantity, size, colour, image_url, product_url, shop_name, top_pick, created_at, updated_at',
+        )
         .single()
 
       if (updateError) {

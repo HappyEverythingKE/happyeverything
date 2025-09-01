@@ -8,6 +8,7 @@ import type { CurrentUser, Profile } from '@shared/types'
 import { BadgeCheck, Bell, ChevronsUpDown, LogOut } from 'lucide-react'
 
 import { supabase } from '@/lib/supabase'
+import { prettifyInitials } from '@/lib/utils'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import {
   DropdownMenu,
@@ -25,16 +26,6 @@ import {
   useSidebar,
 } from '@/components/ui/sidebar'
 import { ProfileSwitcher } from '@/components/dashboard/profile-switcher'
-
-const prettifyInitials = (name: string | undefined) => {
-  if (!name) return '^_^'
-
-  return name
-    .split(' ')
-    .map((word) => word[0])
-    .join('')
-    .toUpperCase()
-}
 
 export function NavUser({
   user,
@@ -67,7 +58,7 @@ export function NavUser({
           <DropdownMenuTrigger asChild>
             <SidebarMenuButton size="lg">
               <Avatar className="h-8 w-8 rounded-lg">
-                <AvatarImage src={user.avatar} alt={'User Avatar'} />
+                <AvatarImage src={user.avatar} alt={user.name} />
                 <AvatarFallback className="rounded-lg">
                   {initials}
                 </AvatarFallback>
@@ -88,7 +79,7 @@ export function NavUser({
             <DropdownMenuLabel className="p-0 font-normal">
               <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                 <Avatar className="h-8 w-8 rounded-lg">
-                  <AvatarImage src={user.avatar} alt={'User Avatar'} />
+                  <AvatarImage src={user.avatar} alt={user.name} />
                   <AvatarFallback className="rounded-lg">
                     {initials}
                   </AvatarFallback>

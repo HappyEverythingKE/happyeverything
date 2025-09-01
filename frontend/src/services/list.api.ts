@@ -8,8 +8,8 @@ import {
 import type {
   ErrorResponse,
   List,
+  ListStatusType,
   ListType,
-  StatusType,
   SuccessResponse,
 } from '@shared/types'
 
@@ -120,7 +120,7 @@ export const useUpdateList = (profileSlug: string, listSlug: string) => {
 export const updateListStatus = async (
   profileSlug: string,
   listSlug: string,
-  status: StatusType,
+  status: ListStatusType,
 ) => {
   const res = await client.lists[profileSlug][listSlug].status.$patch({
     json: { status },
@@ -140,7 +140,7 @@ export const useUpdateListStatus = (profileSlug: string, listSlug: string) => {
   const router = useRouter()
 
   return useMutation({
-    mutationFn: (status: StatusType) =>
+    mutationFn: (status: ListStatusType) =>
       updateListStatus(profileSlug, listSlug, status),
     onSuccess: () => {
       queryClient.invalidateQueries({

@@ -8,7 +8,7 @@ import {
   useUpdateList,
   useUpdateListStatus,
 } from '@/services/list.api'
-import { ListUpdateSchema, StatusType, type List } from '@shared/types'
+import { ListStatusType, ListUpdateSchema, type List } from '@shared/types'
 import { startCase } from 'lodash'
 import { toast } from 'sonner'
 import type { z } from 'zod'
@@ -54,7 +54,7 @@ export function EditListForm({
     list.slug,
   )
 
-  const handleListStatus = async (status: StatusType) => {
+  const handleListStatus = async (status: ListStatusType) => {
     try {
       await updateStatus(status)
       toast.success('List updated successfully.')
@@ -272,7 +272,7 @@ export function EditListForm({
             variant="secondary"
             onClick={() =>
               handleListStatus(
-                list.status === 'archived' ? 'active' : 'archived',
+                list.status === 'archived' ? 'draft' : 'archived',
               )
             }
             disabled={isArchiving}
