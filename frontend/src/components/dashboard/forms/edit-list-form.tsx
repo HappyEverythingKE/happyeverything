@@ -8,7 +8,7 @@ import {
   useUpdateList,
   useUpdateListStatus,
 } from '@/services/list.api'
-import { ListStatusType, ListUpdateSchema, type List } from '@shared/types'
+import { ListCreateSchema, ListStatusType, type List } from '@shared/types'
 import { startCase } from 'lodash'
 import { toast } from 'sonner'
 import type { z } from 'zod'
@@ -85,8 +85,8 @@ export function EditListForm({
       name: list.name,
       description: list.description,
       listTypeId: list.listType.id,
-    } as z.infer<typeof ListUpdateSchema>,
-    validators: { onChange: ListUpdateSchema },
+    } as z.infer<typeof ListCreateSchema>,
+    validators: { onChange: ListCreateSchema },
     onSubmit: async ({ value }) => {
       const res = await updateList(value)
       if (res.success) {

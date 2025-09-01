@@ -8,8 +8,8 @@ import slugify from '@sindresorhus/slugify'
 
 import {
   ListCreateSchema,
-  ListUpdateSchema,
-  StatusType,
+  ListShareSchema,
+  ListStatusType,
   type AppEnv,
   type List,
   type ListType,
@@ -179,7 +179,7 @@ export const listRoutes = new Hono()
   })
   .patch(
     '/:profileSlug/:listSlug',
-    zValidator('form', ListUpdateSchema),
+    zValidator('form', ListCreateSchema),
     async (c) => {
       const { profileSlug, listSlug } = c.req.param()
 
@@ -188,8 +188,7 @@ export const listRoutes = new Hono()
 
       const supabase = getSupabase(c)
 
-      const { name, description, listTypeId, isPrivate, password } =
-        c.req.valid('form')
+      const { name, description, listTypeId } = c.req.valid('form')
 
       let generatedSlug = listSlug
       // if name is being updated, generate the slug from the new name
@@ -226,8 +225,6 @@ export const listRoutes = new Hono()
           slug: generatedSlug,
           description,
           list_type_id: listTypeId,
-          private: isPrivate,
-          password,
           updated_at: new Date().toISOString(),
         })
         .eq('id', listId)
@@ -254,7 +251,7 @@ export const listRoutes = new Hono()
     const { status } = await c.req.json()
 
     // validate status
-    if (!StatusType.safeParse(status).success) {
+    if (!ListStatusType.safeParse(status).success) {
       throw new HTTPException(400, {
         message: 'Invalid status',
       })
@@ -286,6 +283,53 @@ export const listRoutes = new Hono()
       data: mapToListType(updatedList),
     })
   })
+  .patch(
+    '/:profileSlug/:listSlug/share',
+    zValidator('form', ListShareSchema),
+    async (c) => {
+      const { profileSlug, listSlug } = c.req.param()
+      const { isPrivate, password } = c.req.valid('form')
+
+      const profileId = await resolveProfileIdFromSlug(c, profileSlug)
+      const listId = await resolveListIdFromSlug(c, profileId, listSlug)
+
+      // validate isPrivate
+      if (isPrivate && !password) {
+        throw new HTTPException(400, {
+          message: 'Set a password to make your list private',
+          cause: { form: true },
+        })
+      }
+
+      const supabase = getSupabase(c)
+
+      const { data: updatedList, error: updateError } = await supabase
+        .from('lists')
+        .update({
+          private: isPrivate,
+          password,
+          status: 'published',
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', listId)
+        .eq('profile_id', profileId)
+        .select(
+          'name, slug, description, private, password, status, created_at, updated_at, list_types!inner(id, name, image_url, is_custom)',
+        )
+        .single()
+
+      if (updateError) {
+        throw new HTTPException(500, {
+          message: updateError.message,
+        })
+      }
+
+      return c.json<SuccessResponse<List>>({
+        success: true,
+        data: mapToListType(updatedList),
+      })
+    },
+  )
   .delete('/:profileSlug/:listSlug', async (c) => {
     const { profileSlug, listSlug } = c.req.param()
 

@@ -99,7 +99,6 @@ export const publicRoutes = new Hono()
     }
 
     const list = await getPublicList(c, profileSlug, listSlug)
-    console.log('listDetail:', list)
 
     // enforce visibility rules
     if (list.status !== 'published') {

@@ -152,6 +152,40 @@ export const useUpdateListStatus = (profileSlug: string, listSlug: string) => {
   })
 }
 
+export const shareList = async (
+  profileSlug: string,
+  listSlug: string,
+  listData: Partial<List>,
+) => {
+  const res = await client.lists[profileSlug][listSlug].share.$patch({
+    form: listData,
+  })
+
+  if (res.ok) {
+    const data = (await res.json()) as SuccessResponse<List>
+    return data
+  }
+  const data = (await res.json()) as unknown as ErrorResponse
+  return data
+}
+
+export const useShareList = (profileSlug: string, listSlug: string) => {
+  const queryClient = useQueryClient()
+  const router = useRouter()
+
+  return useMutation({
+    mutationFn: (values: Parameters<typeof shareList>[2]) =>
+      shareList(profileSlug, listSlug, values),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [profileSlug, 'lists', listSlug],
+      })
+      queryClient.invalidateQueries({ queryKey: [profileSlug, 'lists'] })
+      router.invalidate()
+    },
+  })
+}
+
 export const deleteList = async (profileSlug: string, listSlug: string) => {
   const res = await client.lists[profileSlug][listSlug].$delete({})
 

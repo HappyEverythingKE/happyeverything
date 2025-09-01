@@ -98,7 +98,7 @@ export function ProfileSlugForm() {
             children={([slugValue]) => (
               <div className="text-center">
                 <span className="text-sm text-gray-500">
-                  myhappyeverything.com/{slugValue || ''}
+                  happyeverything.com/{slugValue || ''}
                 </span>
               </div>
             )}

@@ -140,8 +140,11 @@ export const ListCreateSchema = z.object({
   listTypeId: z.string(),
 })
 
-export const ListUpdateSchema = ListCreateSchema.extend({
-  isPrivate: z.boolean().optional(),
+export const ListShareSchema = z.object({
+  isPrivate: z.preprocess((val) => {
+    if (typeof val === 'boolean') return val
+    return String(val).toLowerCase() === 'true'
+  }, z.boolean()),
   password: z.string().optional(),
 })
 
