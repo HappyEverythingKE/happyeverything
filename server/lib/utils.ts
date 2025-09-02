@@ -51,8 +51,8 @@ export const mapToListItemType = (item: any): ListItem => {
     productUrl: item.product_url,
     shopName: item.shop_name,
     status: item.status,
-    giftedBy: item.gifted_by,
-    quantityGifted: item.quantity_gifted,
+    giftedBy: item.gifted_by || '',
+    quantityGifted: item.quantity_gifted || 0,
     createdAt: formatDate(item.created_at),
     updatedAt: item.updated_at ? formatDate(item.updated_at) : undefined,
   }
@@ -61,6 +61,6 @@ export const mapToListItemType = (item: any): ListItem => {
 export const mapToListWithItemsType = (list: any): ListWithItems => {
   return {
     ...mapToListType(list),
-    items: list.items.map(mapToListItemType),
+    items: list.list_items.map(mapToListItemType),
   }
 }

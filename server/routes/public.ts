@@ -49,16 +49,7 @@ export const publicRoutes = new Hono()
     const profileId = await resolveProfileIdFromSlug(c, profileSlug)
     const supabase = getSupabase(c)
 
-    // get public account details for the list owner
-    const { data: listOwner, error: listOwnerError } = await supabase
-      .from('accounts_public_by_profile')
-      .select('name, avatar, profile_slug, profile_country')
-      .eq('profile_id', profileId)
-      .single()
-
-    if (!listOwner || listOwnerError) {
-      throw new HTTPException(500, { message: listOwnerError?.message })
-    }
+    const listOwner = await getPublicListOwner(c, profileSlug)
 
     const { data: allLists, error } = await supabase
       .from('lists')
@@ -98,7 +89,7 @@ export const publicRoutes = new Hono()
       return c.notFound()
     }
 
-    const list = await getPublicList(c, profileSlug, listSlug)
+    const { list, listOwner } = await getPublicList(c, profileSlug, listSlug)
 
     // enforce visibility rules
     if (list.status !== 'published') {
@@ -116,9 +107,22 @@ export const publicRoutes = new Hono()
     }
 
     // fully public list
-    return c.json<SuccessResponse<ListWithItems>>({
+    return c.json<
+      SuccessResponse<{
+        listOwner: PublicListOwner
+        list: ListWithItems
+      }>
+    >({
       success: true,
-      data: mapToListWithItemsType(list),
+      data: {
+        listOwner: {
+          name: listOwner.name,
+          avatar: listOwner.avatar,
+          profileSlug: listOwner.profile_slug,
+          profileCountry: listOwner.profile_country,
+        },
+        list: mapToListWithItemsType(list),
+      },
     })
   })
   .post('/:profileSlug/:listSlug/access', async (c) => {
@@ -129,7 +133,7 @@ export const publicRoutes = new Hono()
       return c.notFound()
     }
 
-    const list = await getPublicList(c, profileSlug, listSlug)
+    const { list } = await getPublicList(c, profileSlug, listSlug)
 
     if (list.status !== 'published') {
       throw new HTTPException(403, { message: 'List not available' })
@@ -151,6 +155,23 @@ export const publicRoutes = new Hono()
     })
   })
 
+async function getPublicListOwner(c: Context, profileSlug: string) {
+  const profileId = await resolveProfileIdFromSlug(c, profileSlug)
+  const supabase = getSupabase(c)
+
+  const { data: listOwner, error: listOwnerError } = await supabase
+    .from('accounts_public_by_profile')
+    .select('name, avatar, profile_slug, profile_country')
+    .eq('profile_id', profileId)
+    .single()
+
+  if (!listOwner || listOwnerError) {
+    throw new HTTPException(500, { message: listOwnerError?.message })
+  }
+
+  return listOwner
+}
+
 async function getPublicList(
   c: Context,
   profileSlug: string,
@@ -159,6 +180,8 @@ async function getPublicList(
   const profileId = await resolveProfileIdFromSlug(c, profileSlug)
   const listId = await resolveListIdFromSlug(c, profileId, listSlug)
   const supabase = getSupabase(c)
+
+  const listOwner = await getPublicListOwner(c, profileSlug)
 
   const { data: list, error } = await supabase
     .from('lists')
@@ -173,11 +196,13 @@ async function getPublicList(
     )
     .eq('id', listId)
     .eq('profile_id', profileId)
+    .order('top_pick', { referencedTable: 'list_items', ascending: false })
+    .order('created_at', { referencedTable: 'list_items', ascending: false })
     .maybeSingle()
 
   if (error || !list) {
     throw new HTTPException(404, { message: 'List not found' })
   }
 
-  return list
+  return { list, listOwner }
 }

@@ -4,12 +4,10 @@ import { Gift, Heart, Sparkles } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
 
-export function WithoutPublicLists() {
+export function EmptyListsState({ description }: { description: string }) {
   return (
     <div className="mx-auto flex w-full flex-col items-center justify-center p-8">
-      <h1 className="mt-8 font-sans text-xl font-normal">
-        This profile has no lists yet!
-      </h1>
+      <h1 className="mt-8 font-sans text-xl font-normal">{description}</h1>
 
       {/* supporting text */}
       <div className="mt-12 max-w-lg text-center">

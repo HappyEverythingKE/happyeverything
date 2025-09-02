@@ -40,7 +40,10 @@ export const getPublicList = async (profileSlug: string, listSlug: string) => {
   const res = await client.public[profileSlug][listSlug].$get({})
 
   if (res.ok) {
-    const { data } = (await res.json()) as SuccessResponse<ListWithItems>
+    const { data } = (await res.json()) as SuccessResponse<{
+      listOwner: PublicListOwner
+      list: ListWithItems
+    }>
     console.log('FE list detail', data)
     return data
   }

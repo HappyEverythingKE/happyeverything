@@ -19,12 +19,15 @@ interface WithPublicListsProps {
   lists: List[]
 }
 
-export function WithPublicLists({ profileSlug, lists }: WithPublicListsProps) {
+export function ProfileListsOverview({
+  profileSlug,
+  lists,
+}: WithPublicListsProps) {
   const placeholderImage =
     'https://d22po4pjz3o32e.cloudfront.net/placeholder-image-landscape.svg'
 
   return (
-    <section id="public-lists" className="px-[5%] py-16 md:py-24 lg:py-20">
+    <section className="px-[5%] py-16 md:py-24 lg:py-20">
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
         {lists.map((list, index) => (
           <Card key={index} className="w-full max-w-xs">

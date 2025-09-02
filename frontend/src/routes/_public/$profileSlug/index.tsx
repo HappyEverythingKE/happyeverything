@@ -3,9 +3,9 @@ import { useSuspenseQuery } from '@tanstack/react-query'
 
 import { publicListsQueryOptions } from '@/services/public.api'
 
+import { EmptyListsState } from '@/components/public/empty-lists-state'
 import { ProfileHeader } from '@/components/public/profile-header'
-import { WithPublicLists } from '@/components/public/with-public-lists'
-import { WithoutPublicLists } from '@/components/public/without-public-lists'
+import { ProfileListsOverview } from '@/components/public/profile-lists-overview'
 
 export const Route = createFileRoute('/_public/$profileSlug/')({
   component: RouteComponent,
@@ -19,9 +19,11 @@ function RouteComponent() {
     <div className="mx-auto min-h-screen px-[5%] pt-8">
       <ProfileHeader listOwner={data.listOwner} />
       {data.lists.length === 0 ? (
-        <WithoutPublicLists />
+        <EmptyListsState
+          description={'This profile has no lists yet. Check back later!'}
+        />
       ) : (
-        <WithPublicLists profileSlug={profileSlug} lists={data.lists} />
+        <ProfileListsOverview profileSlug={profileSlug} lists={data.lists} />
       )}
     </div>
   )

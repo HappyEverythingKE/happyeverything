@@ -35,7 +35,7 @@ export const listItemRoutes = new Hono()
       )
       .eq('list_id', listId)
       .order('top_pick', { ascending: false })
-      .order('created_at', { ascending: true })
+      .order('created_at', { ascending: false })
 
     if (error) {
       throw new HTTPException(500, {
