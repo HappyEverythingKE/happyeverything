@@ -38,8 +38,9 @@ export const useCreateProfile = () => {
 
   return useMutation({
     mutationFn: postProfile,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['profiles'] })
+    onSuccess: async () => {
+      // invalidate and wait for profiles to be refetched before invalidating router
+      await queryClient.invalidateQueries({ queryKey: ['profiles'] })
       router.invalidate()
     },
   })

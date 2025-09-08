@@ -57,8 +57,8 @@ export const useCreateList = (profileSlug: string) => {
   return useMutation({
     mutationFn: (values: Parameters<typeof createList>[1]) =>
       createList(profileSlug, values),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [profileSlug, 'lists'] })
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: [profileSlug, 'lists'] })
       router.invalidate()
     },
   })
@@ -107,11 +107,11 @@ export const useUpdateList = (profileSlug: string, listSlug: string) => {
   return useMutation({
     mutationFn: (values: Parameters<typeof updateList>[2]) =>
       updateList(profileSlug, listSlug, values),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
         queryKey: [profileSlug, 'lists', listSlug],
       })
-      queryClient.invalidateQueries({ queryKey: [profileSlug, 'lists'] })
+      await queryClient.invalidateQueries({ queryKey: [profileSlug, 'lists'] })
       router.invalidate()
     },
   })
