@@ -5,7 +5,7 @@ import { useQuery } from '@tanstack/react-query'
 import { listItemsQueryOptions } from '@/services/list-item.api'
 import { fetchListQueryOptions } from '@/services/list.api'
 import { startCase } from 'lodash'
-import { Settings, Share2 } from 'lucide-react'
+import { DotIcon, Settings, Share2 } from 'lucide-react'
 import { toast } from 'sonner'
 
 import { Badge } from '@/components/ui/badge'
@@ -106,24 +106,36 @@ function RouteComponent() {
         </div>
 
         <div className="z-10 flex flex-col items-center justify-center space-y-6 p-6">
-          <h1 className="text-3xl font-medium">{list.name}</h1>
-          <div className="flex items-center gap-2">
-            <div className="flex flex-col items-center md:flex-row md:gap-2">
-              <p className="text-xs">Status: </p>
-              <Badge variant="secondary">{startCase(list.status)}</Badge>
+          <div className="flex flex-col items-center justify-center space-y-2">
+            <h1 className="text-3xl">{list.name}</h1>
+            {list.description && (
+              <p className="text-muted-foreground mt-2">{list.description}</p>
+            )}
+          </div>
+          <div className="flex flex-col items-center justify-center space-y-1">
+            <div className="flex items-center gap-2">
+              <div className="flex flex-col items-center md:flex-row md:gap-2">
+                <p className="text-xs font-semibold">Status: </p>
+                <Badge variant="secondary">{startCase(list.status)}</Badge>
+              </div>
+
+              <DotIcon className="size-6 text-gray-800" />
+
+              <div className="flex flex-col items-center md:flex-row md:gap-2">
+                <p className="text-xs font-semibold">Visibility: </p>
+                <Badge variant="secondary">
+                  {list.status === 'published'
+                    ? list.isPrivate
+                      ? 'Private'
+                      : 'Public'
+                    : 'Not Published'}
+                </Badge>
+              </div>
             </div>
 
-            <div className="border-1 h-3 border-gray-800" />
-
             <div className="flex flex-col items-center md:flex-row md:gap-2">
-              <p className="text-xs">Visibility: </p>
-              <Badge variant="secondary">
-                {list.status === 'published'
-                  ? list.isPrivate
-                    ? 'Private'
-                    : 'Public'
-                  : 'Not Published'}
-              </Badge>
+              <p className="text-xs font-semibold">List Type: </p>
+              <Badge variant="secondary">{startCase(list.listType.name)}</Badge>
             </div>
           </div>
 

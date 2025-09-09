@@ -115,11 +115,11 @@ export const ListItemCard = ({
             {/* Details Section */}
             <div className="flex flex-row justify-between gap-2">
               <div className="flex items-center gap-2">
-                <p className="text-sm">Desired:</p>
+                <p className="text-sm">Requested:</p>
                 <p className="font-medium">{item.quantity}</p>
               </div>
               <div className="flex items-center gap-2">
-                <p className="text-sm">Purchased:</p>
+                <p className="text-sm">Still Needs:</p>
                 <p className="font-medium">{item.quantityGifted || 0}</p>
               </div>
             </div>

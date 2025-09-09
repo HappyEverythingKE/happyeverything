@@ -1,6 +1,7 @@
 import { Link } from '@tanstack/react-router'
 
 import type { List } from '@shared/types'
+import { startCase } from 'lodash'
 
 import { Button } from '@/components/ui/button'
 
@@ -25,7 +26,7 @@ export function WithLists({ profileSlug, lists }: WithListsProps) {
                 <div className="grid">
                   <div className="flex items-center justify-between">
                     <h5 className="font-medium">{list.name}</h5>
-                    <p className="text-sm">{list.status}</p>
+                    <p className="text-sm">{startCase(list.status)}</p>
                   </div>
 
                   {list.description && (

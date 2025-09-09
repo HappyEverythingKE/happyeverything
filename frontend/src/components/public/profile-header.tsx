@@ -1,5 +1,4 @@
 import type { PublicListOwner } from '@shared/types'
-import { startCase } from 'lodash'
 import { DotIcon, Share } from 'lucide-react'
 
 import { prettifyInitials } from '@/lib/utils'
@@ -30,7 +29,7 @@ export function ProfileHeader({
         <div className="flex items-center justify-center gap-1 text-sm">
           <p className="text-gray-600">@{profileSlug}</p>
           <DotIcon className="size-4 text-gray-500" />
-          <p className="text-gray-600">{startCase(accountCountry)}</p>
+          <p className="text-gray-600">{accountCountry}</p>
         </div>
       </div>
 

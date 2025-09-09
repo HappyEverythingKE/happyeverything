@@ -304,7 +304,7 @@ export function ShareListForm({
         <Label className="text-md font-bold">Unpublish List</Label>
         <p className="text-sm">
           When a list is unpublished, it is no longer accessible online but you
-          can still see it in your dashboard. You can publish it at anytime.
+          can still see it in your dashboard. You can publish it again.
         </p>
         <div className="mt-2 flex justify-end">
           <Button
