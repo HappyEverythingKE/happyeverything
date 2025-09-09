@@ -1,4 +1,3 @@
-import { useRouter } from '@tanstack/react-router'
 import {
   queryOptions,
   useMutation,
@@ -34,14 +33,11 @@ export const postProfile = async (slug: string) => {
 
 export const useCreateProfile = () => {
   const queryClient = useQueryClient()
-  const router = useRouter()
 
   return useMutation({
     mutationFn: postProfile,
     onSuccess: async () => {
-      // invalidate and wait for profiles to be refetched before invalidating router
       await queryClient.invalidateQueries({ queryKey: ['profiles'] })
-      router.invalidate()
     },
   })
 }

@@ -1,4 +1,3 @@
-import { useRouter } from '@tanstack/react-router'
 import {
   queryOptions,
   useMutation,
@@ -25,7 +24,7 @@ export const getListItemsByList = async (
 
 export const listItemsQueryOptions = (profileSlug: string, listSlug: string) =>
   queryOptions({
-    queryKey: [profileSlug, listSlug, 'items'],
+    queryKey: ['profiles', profileSlug, 'lists', listSlug, 'items'],
     queryFn: () => getListItemsByList(profileSlug, listSlug),
     enabled: !!profileSlug && !!listSlug,
   })
@@ -50,16 +49,38 @@ export const createListItem = async (
 
 export const useCreateListItem = (profileSlug: string, listSlug: string) => {
   const queryClient = useQueryClient()
-  const router = useRouter()
 
   return useMutation({
     mutationFn: (listItemData: Partial<ListItem>) =>
       createListItem(profileSlug, listSlug, listItemData),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: [profileSlug, listSlug, 'items'],
+    onSuccess: async (res) => {
+      if (!res.success) return // let the form handle the error
+
+      const newItem = res.data
+
+      // patch and re-sort collection cache (optimistic patch)
+      queryClient.setQueryData<ListItem[]>(
+        ['profiles', profileSlug, 'lists', listSlug, 'items'],
+        (old) =>
+          old
+            ? [...old, newItem].sort(
+                (a, b) =>
+                  new Date(b.createdAt).getTime() -
+                  new Date(a.createdAt).getTime(),
+              )
+            : [newItem],
+      )
+
+      // update detail
+      queryClient.setQueryData<ListItem>(
+        ['profiles', profileSlug, 'lists', listSlug, 'items', newItem.publicId],
+        newItem,
+      )
+
+      // kick off background refetch so UI is in sync incase another user is updating the same list concurrently
+      await queryClient.invalidateQueries({
+        queryKey: ['profiles', profileSlug, 'lists', listSlug, 'items'],
       })
-      router.invalidate()
     },
   })
 }
@@ -91,16 +112,30 @@ export const useUpdateListItem = (
   itemPublicId: string,
 ) => {
   const queryClient = useQueryClient()
-  const router = useRouter()
 
   return useMutation({
     mutationFn: (listItemData: Partial<ListItem>) =>
       updateListItem(profileSlug, listSlug, itemPublicId, listItemData),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: [profileSlug, listSlug, 'items'],
-      })
-      router.invalidate()
+    onSuccess: (res) => {
+      if (!res.success) return // let the form handle the error
+
+      const updatedItem = res.data
+      // update detail
+      queryClient.setQueryData<ListItem>(
+        ['profiles', profileSlug, 'lists', listSlug, 'items', itemPublicId],
+        updatedItem,
+      )
+
+      // update collection
+      queryClient.setQueryData<ListItem[]>(
+        ['profiles', profileSlug, 'lists', listSlug, 'items'],
+        (old) =>
+          old
+            ? old.map((item) =>
+                item.publicId === itemPublicId ? updatedItem : item,
+              )
+            : old,
+      )
     },
   })
 }
@@ -132,16 +167,41 @@ export const useUpdateListItemPriority = (
   itemPublicId: string,
 ) => {
   const queryClient = useQueryClient()
-  const router = useRouter()
 
   return useMutation({
     mutationFn: (topPick: boolean) =>
       updateListItemPriority(profileSlug, listSlug, itemPublicId, topPick),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: [profileSlug, listSlug, 'items'],
-      })
-      router.invalidate()
+    onSuccess: (res) => {
+      const updatedItem = res.data
+
+      // update detail
+      queryClient.setQueryData<ListItem>(
+        ['profiles', profileSlug, 'lists', listSlug, 'items', itemPublicId],
+        updatedItem,
+      )
+
+      // update collection (optimistic patch + re-sort) instead of re-fetching from server
+      queryClient.setQueryData<ListItem[]>(
+        ['profiles', profileSlug, 'lists', listSlug, 'items'],
+        (old) =>
+          old
+            ? old
+                .map((item) =>
+                  item.publicId === itemPublicId ? updatedItem : item,
+                )
+                .sort((a, b) => {
+                  // topPicks first
+                  if (a.topPick !== b.topPick) {
+                    return a.topPick ? -1 : 1
+                  }
+                  // then by createdAt (desc)
+                  return (
+                    new Date(b.createdAt).getTime() -
+                    new Date(a.createdAt).getTime()
+                  )
+                })
+            : old,
+      )
     },
   })
 }
@@ -167,42 +227,26 @@ export const useDeleteListItem = (
   itemPublicId: string,
 ) => {
   const queryClient = useQueryClient()
-  const router = useRouter()
 
   return useMutation({
     mutationFn: () => deleteListItem(profileSlug, listSlug, itemPublicId),
     onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: [profileSlug, listSlug, 'items'],
+      // remove from detail cache
+      queryClient.removeQueries({
+        queryKey: [
+          'profiles',
+          profileSlug,
+          'lists',
+          listSlug,
+          'items',
+          itemPublicId,
+        ],
       })
-      router.invalidate()
+      // patch the collection
+      queryClient.setQueryData<ListItem[]>(
+        ['profiles', profileSlug, 'lists', listSlug, 'items'],
+        (old) => old?.filter((item) => item.publicId !== itemPublicId),
+      )
     },
   })
 }
-
-// maybe for use later with publicItemId if needed:
-// export const fetchListItem = async (
-//   profileSlug: string,
-//   listSlug: string,
-//   itemId: string,
-// ) => {
-//   const res = await client.lists[profileSlug][listSlug].items[itemId].$get({})
-
-//   if (res.ok) {
-//     const { data } = (await res.json()) as SuccessResponse<ListItem>
-//     return data
-//   }
-//   const data = (await res.json()) as ErrorResponse
-//   throw new Error(data.error ?? 'Failed to fetch item')
-// }
-
-// export const fetchListItemQueryOptions = (
-//   profileSlug: string,
-//   listSlug: string,
-//   itemId: string,
-// ) =>
-//   queryOptions({
-//     queryKey: [profileSlug, listSlug, 'items', itemId],
-//     queryFn: () => fetchListItem(profileSlug, listSlug, itemId),
-//     enabled: !!profileSlug && !!listSlug && !!itemId,
-//   })
