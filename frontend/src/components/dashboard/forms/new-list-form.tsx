@@ -1,3 +1,4 @@
+import { useNavigate } from '@tanstack/react-router'
 import { useForm } from '@tanstack/react-form'
 import { useQuery } from '@tanstack/react-query'
 
@@ -30,6 +31,7 @@ export function NewListForm({
   onFormSubmit,
   onFormCancel,
 }: NewListFormProps) {
+  const navigate = useNavigate()
   const { mutateAsync: createList, isPending } = useCreateList(profileSlug)
   // get list types
   const {
@@ -44,8 +46,12 @@ export function NewListForm({
     onSubmit: async ({ value }) => {
       const res = await createList(value)
       if (res.success) {
-        toast.success('New list created successfully.')
+        toast.success('New List Created.')
         onFormSubmit()
+        navigate({
+          to: '/dashboard/$profileSlug/$listSlug',
+          params: { profileSlug, listSlug: res.data.slug },
+        })
       } else {
         toast.error('An error occurred', { description: res.error })
         if (res.isFormError) {

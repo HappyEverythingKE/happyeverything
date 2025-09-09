@@ -57,7 +57,7 @@ export function EditListForm({
   const handleListStatus = async (status: ListStatusType) => {
     try {
       await updateStatus(status)
-      toast.success('List updated successfully.')
+      toast.success('List Status Updated.')
       onFormSubmit()
     } catch (error) {
       toast.error('An error occurred.', {
@@ -69,7 +69,7 @@ export function EditListForm({
   const handleDeleteList = async () => {
     try {
       await deleteList()
-      toast.success('List has been deleted.')
+      toast.success('List Deleted.')
       navigate({
         to: '/dashboard/$profileSlug',
         params: { profileSlug },
@@ -90,7 +90,7 @@ export function EditListForm({
     onSubmit: async ({ value }) => {
       const res = await updateList(value)
       if (res.success) {
-        toast.success('List updated successfully.')
+        toast.success('List Updated.')
         navigate({
           to: '/dashboard/$profileSlug/$listSlug',
           params: { profileSlug, listSlug: res.data.slug },

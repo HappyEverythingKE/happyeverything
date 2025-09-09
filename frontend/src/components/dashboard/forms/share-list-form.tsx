@@ -40,7 +40,7 @@ export function ShareListForm({
   const handleListStatus = async () => {
     try {
       await unpublishList('draft')
-      toast.success('List unpublished successfully.')
+      toast.success('List Unpublished.')
       onFormSubmit()
     } catch (error) {
       toast.error('An error occurred.', {
@@ -84,7 +84,7 @@ export function ShareListForm({
         const validatedData = ListShareSchema.parse(value)
         const res = await shareList(validatedData)
         if (res.success) {
-          toast.success('List published successfully.')
+          toast.success('Your List is Published.')
           onFormSubmit()
         } else {
           toast.error('An error occurred.', { description: res.error })
@@ -310,7 +310,11 @@ export function ShareListForm({
           <Button
             variant="destructive"
             onClick={handleListStatus}
-            disabled={isUnpublishing || list.status === 'draft'}
+            disabled={
+              isUnpublishing ||
+              list.status === 'draft' ||
+              list.status === 'archived'
+            }
           >
             {isUnpublishing ? 'Working...' : 'Unpublish'}
           </Button>
