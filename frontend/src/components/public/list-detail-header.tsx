@@ -1,6 +1,7 @@
 import { Link } from '@tanstack/react-router'
 
 import type { PublicListOwner } from '@shared/types'
+import { DotIcon } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
 
@@ -12,6 +13,7 @@ export function ListDetailHeader({
   listInfo: {
     name: string
     description: string
+    createdAt: string
   }
 }) {
   const placeholderImage =
@@ -29,18 +31,31 @@ export function ListDetailHeader({
         </div>
 
         <div className="relative z-10 mx-auto max-w-4xl rounded-xl bg-white/40 p-8 text-center backdrop-blur-lg">
-          <h1 className="mb-4 text-balance text-3xl text-gray-900 md:text-4xl">
+          <h1 className="mb-4 text-balance text-3xl md:text-4xl">
             {listInfo.name}
           </h1>
-          <Button variant="link" asChild className="mb-6 text-lg text-gray-700">
-            <Link
-              to="/$profileSlug"
-              params={{ profileSlug: listOwner.profileSlug }}
+          <div className="mb-6 flex items-center justify-center">
+            <Button
+              variant="link"
+              asChild
+              className="gap-2 px-0 text-base font-medium text-gray-700"
             >
-              {listOwner.name}
-            </Link>
-          </Button>
-          <p className="mx-auto max-w-2xl leading-relaxed text-gray-600">
+              <Link
+                className="underline"
+                to="/$profileSlug"
+                params={{ profileSlug: listOwner.profileSlug }}
+              >
+                By {listOwner.name}
+              </Link>
+            </Button>
+
+            <DotIcon className="size-6 text-gray-800" />
+
+            <p className="text-base font-medium text-gray-700">
+              {listInfo.createdAt}
+            </p>
+          </div>
+          <p className="text-md mx-auto max-w-2xl leading-relaxed text-gray-700">
             {listInfo.description}
           </p>
         </div>

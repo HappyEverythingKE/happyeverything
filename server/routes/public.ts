@@ -41,10 +41,8 @@ const reservedRoutes = [
 export const publicRoutes = new Hono()
   .get('/:profileSlug', async (c) => {
     const { profileSlug } = c.req.param()
-    console.log('Public endpoint get all profileSlug??', profileSlug)
 
     if (reservedRoutes.includes(profileSlug)) {
-      console.log('Reserved route found in get all', profileSlug)
       return c.notFound()
     }
 
@@ -86,10 +84,8 @@ export const publicRoutes = new Hono()
   })
   .get('/:profileSlug/:listSlug', async (c) => {
     const { profileSlug, listSlug } = c.req.param()
-    console.log('reservedRoutes', reservedRoutes)
 
     if (reservedRoutes.includes(profileSlug)) {
-      console.log('Reserved route found', profileSlug)
       return c.notFound()
     }
 

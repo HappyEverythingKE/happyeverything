@@ -6,7 +6,7 @@ import { listsByProfileQueryOptions } from '@/services/list.api'
 import { toast } from 'sonner'
 import { z } from 'zod'
 
-import { ListsSkeleton } from '@/components/ui/lists-skeleton'
+import { FullPageSkeleton } from '@/components/ui/full-page-skeleton'
 import { WithLists } from '@/components/dashboard/index/with-lists'
 import { WithoutLists } from '@/components/dashboard/index/without-lists'
 
@@ -32,7 +32,7 @@ function RouteComponent() {
   // show error toast if redirected from failed list load
   useEffect(() => {
     if (error === 'list-not-found') {
-      toast.error('List not found', {
+      toast.error('List Not Found', {
         description: 'This list could not be found',
       })
     }
@@ -44,11 +44,13 @@ function RouteComponent() {
     return <div>Error loading lists</div>
   }
 
+  if (isLoading) {
+    return <FullPageSkeleton variant="dashboard" />
+  }
+
   return (
     <div className="flex h-full px-8">
-      {isLoading ? (
-        <ListsSkeleton />
-      ) : hasLists ? (
+      {hasLists ? (
         <WithLists profileSlug={selectedProfile.slug} lists={lists} />
       ) : (
         <WithoutLists profileSlug={selectedProfile.slug} />

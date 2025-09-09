@@ -107,19 +107,19 @@ function RouteComponent() {
 
         <div className="z-10 flex flex-col items-center justify-center space-y-6 p-6">
           <div className="flex flex-col items-center justify-center space-y-2">
-            <h1 className="text-3xl">{list.name}</h1>
+            <h1 className="text-balance text-center text-3xl">{list.name}</h1>
             {list.description && (
               <p className="text-muted-foreground mt-2">{list.description}</p>
             )}
           </div>
           <div className="flex flex-col items-center justify-center space-y-1">
-            <div className="flex items-center gap-2">
+            <div className="flex flex-col items-center gap-2 md:flex-row">
               <div className="flex flex-col items-center md:flex-row md:gap-2">
                 <p className="text-xs font-semibold">Status: </p>
                 <Badge variant="secondary">{startCase(list.status)}</Badge>
               </div>
 
-              <DotIcon className="size-6 text-gray-800" />
+              <DotIcon className="hidden size-6 text-gray-800 md:block" />
 
               <div className="flex flex-col items-center md:flex-row md:gap-2">
                 <p className="text-xs font-semibold">Visibility: </p>

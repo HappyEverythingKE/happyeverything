@@ -1,5 +1,8 @@
+import { useState } from 'react'
+
 import type { PublicListOwner } from '@shared/types'
-import { DotIcon, Share } from 'lucide-react'
+import { CheckIcon, DotIcon, Share } from 'lucide-react'
+import { toast } from 'sonner'
 
 import { prettifyInitials } from '@/lib/utils'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
@@ -11,6 +14,19 @@ export function ProfileHeader({
   listOwner: PublicListOwner | undefined
 }) {
   const { name, avatar, profileSlug, accountCountry } = listOwner || {}
+  const [copied, setCopied] = useState(false)
+  const shareableListLink = `${import.meta.env.VITE_APP_BASE_URL}/${profileSlug}`
+
+  const handleShare = async () => {
+    try {
+      await navigator.clipboard.writeText(shareableListLink)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    } catch (error) {
+      toast.error('Failed to copy link: ', { description: String(error) })
+    }
+  }
+
   return (
     <header>
       <div className="from-tangerine via-blush to-dusk relative h-32 rounded-2xl bg-gradient-to-r">
@@ -28,15 +44,15 @@ export function ProfileHeader({
         <h1 className="text-foreground text-center text-2xl">{name}</h1>
         <div className="flex items-center justify-center gap-1 text-sm">
           <p className="text-gray-600">@{profileSlug}</p>
-          <DotIcon className="size-4 text-gray-500" />
+          <DotIcon className="size-6 text-gray-500" />
           <p className="text-gray-600">{accountCountry}</p>
         </div>
       </div>
 
       <div className="flex items-center justify-center pt-4">
-        <Button variant="outline" size="sm">
-          <Share />
-          Share
+        <Button variant="outline" size="sm" onClick={handleShare}>
+          {copied ? <CheckIcon /> : <Share />}
+          {copied ? 'Profile Link Copied' : 'Share'}
         </Button>
       </div>
     </header>

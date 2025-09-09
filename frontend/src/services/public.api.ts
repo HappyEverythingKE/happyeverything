@@ -35,7 +35,10 @@ export const publicListsQueryOptions = (profileSlug: string) =>
     enabled: !!profileSlug,
   })
 
-export const getPublicList = async (profileSlug: string, listSlug: string) => {
+export const fetchPublicList = async (
+  profileSlug: string,
+  listSlug: string,
+) => {
   const res = await client.public[profileSlug][listSlug].$get({})
 
   if (res.ok) {
@@ -50,10 +53,13 @@ export const getPublicList = async (profileSlug: string, listSlug: string) => {
   throw new Error(data.error ?? 'Failed to fetch list')
 }
 
-export const publicListQueryOptions = (profileSlug: string, listSlug: string) =>
+export const fetchPublicListQueryOptions = (
+  profileSlug: string,
+  listSlug: string,
+) =>
   queryOptions({
     queryKey: ['publicProfiles', profileSlug, 'lists', listSlug],
-    queryFn: () => getPublicList(profileSlug!, listSlug!),
+    queryFn: () => fetchPublicList(profileSlug!, listSlug!),
     enabled: !!profileSlug && !!listSlug,
   })
 
