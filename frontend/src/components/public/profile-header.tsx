@@ -11,7 +11,7 @@ export function ProfileHeader({
 }: {
   listOwner: PublicListOwner | undefined
 }) {
-  const { name, avatar, profileSlug, profileCountry } = listOwner || {}
+  const { name, avatar, profileSlug, accountCountry } = listOwner || {}
   return (
     <header>
       <div className="from-tangerine via-blush to-dusk relative h-32 rounded-2xl bg-gradient-to-r">
@@ -30,7 +30,7 @@ export function ProfileHeader({
         <div className="flex items-center justify-center gap-1 text-sm">
           <p className="text-gray-600">@{profileSlug}</p>
           <DotIcon className="size-4 text-gray-500" />
-          <p className="text-gray-600">{startCase(profileCountry)}</p>
+          <p className="text-gray-600">{startCase(accountCountry)}</p>
         </div>
       </div>
 

@@ -41,8 +41,10 @@ const reservedRoutes = [
 export const publicRoutes = new Hono()
   .get('/:profileSlug', async (c) => {
     const { profileSlug } = c.req.param()
+    console.log('Public endpoint get all profileSlug??', profileSlug)
 
     if (reservedRoutes.includes(profileSlug)) {
+      console.log('Reserved route found in get all', profileSlug)
       return c.notFound()
     }
 
@@ -76,7 +78,7 @@ export const publicRoutes = new Hono()
           name: listOwner.name,
           avatar: listOwner.avatar,
           profileSlug: listOwner.profile_slug,
-          profileCountry: listOwner.profile_country,
+          accountCountry: listOwner.account_country,
         },
         lists: allLists.map(mapToListType),
       },
@@ -84,8 +86,10 @@ export const publicRoutes = new Hono()
   })
   .get('/:profileSlug/:listSlug', async (c) => {
     const { profileSlug, listSlug } = c.req.param()
+    console.log('reservedRoutes', reservedRoutes)
 
     if (reservedRoutes.includes(profileSlug)) {
+      console.log('Reserved route found', profileSlug)
       return c.notFound()
     }
 
@@ -119,7 +123,7 @@ export const publicRoutes = new Hono()
           name: listOwner.name,
           avatar: listOwner.avatar,
           profileSlug: listOwner.profile_slug,
-          profileCountry: listOwner.profile_country,
+          accountCountry: listOwner.account_country,
         },
         list: mapToListWithItemsType(list),
       },
@@ -161,7 +165,7 @@ async function getPublicListOwner(c: Context, profileSlug: string) {
 
   const { data: listOwner, error: listOwnerError } = await supabase
     .from('accounts_public_by_profile')
-    .select('name, avatar, profile_slug, profile_country')
+    .select('name, avatar, profile_slug, account_country')
     .eq('profile_id', profileId)
     .single()
 

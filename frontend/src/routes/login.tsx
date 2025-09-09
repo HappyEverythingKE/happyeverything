@@ -16,10 +16,7 @@ export const Route = createFileRoute('/login')({
         throw redirect({ to: '/onboarding' })
       }
 
-      throw redirect({
-        to: '/dashboard/$profileSlug',
-        params: { profileSlug: profiles[0].slug },
-      })
+      throw redirect({ to: '/dashboard' })
     }
   },
   component: RouteComponent,

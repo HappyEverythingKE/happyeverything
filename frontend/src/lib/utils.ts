@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 
 import { clsx } from 'clsx'
 import type { ClassValue } from 'clsx'
+import { countries } from 'countries-list'
 import { twMerge } from 'tailwind-merge'
 
 export function cn(...inputs: Array<ClassValue>) {
@@ -28,4 +29,15 @@ export const prettifyInitials = (name: string | undefined) => {
     .map((word) => word[0])
     .join('')
     .toUpperCase()
+}
+
+export const populateCountries = () => {
+  const formattedCountries = Object.entries(countries).map(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    ([_code, country]) => {
+      return { label: country.name, value: country.name }
+    },
+  )
+
+  return formattedCountries
 }

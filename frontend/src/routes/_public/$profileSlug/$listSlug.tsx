@@ -22,7 +22,7 @@ function RouteComponent() {
     description: data.list.description || '',
   }
   return (
-    <div className="mx-auto min-h-screen">
+    <div className="mx-auto min-h-svh">
       <ListDetailHeader listOwner={data.listOwner} listInfo={listInfo} />
       {data.list.items.length === 0 ? (
         <EmptyListsState

@@ -1,11 +1,12 @@
-import { useState } from 'react'
-import { createFileRoute } from '@tanstack/react-router'
+import { useEffect, useState } from 'react'
+import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
 
 import { listItemsQueryOptions } from '@/services/list-item.api'
 import { fetchListQueryOptions } from '@/services/list.api'
 import { startCase } from 'lodash'
 import { Settings, Share2 } from 'lucide-react'
+import { toast } from 'sonner'
 
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -23,22 +24,56 @@ export const Route = createFileRoute(
 )({
   loader: async ({ context, params }) => {
     const { profileSlug, listSlug } = params
-    const list = await context.queryClient.fetchQuery(
-      fetchListQueryOptions(profileSlug, listSlug),
-    )
-    return { profileSlug, list, crumb: list.name }
+
+    try {
+      const list = await context.queryClient.ensureQueryData(
+        fetchListQueryOptions(profileSlug, listSlug),
+      )
+      return { profileSlug, list, crumb: list.name }
+    } catch (error) {
+      // handle 404 or other errors by redirecting to dashboard with error message
+      console.error('Failed to load list:', error)
+
+      // redirect to dashboard with error information in search params
+      throw redirect({
+        to: '/dashboard/$profileSlug',
+        params: { profileSlug },
+        search: { error: 'list-not-found' },
+      })
+    }
   },
   component: RouteComponent,
 })
 
 function RouteComponent() {
-  const { profileSlug, list } = Route.useLoaderData()
+  const { profileSlug, list: initialList } = Route.useLoaderData()
   const [isSheetOpen, setIsSheetOpen] = useState(false)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const navigate = useNavigate()
+
+  // use reactive query to get the latest list data
+  const { data: list, error: listError } = useQuery({
+    ...fetchListQueryOptions(profileSlug, initialList.slug),
+    initialData: initialList, // Use loader data as initial data
+  })
+
+  // handle case where list gets deleted while user is on the page
+  useEffect(() => {
+    if (listError) {
+      console.error('List query error:', listError)
+      toast.error('An error occurred', {
+        description: 'This list is not available',
+      })
+      navigate({
+        to: '/dashboard/$profileSlug',
+        params: { profileSlug },
+      })
+    }
+  }, [listError, navigate, profileSlug])
 
   // fetch list items
   const { data: listItems, isLoading } = useQuery(
-    listItemsQueryOptions(profileSlug, list.slug),
+    listItemsQueryOptions(profileSlug, list?.slug || initialList.slug),
   )
   const hasListItems = listItems && listItems.length > 0
 
@@ -83,7 +118,11 @@ function RouteComponent() {
             <div className="flex flex-col items-center md:flex-row md:gap-2">
               <p className="text-xs">Visibility: </p>
               <Badge variant="secondary">
-                {list.isPrivate ? 'Private' : 'Public'}
+                {list.status === 'published'
+                  ? list.isPrivate
+                    ? 'Private'
+                    : 'Public'
+                  : 'Not Published'}
               </Badge>
             </div>
           </div>

@@ -41,6 +41,7 @@ export type CurrentUser = {
   name: string
   status: StatusType
   avatar: string | undefined
+  country: string | undefined
 }
 
 export type Profile = {
@@ -53,7 +54,7 @@ export type PublicListOwner = {
   name: string
   avatar: string
   profileSlug: string
-  profileCountry: string
+  accountCountry: string
 }
 
 export type ListType = {
@@ -107,6 +108,7 @@ export type GiftReservationType = {
 export const SignupSchema = z.object({
   email: z.string().email('Please enter a valid email.'),
   name: z.string().trim().min(3, 'Please enter your full name.').max(31),
+  country: z.string().trim().min(1, 'Please enter a country.'),
 })
 
 export const LoginSchema = SignupSchema.pick({ email: true })

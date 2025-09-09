@@ -16,7 +16,7 @@ function RouteComponent() {
   const { data } = useSuspenseQuery(publicListsQueryOptions(profileSlug))
 
   return (
-    <div className="mx-auto min-h-screen px-[5%] pt-8">
+    <div className="mx-auto min-h-svh px-[5%] pt-8">
       <ProfileHeader listOwner={data.listOwner} />
       {data.lists.length === 0 ? (
         <EmptyListsState

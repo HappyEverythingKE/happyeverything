@@ -21,6 +21,7 @@ import { Route as AuthedImport } from './routes/_authed'
 import { Route as MarketingIndexImport } from './routes/_marketing.index'
 import { Route as MarketingContactImport } from './routes/_marketing.contact'
 import { Route as PublicProfileSlugIndexImport } from './routes/_public/$profileSlug/index'
+import { Route as AuthedDashboardIndexImport } from './routes/_authed/dashboard/index'
 import { Route as PublicProfileSlugListSlugImport } from './routes/_public/$profileSlug/$listSlug'
 import { Route as AuthedDashboardProfileSlugRouteImport } from './routes/_authed/dashboard/$profileSlug/route'
 import { Route as AuthedDashboardProfileSlugIndexImport } from './routes/_authed/dashboard/$profileSlug/index'
@@ -83,6 +84,12 @@ const PublicProfileSlugIndexRoute = PublicProfileSlugIndexImport.update({
   id: '/$profileSlug/',
   path: '/$profileSlug/',
   getParentRoute: () => PublicRoute,
+} as any)
+
+const AuthedDashboardIndexRoute = AuthedDashboardIndexImport.update({
+  id: '/dashboard/',
+  path: '/dashboard/',
+  getParentRoute: () => AuthedRoute,
 } as any)
 
 const PublicProfileSlugListSlugRoute = PublicProfileSlugListSlugImport.update({
@@ -193,6 +200,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PublicProfileSlugListSlugImport
       parentRoute: typeof PublicImport
     }
+    '/_authed/dashboard/': {
+      id: '/_authed/dashboard/'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof AuthedDashboardIndexImport
+      parentRoute: typeof AuthedImport
+    }
     '/_public/$profileSlug/': {
       id: '/_public/$profileSlug/'
       path: '/$profileSlug'
@@ -238,11 +252,13 @@ const AuthedDashboardProfileSlugRouteRouteWithChildren =
 
 interface AuthedRouteChildren {
   AuthedDashboardProfileSlugRouteRoute: typeof AuthedDashboardProfileSlugRouteRouteWithChildren
+  AuthedDashboardIndexRoute: typeof AuthedDashboardIndexRoute
 }
 
 const AuthedRouteChildren: AuthedRouteChildren = {
   AuthedDashboardProfileSlugRouteRoute:
     AuthedDashboardProfileSlugRouteRouteWithChildren,
+  AuthedDashboardIndexRoute: AuthedDashboardIndexRoute,
 }
 
 const AuthedRouteWithChildren =
@@ -285,6 +301,7 @@ export interface FileRoutesByFullPath {
   '/': typeof MarketingIndexRoute
   '/dashboard/$profileSlug': typeof AuthedDashboardProfileSlugRouteRouteWithChildren
   '/$profileSlug/$listSlug': typeof PublicProfileSlugListSlugRoute
+  '/dashboard': typeof AuthedDashboardIndexRoute
   '/$profileSlug': typeof PublicProfileSlugIndexRoute
   '/dashboard/$profileSlug/$listSlug': typeof AuthedDashboardProfileSlugListSlugRoute
   '/dashboard/$profileSlug/': typeof AuthedDashboardProfileSlugIndexRoute
@@ -299,6 +316,7 @@ export interface FileRoutesByTo {
   '/contact': typeof MarketingContactRoute
   '/': typeof MarketingIndexRoute
   '/$profileSlug/$listSlug': typeof PublicProfileSlugListSlugRoute
+  '/dashboard': typeof AuthedDashboardIndexRoute
   '/$profileSlug': typeof PublicProfileSlugIndexRoute
   '/dashboard/$profileSlug/$listSlug': typeof AuthedDashboardProfileSlugListSlugRoute
   '/dashboard/$profileSlug': typeof AuthedDashboardProfileSlugIndexRoute
@@ -317,6 +335,7 @@ export interface FileRoutesById {
   '/_marketing/': typeof MarketingIndexRoute
   '/_authed/dashboard/$profileSlug': typeof AuthedDashboardProfileSlugRouteRouteWithChildren
   '/_public/$profileSlug/$listSlug': typeof PublicProfileSlugListSlugRoute
+  '/_authed/dashboard/': typeof AuthedDashboardIndexRoute
   '/_public/$profileSlug/': typeof PublicProfileSlugIndexRoute
   '/_authed/dashboard/$profileSlug/$listSlug': typeof AuthedDashboardProfileSlugListSlugRoute
   '/_authed/dashboard/$profileSlug/': typeof AuthedDashboardProfileSlugIndexRoute
@@ -334,6 +353,7 @@ export interface FileRouteTypes {
     | '/'
     | '/dashboard/$profileSlug'
     | '/$profileSlug/$listSlug'
+    | '/dashboard'
     | '/$profileSlug'
     | '/dashboard/$profileSlug/$listSlug'
     | '/dashboard/$profileSlug/'
@@ -347,6 +367,7 @@ export interface FileRouteTypes {
     | '/contact'
     | '/'
     | '/$profileSlug/$listSlug'
+    | '/dashboard'
     | '/$profileSlug'
     | '/dashboard/$profileSlug/$listSlug'
     | '/dashboard/$profileSlug'
@@ -363,6 +384,7 @@ export interface FileRouteTypes {
     | '/_marketing/'
     | '/_authed/dashboard/$profileSlug'
     | '/_public/$profileSlug/$listSlug'
+    | '/_authed/dashboard/'
     | '/_public/$profileSlug/'
     | '/_authed/dashboard/$profileSlug/$listSlug'
     | '/_authed/dashboard/$profileSlug/'
@@ -411,7 +433,8 @@ export const routeTree = rootRoute
     "/_authed": {
       "filePath": "_authed.tsx",
       "children": [
-        "/_authed/dashboard/$profileSlug"
+        "/_authed/dashboard/$profileSlug",
+        "/_authed/dashboard/"
       ]
     },
     "/_marketing": {
@@ -459,6 +482,10 @@ export const routeTree = rootRoute
     "/_public/$profileSlug/$listSlug": {
       "filePath": "_public/$profileSlug/$listSlug.tsx",
       "parent": "/_public"
+    },
+    "/_authed/dashboard/": {
+      "filePath": "_authed/dashboard/index.tsx",
+      "parent": "/_authed"
     },
     "/_public/$profileSlug/": {
       "filePath": "_public/$profileSlug/index.tsx",

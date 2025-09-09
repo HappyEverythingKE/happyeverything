@@ -1,4 +1,3 @@
-import { useRouter } from '@tanstack/react-router'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 
 import type {
@@ -40,16 +39,21 @@ export const useCreateReservation = (
   listSlug: string,
 ) => {
   const queryClient = useQueryClient()
-  const router = useRouter()
 
   return useMutation({
     mutationFn: (reservationData: Partial<GiftReservationType>) =>
       createReservation(itemPublicId, reservationData),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: [profileSlug, listSlug, 'items'],
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: [
+          'profiles',
+          profileSlug,
+          'lists',
+          listSlug,
+          'items',
+          itemPublicId,
+        ],
       })
-      router.invalidate()
     },
   })
 }

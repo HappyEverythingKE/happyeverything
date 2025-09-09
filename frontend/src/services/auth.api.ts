@@ -12,15 +12,18 @@ import { client } from '@/lib/api'
 export const postSignup = async ({
   email,
   name,
+  country,
 }: {
   email: string
   name: string
+  country: string
 }) => {
   try {
     const res = await client.auth.signup.$post({
       form: {
         email,
         name,
+        country,
       },
     })
 

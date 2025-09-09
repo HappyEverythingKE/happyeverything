@@ -44,8 +44,8 @@ export function ProfileSlugForm() {
           })
         }
       } catch (error) {
-        console.error('Error creating list:', error)
-        toast.error('Failed to create list.')
+        console.error('Error creating profile:', error)
+        toast.error('Failed to create profile.')
       }
     },
   })

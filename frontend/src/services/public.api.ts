@@ -1,4 +1,3 @@
-import { useRouter } from '@tanstack/react-router'
 import {
   queryOptions,
   useMutation,
@@ -31,7 +30,7 @@ export const getPublicLists = async (profileSlug: string) => {
 
 export const publicListsQueryOptions = (profileSlug: string) =>
   queryOptions({
-    queryKey: ['publicLists', profileSlug],
+    queryKey: ['publicProfiles', profileSlug],
     queryFn: () => getPublicLists(profileSlug!),
     enabled: !!profileSlug,
   })
@@ -53,7 +52,7 @@ export const getPublicList = async (profileSlug: string, listSlug: string) => {
 
 export const publicListQueryOptions = (profileSlug: string, listSlug: string) =>
   queryOptions({
-    queryKey: ['publicList', profileSlug, listSlug],
+    queryKey: ['publicProfiles', profileSlug, 'lists', listSlug],
     queryFn: () => getPublicList(profileSlug!, listSlug!),
     enabled: !!profileSlug && !!listSlug,
   })
@@ -81,16 +80,14 @@ export const useCheckPublicListPassword = (
   listSlug: string,
 ) => {
   const queryClient = useQueryClient()
-  const router = useRouter()
 
   return useMutation({
     mutationFn: (password: string) =>
       checkPublicListPassword(profileSlug!, listSlug!, password),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ['publicList', profileSlug, listSlug],
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: ['publicProfiles', profileSlug, 'lists', listSlug],
       })
-      router.invalidate()
     },
   })
 }

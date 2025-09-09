@@ -12,32 +12,20 @@ export const Route = createFileRoute('/_authed/dashboard/$profileSlug')({
     const queryClient = context.queryClient
     const profileSlug = params.profileSlug
 
-    // if profiles are not available in context, fetch them directly
-    let allProfiles = context.profiles
-
-    if (!allProfiles || allProfiles.length === 0) {
-      try {
-        allProfiles = await queryClient.fetchQuery(allProfilesQueryOptions)
-      } catch (error) {
-        throw new Error('Failed to load profiles:', { cause: error })
-      }
-    }
+    const allProfiles = await queryClient.ensureQueryData(
+      allProfilesQueryOptions,
+    )
 
     const selectedProfile = allProfiles.find(
       (profile) => profile.slug === profileSlug,
     )
 
     if (!selectedProfile) {
-      console.error('Profile not found:', {
-        profileSlug,
-        availableProfiles: allProfiles.map((p) => p.slug),
-        allProfilesCount: allProfiles.length,
-      })
-      throw redirect({ to: '/onboarding' })
-      // throw new Error(`Profile with slug "${profileSlug}" not found`)
+      console.error('Profile not found')
+      throw redirect({ to: '/dashboard' })
     }
 
-    // load lists for the profile
+    // hydrate lists for this profile if they exist
     await queryClient.ensureQueryData(listsByProfileQueryOptions(profileSlug))
 
     return { selectedProfile, allProfiles }
@@ -52,20 +40,18 @@ function RouteComponent() {
   const { user, selectedProfile, allProfiles } = Route.useRouteContext()
 
   return (
-    <>
-      <SidebarProvider>
-        <NavSidebar
-          user={user}
-          selectedProfile={selectedProfile}
-          allProfiles={allProfiles}
-        />
-        <SidebarInset>
-          <NavHeader user={user} />
-          <main className="flex-1">
-            <Outlet />
-          </main>
-        </SidebarInset>
-      </SidebarProvider>
-    </>
+    <SidebarProvider>
+      <NavSidebar
+        user={user}
+        selectedProfile={selectedProfile}
+        allProfiles={allProfiles}
+      />
+      <SidebarInset>
+        <NavHeader user={user} />
+        <main className="flex-1">
+          <Outlet />
+        </main>
+      </SidebarInset>
+    </SidebarProvider>
   )
 }
