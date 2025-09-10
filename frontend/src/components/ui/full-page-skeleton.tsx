@@ -26,7 +26,7 @@ export function FullPageSkeleton({
 
         {/* Lists Grid Skeleton */}
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {Array.from({ length: 6 }).map((_, i) => (
+          {Array.from({ length: 3 }).map((_, i) => (
             <div key={i} className="rounded-lg border p-6 shadow-sm">
               <Skeleton className="mb-4 h-32 w-full rounded" />
               <Skeleton className="mb-2 h-6 w-3/4" />
@@ -56,7 +56,7 @@ export function FullPageSkeleton({
 
         {/* List Items Skeleton */}
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {Array.from({ length: 9 }).map((_, i) => (
+          {Array.from({ length: 6 }).map((_, i) => (
             <div key={i} className="rounded-lg border p-4 shadow-sm">
               <Skeleton className="mb-3 h-6 w-3/4" />
               <Skeleton className="mb-2 h-4 w-1/2" />

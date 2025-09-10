@@ -1,7 +1,11 @@
 import { createFileRoute, Link, redirect } from '@tanstack/react-router'
-import { useSuspenseQuery } from '@tanstack/react-query'
+import { useQuery, useSuspenseQuery } from '@tanstack/react-query'
 
-import { fetchPublicListQueryOptions } from '@/services/public.api'
+import {
+  fetchPublicListQueryOptions,
+  unlockedListQueryOptions,
+} from '@/services/public.api'
+import type { ListWithItems } from '@shared/types'
 import { startCase } from 'lodash'
 import { toast } from 'sonner'
 
@@ -33,22 +37,30 @@ export const Route = createFileRoute('/_public/$profileSlug/$listSlug')({
       })
     }
   },
+  pendingComponent: () => {
+    return (
+      <div className="mx-auto py-10">
+        <FullPageSkeleton variant="profile" />
+      </div>
+    )
+  },
   component: RouteComponent,
 })
 
 function RouteComponent() {
   const { profileSlug, listSlug } = Route.useParams()
-  const { data, isLoading } = useSuspenseQuery(
+
+  const { data } = useSuspenseQuery(
     fetchPublicListQueryOptions(profileSlug, listSlug),
   )
-  console.log('data', data)
 
-  if (isLoading) {
-    return <FullPageSkeleton variant="profile" />
-  }
+  // subscribe reactively to unlockedList
+  const { data: unlockedList } = useQuery(
+    unlockedListQueryOptions(profileSlug, listSlug),
+  )
 
-  // render password form if list is private
-  if ('privateList' in data) {
+  // private list, not yet unlocked
+  if ('privateList' in data && !unlockedList) {
     return (
       <div className="flex min-h-[60vh] flex-col items-center justify-center space-y-4 px-[5%]">
         <div className="mb-8 flex flex-col items-center justify-center space-y-1 text-center md:mb-16">
@@ -79,22 +91,22 @@ function RouteComponent() {
     )
   }
 
-  // render public list
+  // at this point we either have a public list OR an unlocked private list
+  const list = unlockedList ?? (data as { list: ListWithItems }).list
+
   const listInfo = {
-    name: data.list.name,
-    description: data.list.description || '',
-    createdAt: data.list.createdAt,
+    name: list.name,
+    description: list.description || '',
+    createdAt: list.createdAt,
   }
 
   return (
     <div className="mx-auto min-h-svh">
       <ListDetailHeader listOwner={data.listOwner} listInfo={listInfo} />
-      {data.list.items.length === 0 ? (
-        <EmptyListsState
-          description={'This list has no items yet. Check back later!'}
-        />
+      {list.items.length === 0 ? (
+        <EmptyListsState description="This list has no items yet. Check back later!" />
       ) : (
-        <ListDetail list={data.list} />
+        <ListDetail list={list} />
       )}
     </div>
   )
