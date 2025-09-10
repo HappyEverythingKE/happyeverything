@@ -9,6 +9,7 @@ import type {
   List,
   ListWithItems,
   PublicListOwner,
+  PublicListResponse,
   SuccessResponse,
 } from '@shared/types'
 
@@ -38,15 +39,11 @@ export const publicListsQueryOptions = (profileSlug: string) =>
 export const fetchPublicList = async (
   profileSlug: string,
   listSlug: string,
-) => {
+): Promise<PublicListResponse> => {
   const res = await client.public[profileSlug][listSlug].$get({})
 
   if (res.ok) {
-    const { data } = (await res.json()) as SuccessResponse<{
-      listOwner: PublicListOwner
-      list: Omit<ListWithItems, 'password'>
-    }>
-    console.log('FE list detail', data)
+    const { data } = (await res.json()) as SuccessResponse<PublicListResponse>
     return data
   }
   const data = (await res.json()) as ErrorResponse
@@ -76,10 +73,10 @@ export const checkPublicListPassword = async (
     const { data } = (await res.json()) as SuccessResponse<
       Omit<ListWithItems, 'password'>
     >
-    console.log('FE checkPublicListPassword', data)
     return data
   }
   const data = (await res.json()) as ErrorResponse
+  console.log('FE checkPublicListPassword error', data)
   throw new Error(data.error ?? 'Failed to check password')
 }
 

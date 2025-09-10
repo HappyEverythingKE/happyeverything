@@ -99,6 +99,13 @@ export type ListWithItems = List & {
   items: ListItem[]
 }
 
+export type PublicListResponse =
+  | { listOwner: PublicListOwner; list: Omit<ListWithItems, 'password'> }
+  | {
+      listOwner: Pick<PublicListOwner, 'name' | 'profileSlug'>
+      privateList: Pick<List, 'name' | 'slug' | 'isPrivate'>
+    }
+
 export type GiftReservationType = {
   gifterName: string | undefined
   quantityReserved: number

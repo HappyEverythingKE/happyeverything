@@ -19,10 +19,7 @@ interface WithPublicListsProps {
   lists: List[]
 }
 
-export function ProfileListsOverview({
-  profileSlug,
-  lists,
-}: WithPublicListsProps) {
+export function ProfileListsGrid({ profileSlug, lists }: WithPublicListsProps) {
   const placeholderImage =
     'https://d22po4pjz3o32e.cloudfront.net/placeholder-image-landscape.svg'
 

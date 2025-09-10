@@ -2,6 +2,8 @@ import { Hono, type Context } from 'hono'
 import { HTTPException } from 'hono/http-exception'
 
 import { getAdminSupabase } from '@/middleware/auth.middleware'
+import { zValidator } from '@hono/zod-validator'
+import { z } from 'zod'
 
 import type {
   List,
@@ -98,12 +100,25 @@ export const publicRoutes = new Hono()
 
     if (list.private) {
       // just return metadata, don’t leak items yet
-      return c.json<SuccessResponse<Pick<List, 'name' | 'slug' | 'isPrivate'>>>(
-        {
-          success: true,
-          data: { name: list.name, slug: list.slug, isPrivate: list.private },
+      return c.json<
+        SuccessResponse<{
+          listOwner: Pick<PublicListOwner, 'name' | 'profileSlug'>
+          privateList: Pick<List, 'name' | 'slug' | 'isPrivate'>
+        }>
+      >({
+        success: true,
+        data: {
+          listOwner: {
+            name: listOwner.name,
+            profileSlug: listOwner.profile_slug,
+          },
+          privateList: {
+            name: list.name,
+            slug: list.slug,
+            isPrivate: list.private,
+          },
         },
-      )
+      })
     }
 
     // fully public list
@@ -125,35 +140,40 @@ export const publicRoutes = new Hono()
       },
     })
   })
-  .post('/:profileSlug/:listSlug/access', async (c) => {
-    const { profileSlug, listSlug } = c.req.param()
-    const { password } = await c.req.json<{ password: string }>()
+  .post(
+    '/:profileSlug/:listSlug/access',
+    zValidator('form', z.object({ password: z.string() })),
+    async (c) => {
+      const { profileSlug, listSlug } = c.req.param()
+      const { password } = c.req.valid('form')
 
-    if (reservedRoutes.includes(profileSlug)) {
-      return c.notFound()
-    }
+      if (reservedRoutes.includes(profileSlug)) {
+        return c.notFound()
+      }
 
-    const { list } = await getPublicList(c, profileSlug, listSlug)
+      const profileId = await resolveProfileIdFromSlug(c, profileSlug)
+      const { list } = await getPublicList(c, profileId, listSlug)
 
-    if (list.status !== 'published') {
-      throw new HTTPException(403, { message: 'List not available' })
-    }
+      if (list.status !== 'published') {
+        throw new HTTPException(403, { message: 'List not available' })
+      }
 
-    if (!list.private || !list.password) {
-      throw new HTTPException(400, {
-        message: 'This list does not require a password',
+      if (!list.private || !list.password) {
+        throw new HTTPException(400, {
+          message: 'This list does not require a password',
+        })
+      }
+
+      if (list.password !== password) {
+        throw new HTTPException(401, { message: 'Incorrect password' })
+      }
+
+      return c.json<SuccessResponse<Omit<ListWithItems, 'password'>>>({
+        success: true,
+        data: mapToPublicListWithItemsType(list),
       })
-    }
-
-    if (list.password !== password) {
-      throw new HTTPException(401, { message: 'Incorrect password' })
-    }
-
-    return c.json<SuccessResponse<Omit<ListWithItems, 'password'>>>({
-      success: true,
-      data: mapToPublicListWithItemsType(list),
-    })
-  })
+    },
+  )
 
 async function getPublicListOwner(c: Context, profileId: string) {
   const supabaseAdmin = getAdminSupabase(c)

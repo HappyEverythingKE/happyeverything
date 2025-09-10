@@ -9,7 +9,7 @@ import { z } from 'zod'
 import { FullPageSkeleton } from '@/components/ui/full-page-skeleton'
 import { EmptyListsState } from '@/components/public/empty-lists-state'
 import { ProfileHeader } from '@/components/public/profile-header'
-import { ProfileListsOverview } from '@/components/public/profile-lists-overview'
+import { ProfileListsGrid } from '@/components/public/profile-lists-grid'
 
 const searchSchema = z.object({
   error: z.string().optional(),
@@ -63,7 +63,7 @@ function RouteComponent() {
           description={'This profile has no lists yet. Check back later!'}
         />
       ) : (
-        <ProfileListsOverview profileSlug={profileSlug} lists={data.lists} />
+        <ProfileListsGrid profileSlug={profileSlug} lists={data.lists} />
       )}
     </div>
   )

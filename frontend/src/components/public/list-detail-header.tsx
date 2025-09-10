@@ -41,7 +41,7 @@ export function ListDetailHeader({
               className="gap-2 px-0 text-base font-medium text-gray-700"
             >
               <Link
-                className="underline"
+                className="underline underline-offset-2"
                 to="/$profileSlug"
                 params={{ profileSlug: listOwner.profileSlug }}
               >

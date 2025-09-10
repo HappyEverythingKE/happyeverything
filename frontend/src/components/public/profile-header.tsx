@@ -43,9 +43,9 @@ export function ProfileHeader({
       <div className="space-y-2 pt-16">
         <h1 className="text-foreground text-center text-2xl">{name}</h1>
         <div className="flex items-center justify-center gap-1 text-sm">
-          <p className="text-gray-600">@{profileSlug}</p>
-          <DotIcon className="size-6 text-gray-500" />
-          <p className="text-gray-600">{accountCountry}</p>
+          <p className="font-medium text-gray-700">@{profileSlug}</p>
+          <DotIcon className="size-6 text-gray-600" />
+          <p className="font-medium text-gray-700">{accountCountry}</p>
         </div>
       </div>
 
