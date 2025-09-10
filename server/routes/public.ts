@@ -1,7 +1,7 @@
 import { Hono, type Context } from 'hono'
 import { HTTPException } from 'hono/http-exception'
 
-import { getSupabase } from '@/middleware/auth.middleware'
+import { getAdminSupabase } from '@/middleware/auth.middleware'
 
 import type {
   List,
@@ -13,7 +13,7 @@ import {
   resolveListIdFromSlug,
   resolveProfileIdFromSlug,
 } from '@/lib/slug-id-lookup'
-import { mapToListType, mapToListWithItemsType } from '@/lib/utils'
+import { mapToPublicListType, mapToPublicListWithItemsType } from '@/lib/utils'
 
 const reservedRoutes = [
   'api',
@@ -47,11 +47,11 @@ export const publicRoutes = new Hono()
     }
 
     const profileId = await resolveProfileIdFromSlug(c, profileSlug)
-    const supabase = getSupabase(c)
+    const listOwner = await getPublicListOwner(c, profileId)
 
-    const listOwner = await getPublicListOwner(c, profileSlug)
+    const supabaseAdmin = getAdminSupabase(c)
 
-    const { data: allLists, error } = await supabase
+    const { data: allLists, error } = await supabaseAdmin
       .from('lists')
       .select(
         'name, slug, private, created_at, list_types!inner(id, name, image_url, is_custom)',
@@ -67,7 +67,7 @@ export const publicRoutes = new Hono()
     return c.json<
       SuccessResponse<{
         listOwner: PublicListOwner
-        lists: List[]
+        lists: Omit<List, 'password'>[]
       }>
     >({
       success: true,
@@ -78,7 +78,7 @@ export const publicRoutes = new Hono()
           profileSlug: listOwner.profile_slug,
           accountCountry: listOwner.account_country,
         },
-        lists: allLists.map(mapToListType),
+        lists: allLists.map(mapToPublicListType),
       },
     })
   })
@@ -88,8 +88,8 @@ export const publicRoutes = new Hono()
     if (reservedRoutes.includes(profileSlug)) {
       return c.notFound()
     }
-
-    const { list, listOwner } = await getPublicList(c, profileSlug, listSlug)
+    const profileId = await resolveProfileIdFromSlug(c, profileSlug)
+    const { list, listOwner } = await getPublicList(c, profileId, listSlug)
 
     // enforce visibility rules
     if (list.status !== 'published') {
@@ -110,7 +110,7 @@ export const publicRoutes = new Hono()
     return c.json<
       SuccessResponse<{
         listOwner: PublicListOwner
-        list: ListWithItems
+        list: Omit<ListWithItems, 'password'>
       }>
     >({
       success: true,
@@ -121,7 +121,7 @@ export const publicRoutes = new Hono()
           profileSlug: listOwner.profile_slug,
           accountCountry: listOwner.account_country,
         },
-        list: mapToListWithItemsType(list),
+        list: mapToPublicListWithItemsType(list),
       },
     })
   })
@@ -149,21 +149,21 @@ export const publicRoutes = new Hono()
       throw new HTTPException(401, { message: 'Incorrect password' })
     }
 
-    return c.json<SuccessResponse<ListWithItems>>({
+    return c.json<SuccessResponse<Omit<ListWithItems, 'password'>>>({
       success: true,
-      data: mapToListWithItemsType(list),
+      data: mapToPublicListWithItemsType(list),
     })
   })
 
-async function getPublicListOwner(c: Context, profileSlug: string) {
-  const profileId = await resolveProfileIdFromSlug(c, profileSlug)
-  const supabase = getSupabase(c)
+async function getPublicListOwner(c: Context, profileId: string) {
+  const supabaseAdmin = getAdminSupabase(c)
 
-  const { data: listOwner, error: listOwnerError } = await supabase
+  // pull public profile data using supabaseAdmin to bypass RLS
+  const { data: listOwner, error: listOwnerError } = await supabaseAdmin
     .from('accounts_public_by_profile')
     .select('name, avatar, profile_slug, account_country')
     .eq('profile_id', profileId)
-    .single()
+    .maybeSingle()
 
   if (!listOwner || listOwnerError) {
     throw new HTTPException(500, { message: listOwnerError?.message })
@@ -172,18 +172,14 @@ async function getPublicListOwner(c: Context, profileSlug: string) {
   return listOwner
 }
 
-async function getPublicList(
-  c: Context,
-  profileSlug: string,
-  listSlug: string,
-) {
-  const profileId = await resolveProfileIdFromSlug(c, profileSlug)
+async function getPublicList(c: Context, profileId: string, listSlug: string) {
   const listId = await resolveListIdFromSlug(c, profileId, listSlug)
-  const supabase = getSupabase(c)
+  const listOwner = await getPublicListOwner(c, profileId)
 
-  const listOwner = await getPublicListOwner(c, profileSlug)
+  const supabaseAdmin = getAdminSupabase(c)
 
-  const { data: list, error } = await supabase
+  // pull public list data using supabaseAdmin to bypass RLS
+  const { data: list, error } = await supabaseAdmin
     .from('lists')
     .select(
       `

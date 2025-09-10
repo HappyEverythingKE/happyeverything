@@ -1,7 +1,7 @@
 import type { Context } from 'hono'
 import { HTTPException } from 'hono/http-exception'
 
-import { getSupabase } from '@/middleware/auth.middleware'
+import { getAdminSupabase } from '@/middleware/auth.middleware'
 
 const profileIdCache = new Map<string, string>()
 const listIdCache = new Map<string, string>()
@@ -20,8 +20,10 @@ export async function resolveProfileIdFromSlug(
     return profileIdCache.get(slug)!
   }
 
-  const supabase = getSupabase(c)
-  const { data: profile, error } = await supabase
+  // use supabaseAdmin to bypass RLS
+  const supabaseAdmin = getAdminSupabase(c)
+
+  const { data: profile, error } = await supabaseAdmin
     .from('profiles')
     .select('id')
     .eq('slug', slug)
@@ -50,8 +52,10 @@ export async function resolveListIdFromSlug(
     return listIdCache.get(cacheKey)!
   }
 
-  const supabase = getSupabase(c)
-  const { data: list, error } = await supabase
+  // use supabaseAdmin to bypass RLS
+  const supabaseAdmin = getAdminSupabase(c)
+
+  const { data: list, error } = await supabaseAdmin
     .from('lists')
     .select('id')
     .eq('profile_id', profileId)

@@ -20,7 +20,7 @@ export const getPublicLists = async (profileSlug: string) => {
   if (res.ok) {
     const { data } = (await res.json()) as SuccessResponse<{
       listOwner: PublicListOwner
-      lists: List[]
+      lists: Omit<List, 'password'>[]
     }>
     return data
   }
@@ -44,7 +44,7 @@ export const fetchPublicList = async (
   if (res.ok) {
     const { data } = (await res.json()) as SuccessResponse<{
       listOwner: PublicListOwner
-      list: ListWithItems
+      list: Omit<ListWithItems, 'password'>
     }>
     console.log('FE list detail', data)
     return data
@@ -73,7 +73,9 @@ export const checkPublicListPassword = async (
   })
 
   if (res.ok) {
-    const { data } = (await res.json()) as SuccessResponse<ListWithItems>
+    const { data } = (await res.json()) as SuccessResponse<
+      Omit<ListWithItems, 'password'>
+    >
     console.log('FE checkPublicListPassword', data)
     return data
   }

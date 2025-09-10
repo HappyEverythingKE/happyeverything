@@ -58,9 +58,29 @@ export const mapToListItemType = (item: any): ListItem => {
   }
 }
 
-export const mapToListWithItemsType = (list: any): ListWithItems => {
+export const mapToPublicListType = (list: any): Omit<List, 'password'> => {
   return {
-    ...mapToListType(list),
+    name: list.name,
+    slug: list.slug,
+    description: list.description,
+    isPrivate: list.private,
+    status: list.status as ListStatusType,
+    createdAt: formatDate(list.created_at),
+    updatedAt: list.updated_at ? formatDate(list.updated_at) : undefined,
+    listType: {
+      id: list.list_types.id,
+      name: list.list_types.name,
+      imageUrl: list.list_types.image_url,
+      isCustom: list.list_types.is_custom,
+    },
+  }
+}
+
+export const mapToPublicListWithItemsType = (
+  list: any,
+): Omit<ListWithItems, 'password'> => {
+  return {
+    ...mapToPublicListType(list),
     items: list.list_items.map(mapToListItemType),
   }
 }
