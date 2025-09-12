@@ -8,7 +8,7 @@ import {
   useUpdateList,
   useUpdateListStatus,
 } from '@/services/list.api'
-import { ListUpdateSchema, StatusType, type List } from '@shared/types'
+import { ListCreateSchema, ListStatusType, type List } from '@shared/types'
 import { startCase } from 'lodash'
 import { toast } from 'sonner'
 import type { z } from 'zod'
@@ -54,10 +54,10 @@ export function EditListForm({
     list.slug,
   )
 
-  const handleListStatus = async (status: StatusType) => {
+  const handleListStatus = async (status: ListStatusType) => {
     try {
       await updateStatus(status)
-      toast.success('List updated successfully.')
+      toast.success('List Status Updated.')
       onFormSubmit()
     } catch (error) {
       toast.error('An error occurred.', {
@@ -69,7 +69,7 @@ export function EditListForm({
   const handleDeleteList = async () => {
     try {
       await deleteList()
-      toast.success('List has been deleted.')
+      toast.success('List Deleted.')
       navigate({
         to: '/dashboard/$profileSlug',
         params: { profileSlug },
@@ -85,12 +85,12 @@ export function EditListForm({
       name: list.name,
       description: list.description,
       listTypeId: list.listType.id,
-    } as z.infer<typeof ListUpdateSchema>,
-    validators: { onChange: ListUpdateSchema },
+    } as z.infer<typeof ListCreateSchema>,
+    validators: { onChange: ListCreateSchema },
     onSubmit: async ({ value }) => {
       const res = await updateList(value)
       if (res.success) {
-        toast.success('List updated successfully.')
+        toast.success('List Updated.')
         navigate({
           to: '/dashboard/$profileSlug/$listSlug',
           params: { profileSlug, listSlug: res.data.slug },
@@ -272,7 +272,7 @@ export function EditListForm({
             variant="secondary"
             onClick={() =>
               handleListStatus(
-                list.status === 'archived' ? 'active' : 'archived',
+                list.status === 'archived' ? 'draft' : 'archived',
               )
             }
             disabled={isArchiving}

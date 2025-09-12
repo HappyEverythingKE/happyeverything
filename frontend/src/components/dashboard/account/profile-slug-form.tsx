@@ -44,8 +44,8 @@ export function ProfileSlugForm() {
           })
         }
       } catch (error) {
-        console.error('Error creating list:', error)
-        toast.error('Failed to create list.')
+        console.error('Error creating profile:', error)
+        toast.error('Failed to create profile.')
       }
     },
   })
@@ -98,7 +98,7 @@ export function ProfileSlugForm() {
             children={([slugValue]) => (
               <div className="text-center">
                 <span className="text-sm text-gray-500">
-                  myhappyeverything.com/{slugValue || ''}
+                  happyeverything.com/{slugValue || ''}
                 </span>
               </div>
             )}

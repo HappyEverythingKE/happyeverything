@@ -10,6 +10,11 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { SheetForm } from '@/components/ui/sheet-form'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
 import { EditListItemForm } from '@/components/dashboard/forms/edit-list-item-form'
 
 export const ListItemCard = ({
@@ -68,28 +73,35 @@ export const ListItemCard = ({
           )}
 
           {/* topPick button */}
-          <Button
-            size="icon"
-            variant="ghost"
-            onClick={handleTopPickToggle}
-            disabled={isPending}
-            className={cn(
-              'group absolute left-3 top-0 h-8 w-8',
-              item.topPick ? 'bg-blush' : 'hover:bg-blush bg-white/80',
-            )}
-          >
-            <Heart
-              className={cn(
-                'h-4 w-4',
-                item.topPick
-                  ? 'text-white'
-                  : 'text-blush group-hover:text-white',
-              )}
-            />
-            <span className="sr-only">
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                size="icon"
+                variant="ghost"
+                onClick={handleTopPickToggle}
+                disabled={isPending}
+                className={cn(
+                  'group absolute left-3 top-0 h-8 w-8',
+                  item.topPick ? 'bg-blush' : 'hover:bg-blush bg-white/80',
+                )}
+              >
+                <Heart
+                  className={cn(
+                    'h-4 w-4',
+                    item.topPick
+                      ? 'text-white'
+                      : 'text-blush group-hover:text-white',
+                  )}
+                />
+                <span className="sr-only">
+                  {item.topPick ? 'Remove from top picks' : 'Add to top picks'}
+                </span>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
               {item.topPick ? 'Remove from top picks' : 'Add to top picks'}
-            </span>
-          </Button>
+            </TooltipContent>
+          </Tooltip>
         </div>
 
         {/* Card Content */}
@@ -103,11 +115,11 @@ export const ListItemCard = ({
             {/* Details Section */}
             <div className="flex flex-row justify-between gap-2">
               <div className="flex items-center gap-2">
-                <p className="text-sm">Desired:</p>
+                <p className="text-sm">Requested:</p>
                 <p className="font-medium">{item.quantity}</p>
               </div>
               <div className="flex items-center gap-2">
-                <p className="text-sm">Purchased:</p>
+                <p className="text-sm">Still Needs:</p>
                 <p className="font-medium">{item.quantityGifted || 0}</p>
               </div>
             </div>

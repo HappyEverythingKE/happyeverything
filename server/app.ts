@@ -9,6 +9,7 @@ import { giftReservationRoutes } from '@/routes/gift-reservation-routes'
 import { listItemRoutes } from '@/routes/lists/list-item-routes'
 import { listRoutes } from '@/routes/lists/list-routes'
 import { profileRoutes } from '@/routes/profile'
+import { publicRoutes } from '@/routes/public'
 import type { UserContext } from '@/user-context'
 import { serveStatic } from '@hono/node-server/serve-static'
 
@@ -28,6 +29,7 @@ const apiRoutes = app
   .route('/profile', profileRoutes)
   .route('/lists', listRoutes)
   .route('/lists', listItemRoutes)
+  .route('/public', publicRoutes)
   .route('/reservations', giftReservationRoutes)
 // .route('/lists', listAccessRoutes)
 

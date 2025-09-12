@@ -44,7 +44,7 @@ export function NewListItemForm({
     onSubmit: async ({ value }) => {
       const res = await createListItem(value)
       if (res.success) {
-        toast.success('New gift item added successfully.')
+        toast.success('Gift Item Added.')
         onFormSubmit()
       } else {
         toast.error('An error occurred', { description: res.error })

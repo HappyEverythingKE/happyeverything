@@ -11,8 +11,8 @@ export const Route = createFileRoute('/_authed')({
       throw redirect({ to: '/login' })
     }
 
-    const user = await context.queryClient.fetchQuery(userQueryOptions)
-    const profiles = await context.queryClient.fetchQuery(
+    const user = await context.queryClient.ensureQueryData(userQueryOptions)
+    const profiles = await context.queryClient.ensureQueryData(
       allProfilesQueryOptions,
     )
 

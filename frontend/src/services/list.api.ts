@@ -1,4 +1,3 @@
-import { useRouter } from '@tanstack/react-router'
 import {
   queryOptions,
   useMutation,
@@ -8,8 +7,8 @@ import {
 import type {
   ErrorResponse,
   List,
+  ListStatusType,
   ListType,
-  StatusType,
   SuccessResponse,
 } from '@shared/types'
 
@@ -28,7 +27,7 @@ export const getListsByProfile = async (profileSlug: string) => {
 
 export const listsByProfileQueryOptions = (profileSlug: string) =>
   queryOptions({
-    queryKey: [profileSlug, 'lists'],
+    queryKey: ['profiles', profileSlug, 'lists'],
     queryFn: () => getListsByProfile(profileSlug!),
     enabled: !!profileSlug,
   })
@@ -52,14 +51,13 @@ export const createList = async (
 
 export const useCreateList = (profileSlug: string) => {
   const queryClient = useQueryClient()
-  const router = useRouter()
 
   return useMutation({
-    mutationFn: (values: Parameters<typeof createList>[1]) =>
-      createList(profileSlug, values),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [profileSlug, 'lists'] })
-      router.invalidate()
+    mutationFn: (values: Partial<List>) => createList(profileSlug, values),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: ['profiles', profileSlug, 'lists'],
+      })
     },
   })
 }
@@ -77,7 +75,7 @@ export const fetchList = async (profileSlug: string, listSlug: string) => {
 
 export const fetchListQueryOptions = (profileSlug: string, listSlug: string) =>
   queryOptions({
-    queryKey: [profileSlug, 'lists', listSlug],
+    queryKey: ['profiles', profileSlug, 'lists', listSlug],
     queryFn: () => fetchList(profileSlug, listSlug),
     enabled: !!profileSlug && !!listSlug,
   })
@@ -102,17 +100,27 @@ export const updateList = async (
 
 export const useUpdateList = (profileSlug: string, listSlug: string) => {
   const queryClient = useQueryClient()
-  const router = useRouter()
 
   return useMutation({
-    mutationFn: (values: Parameters<typeof updateList>[2]) =>
+    mutationFn: (values: Partial<List>) =>
       updateList(profileSlug, listSlug, values),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: [profileSlug, 'lists', listSlug],
-      })
-      queryClient.invalidateQueries({ queryKey: [profileSlug, 'lists'] })
-      router.invalidate()
+    onSuccess: async (res) => {
+      if (!res.success) return // let the form handle the error
+
+      const updatedList = res.data
+      // update detail
+      queryClient.setQueryData<List>(
+        ['profiles', profileSlug, 'lists', listSlug],
+        updatedList,
+      )
+      // update collection (optimistic patch)
+      queryClient.setQueryData<List[]>(
+        ['profiles', profileSlug, 'lists'],
+        (old) =>
+          old
+            ? old.map((list) => (list.slug === listSlug ? updatedList : list))
+            : old,
+      )
     },
   })
 }
@@ -120,7 +128,7 @@ export const useUpdateList = (profileSlug: string, listSlug: string) => {
 export const updateListStatus = async (
   profileSlug: string,
   listSlug: string,
-  status: StatusType,
+  status: ListStatusType,
 ) => {
   const res = await client.lists[profileSlug][listSlug].status.$patch({
     json: { status },
@@ -137,17 +145,75 @@ export const updateListStatus = async (
 
 export const useUpdateListStatus = (profileSlug: string, listSlug: string) => {
   const queryClient = useQueryClient()
-  const router = useRouter()
 
   return useMutation({
-    mutationFn: (status: StatusType) =>
+    mutationFn: (status: ListStatusType) =>
       updateListStatus(profileSlug, listSlug, status),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: [profileSlug, 'lists', listSlug],
-      })
-      queryClient.invalidateQueries({ queryKey: [profileSlug, 'lists'] })
-      router.invalidate()
+    onSuccess: (res) => {
+      const updatedList = res.data
+      // update detail
+      queryClient.setQueryData(
+        ['profiles', profileSlug, 'lists', listSlug],
+        updatedList,
+      )
+
+      // update collection (optimistic patch)
+      queryClient.setQueryData<List[]>(
+        ['profiles', profileSlug, 'lists'],
+        (old) =>
+          old
+            ? old.map((list) =>
+                list.slug === listSlug
+                  ? { ...list, status: updatedList.status }
+                  : list,
+              )
+            : old,
+      )
+    },
+  })
+}
+
+export const shareList = async (
+  profileSlug: string,
+  listSlug: string,
+  listData: Partial<List>,
+) => {
+  const res = await client.lists[profileSlug][listSlug].share.$patch({
+    form: listData,
+  })
+
+  if (res.ok) {
+    const data = (await res.json()) as SuccessResponse<List>
+    return data
+  }
+  const data = (await res.json()) as unknown as ErrorResponse
+  return data
+}
+
+export const useShareList = (profileSlug: string, listSlug: string) => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (values: Partial<List>) =>
+      shareList(profileSlug, listSlug, values),
+    onSuccess: (res) => {
+      if (!res.success) return // let the form handle the error
+
+      const updatedList = res.data
+      // update detail
+      queryClient.setQueryData<List>(
+        ['profiles', profileSlug, 'lists', listSlug],
+        updatedList,
+      )
+
+      // update collection
+      queryClient.setQueryData<List[]>(
+        ['profiles', profileSlug, 'lists'],
+        (old) =>
+          old
+            ? old.map((list) => (list.slug === listSlug ? updatedList : list))
+            : old,
+      )
     },
   })
 }
@@ -163,16 +229,19 @@ export const deleteList = async (profileSlug: string, listSlug: string) => {
 
 export const useDeleteList = (profileSlug: string, listSlug: string) => {
   const queryClient = useQueryClient()
-  const router = useRouter()
 
   return useMutation({
     mutationFn: () => deleteList(profileSlug, listSlug),
     onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: [profileSlug, 'lists', listSlug],
+      // remove from detail cache
+      queryClient.removeQueries({
+        queryKey: ['profiles', profileSlug, 'lists', listSlug],
       })
-      queryClient.invalidateQueries({ queryKey: [profileSlug, 'lists'] })
-      router.invalidate()
+      // patch the lists collection
+      queryClient.setQueryData<List[]>(
+        ['profiles', profileSlug, 'lists'],
+        (old) => old?.filter((list) => list.slug !== listSlug),
+      )
     },
   })
 }

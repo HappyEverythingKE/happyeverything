@@ -21,11 +21,14 @@ import type {
 export const authRoutes = new Hono()
   .post(
     '/signup',
-    zValidator('form', z.object({ email: z.string(), name: z.string() })),
+    zValidator(
+      'form',
+      z.object({ email: z.string(), name: z.string(), country: z.string() }),
+    ),
     async (c) => {
       const supabase = getSupabase(c)
       const supabaseAdmin = getAdminSupabase(c)
-      const { email, name } = c.req.valid('form')
+      const { email, name, country } = c.req.valid('form')
 
       // check if user already exists using supabaseAdmin to bypass RLS
       const { data: existingUser, error: searchError } = await supabaseAdmin
@@ -53,7 +56,7 @@ export const authRoutes = new Hono()
       const { error: signupError } = await supabase.auth.signInWithOtp({
         email,
         options: {
-          data: { name },
+          data: { name, country },
           emailRedirectTo: redirectURL,
         },
       })
@@ -170,7 +173,7 @@ export const authRoutes = new Hono()
 
     const { data: account, error: accountError } = await supabase
       .from('accounts')
-      .select('email, name, status, avatar')
+      .select('email, name, status, avatar, country')
       .eq('id', user.id)
       .single()
 
@@ -185,6 +188,7 @@ export const authRoutes = new Hono()
       name: account.name,
       status: account.status,
       avatar: account.avatar || providerAvatar,
+      country: account.country,
     }
 
     return c.json<SuccessResponse<CurrentUser>>(

@@ -26,6 +26,9 @@ export type ErrorResponse = {
 export const StatusType = z.enum(['active', 'archived', 'dormant'])
 export type StatusType = z.infer<typeof StatusType>
 
+export const ListStatusType = z.enum(['draft', 'published', 'archived'])
+export type ListStatusType = z.infer<typeof ListStatusType>
+
 export const ListItemStatusType = z.enum(['active', 'gifted'])
 export type ListItemStatusType = z.infer<typeof ListItemStatusType>
 
@@ -38,6 +41,7 @@ export type CurrentUser = {
   name: string
   status: StatusType
   avatar: string | undefined
+  country: string | undefined
 }
 
 export type Profile = {
@@ -46,33 +50,12 @@ export type Profile = {
   lists?: List[]
 }
 
-export type List = {
+export type PublicListOwner = {
   name: string
-  slug: string
-  listType: ListType
-  description?: string
-  isPrivate: boolean
-  password?: string
-  status: StatusType
-  createdAt: string
+  avatar: string
+  profileSlug: string
+  accountCountry: string
 }
-
-export const ListCreateSchema = z.object({
-  name: z
-    .string()
-    .min(1, 'This field is required.')
-    .max(25, 'List name must be less than 25 characters.'),
-  description: z
-    .string()
-    .max(50, 'The description must be less than 100 characters')
-    .optional(),
-  listTypeId: z.string(),
-})
-
-export const ListUpdateSchema = ListCreateSchema.extend({
-  isPrivate: z.boolean().optional(),
-  password: z.string().optional(),
-})
 
 export type ListType = {
   id: string
@@ -81,36 +64,18 @@ export type ListType = {
   isCustom: boolean
 }
 
-export const TopPickSchema = z.object({
-  topPick: z.string().transform((value) => {
-    if (value === 'true') {
-      return true
-    } else if (value === 'false') {
-      return false
-    } else {
-      throw new Error("Invalid boolean string. Must be 'true' or 'false'.")
-    }
-  }),
-})
-
 export type TopPickType = z.infer<typeof TopPickSchema>
 
-export const GiftReservationCreateSchema = z.object({
-  gifterName: z
-    .string()
-    .max(50, 'This field must be less than 50 characters.')
-    .optional(),
-  quantityReserved: z.coerce
-    .number()
-    .int()
-    .positive()
-    .min(1, 'Please enter a quantity.'),
-})
-
-export type GiftReservationType = {
-  gifterName: string | undefined
-  quantityReserved: number
+export type List = {
+  name: string
+  slug: string
+  listType: ListType
+  description?: string
+  isPrivate: boolean
+  password?: string
+  status: ListStatusType
   createdAt: string
+  updatedAt: string | undefined
 }
 
 export type ListItem = {
@@ -127,8 +92,70 @@ export type ListItem = {
   giftedBy: string | undefined
   quantityGifted: number
   createdAt: string
-  updatedAt: string
+  updatedAt: string | undefined
 }
+
+export type ListWithItems = List & {
+  items: ListItem[]
+}
+
+export type PublicListResponse =
+  | { listOwner: PublicListOwner; list: Omit<ListWithItems, 'password'> }
+  | {
+      listOwner: Pick<PublicListOwner, 'name' | 'profileSlug'>
+      privateList: Pick<List, 'name' | 'slug' | 'isPrivate'>
+    }
+
+export type GiftReservationType = {
+  gifterName: string | undefined
+  quantityReserved: number
+  createdAt: string
+}
+
+export const SignupSchema = z.object({
+  email: z.string().email('Please enter a valid email.'),
+  name: z.string().trim().min(3, 'Please enter your full name.').max(31),
+  country: z.string().trim().min(1, 'Please enter a country.'),
+})
+
+export const LoginSchema = SignupSchema.pick({ email: true })
+
+export const ProfileSlugSchema = z.object({
+  slug: z
+    .string()
+    .trim()
+    .min(3, 'Username must be at least 3 characters long.')
+    .max(20, 'Username must be at most 20 characters long.')
+    .regex(
+      /^[a-z0-9-]+$/,
+      'Username can only contain lowercase letters, numbers, and hyphens.',
+    )
+    .refine(
+      (value) => !value.startsWith('-') && !value.endsWith('-'),
+      'Username cannot start or end with a hyphen.',
+    )
+    .transform((value) => value.toLowerCase()),
+})
+
+export const ListCreateSchema = z.object({
+  name: z
+    .string()
+    .min(1, 'This field is required.')
+    .max(25, 'List name must be less than 25 characters.'),
+  description: z
+    .string()
+    .max(50, 'The description must be less than 100 characters')
+    .optional(),
+  listTypeId: z.string(),
+})
+
+export const ListShareSchema = z.object({
+  isPrivate: z.preprocess((val) => {
+    if (typeof val === 'boolean') return val
+    return String(val).toLowerCase() === 'true'
+  }, z.boolean()),
+  password: z.string().optional(),
+})
 
 export const ListItemCreateSchema = z.object({
   name: z
@@ -163,26 +190,26 @@ export const ListItemCreateSchema = z.object({
     .optional(),
 })
 
-export const SignupSchema = z.object({
-  email: z.string().email('Please enter a valid email.'),
-  name: z.string().trim().min(3, 'Please enter your full name.').max(31),
+export const TopPickSchema = z.object({
+  topPick: z.string().transform((value) => {
+    if (value === 'true') {
+      return true
+    } else if (value === 'false') {
+      return false
+    } else {
+      throw new Error("Invalid boolean string. Must be 'true' or 'false'.")
+    }
+  }),
 })
 
-export const LoginSchema = SignupSchema.pick({ email: true })
-
-export const ProfileSlugSchema = z.object({
-  slug: z
+export const GiftReservationCreateSchema = z.object({
+  gifterName: z
     .string()
-    .trim()
-    .min(3, 'Username must be at least 3 characters long.')
-    .max(20, 'Username must be at most 20 characters long.')
-    .regex(
-      /^[a-z0-9-]+$/,
-      'Username can only contain lowercase letters, numbers, and hyphens.',
-    )
-    .refine(
-      (value) => !value.startsWith('-') && !value.endsWith('-'),
-      'Username cannot start or end with a hyphen.',
-    )
-    .transform((value) => value.toLowerCase()),
+    .max(50, 'This field must be less than 50 characters.')
+    .optional(),
+  quantityReserved: z.coerce
+    .number()
+    .int()
+    .positive()
+    .min(1, 'Please enter a quantity.'),
 })

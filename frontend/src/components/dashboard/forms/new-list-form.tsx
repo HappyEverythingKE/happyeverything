@@ -44,7 +44,7 @@ export function NewListForm({
     onSubmit: async ({ value }) => {
       const res = await createList(value)
       if (res.success) {
-        toast.success('New list created successfully.')
+        toast.success('New List Created.')
         onFormSubmit()
       } else {
         toast.error('An error occurred', { description: res.error })

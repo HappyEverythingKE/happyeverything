@@ -40,7 +40,7 @@ const navData = {
 
 interface NavSidebarProps extends React.ComponentProps<typeof Sidebar> {
   user: CurrentUser
-  selectedProfile: Profile
+  selectedProfile?: Profile
   allProfiles: Profile[]
 }
 
@@ -50,6 +50,36 @@ export function NavSidebar({
   allProfiles,
   ...props
 }: NavSidebarProps) {
+  // guard against undefined selectedProfile during query invalidation
+  if (!selectedProfile) {
+    return (
+      <Sidebar variant="inset" collapsible="icon" {...props}>
+        <SidebarHeader>
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <SidebarMenuButton size="lg" asChild className="hover:bg-sidebar">
+                <Link to="/">
+                  <div className="flex items-center justify-center">
+                    <img
+                      src={IconLogo}
+                      alt="My Happy Everything"
+                      className="size-22 aspect-square"
+                      width="110px"
+                      height="62px"
+                    />
+                  </div>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </SidebarHeader>
+        <SidebarContent className="pt-4">
+          <div className="text-muted-foreground p-4 text-sm">Loading...</div>
+        </SidebarContent>
+      </Sidebar>
+    )
+  }
+
   return (
     <Sidebar variant="inset" collapsible="icon" {...props}>
       <SidebarHeader>

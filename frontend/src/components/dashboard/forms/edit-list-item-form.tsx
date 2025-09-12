@@ -40,7 +40,7 @@ export function EditListItemForm({
   const handleDeleteItem = async () => {
     try {
       await deleteListItem()
-      toast.success('Gift item has been deleted.')
+      toast.success('Gift Item Deleted.')
       navigate({
         to: '/dashboard/$profileSlug/$listSlug',
         params: { profileSlug, listSlug: listSlug },
@@ -67,7 +67,7 @@ export function EditListItemForm({
     onSubmit: async ({ value }) => {
       const res = await updateListItem(value)
       if (res.success) {
-        toast.success('Gift item updated successfully.')
+        toast.success('Gift Item Updated.')
         navigate({
           to: '/dashboard/$profileSlug/$listSlug',
           params: { profileSlug, listSlug: listSlug },
