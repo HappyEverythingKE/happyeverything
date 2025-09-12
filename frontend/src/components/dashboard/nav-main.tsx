@@ -46,7 +46,7 @@ export function NavMain({ profileSlug }: { profileSlug: string }) {
     return (
       <SidebarGroup>
         <SidebarGroupLabel>Your wish lists</SidebarGroupLabel>
-        <SidebarMenuButton disabled>
+        <SidebarMenuButton disabled tooltip="Nothing here yet">
           <Gift />
           <span>Nothing here yet</span>
         </SidebarMenuButton>
@@ -57,7 +57,7 @@ export function NavMain({ profileSlug }: { profileSlug: string }) {
   return (
     <>
       <SidebarGroup>
-        <SidebarMenuButton asChild>
+        <SidebarMenuButton asChild tooltip="New wish list">
           <Button variant="buttonIcon" onClick={() => setIsSheetOpen(true)}>
             <PlusCircle />
             <span>New wish list</span>
@@ -72,6 +72,7 @@ export function NavMain({ profileSlug }: { profileSlug: string }) {
             <SidebarMenuItem key={item.slug}>
               <SidebarMenuButton
                 asChild
+                tooltip={item.name}
                 isActive={
                   !!matchRoute({
                     to: '/dashboard/$profileSlug/$listSlug',
