@@ -5,6 +5,11 @@ import { cn } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
 
 export function ListDetail({ list }: { list: ListWithItems }) {
   const placeholderImage = '/placeholders/gift-placeholder.svg'
@@ -40,9 +45,16 @@ export function ListDetail({ list }: { list: ListWithItems }) {
 
               {/* topPick badge */}
               {item.topPick && (
-                <div className="bg-blush absolute left-3 top-0 flex h-8 w-8 items-center justify-center rounded-full">
-                  <Heart className="h-4 w-4 text-white" />
-                </div>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div className="bg-blush absolute left-3 top-0 flex h-8 w-8 items-center justify-center rounded-full">
+                      <Heart className="h-4 w-4 text-white" />
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>A Favourite!</p>
+                  </TooltipContent>
+                </Tooltip>
               )}
             </div>
 

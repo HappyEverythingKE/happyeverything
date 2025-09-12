@@ -6,8 +6,6 @@ import {
   unlockedListQueryOptions,
 } from '@/services/public.api'
 import type { ListWithItems } from '@shared/types'
-import { startCase } from 'lodash'
-import { toast } from 'sonner'
 
 import { Button } from '@/components/ui/button'
 import { FullPageSkeleton } from '@/components/ui/full-page-skeleton'
@@ -26,10 +24,7 @@ export const Route = createFileRoute('/_public/$profileSlug/$listSlug')({
       await queryClient.ensureQueryData(
         fetchPublicListQueryOptions(profileSlug, listSlug),
       )
-    } catch (error) {
-      toast.error('An error occured.', {
-        description: error instanceof Error ? error.message : 'Unknown error',
-      })
+    } catch {
       throw redirect({
         to: '/$profileSlug',
         params: { profileSlug },
@@ -64,9 +59,7 @@ function RouteComponent() {
     return (
       <div className="flex min-h-[60vh] flex-col items-center justify-center space-y-4 px-[5%]">
         <div className="mb-8 flex flex-col items-center justify-center space-y-1 text-center md:mb-16">
-          <h1 className="text-2xl md:text-4xl">
-            {startCase(data.privateList.name)}
-          </h1>
+          <h1 className="text-2xl md:text-4xl">{data.privateList.name}</h1>
           <Button
             variant="link"
             asChild

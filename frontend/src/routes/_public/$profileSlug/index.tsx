@@ -22,12 +22,10 @@ export const Route = createFileRoute('/_public/$profileSlug/')({
 
     try {
       await queryClient.ensureQueryData(publicListsQueryOptions(profileSlug))
-    } catch (error) {
-      toast.error('Error loading profile', {
-        description: error instanceof Error ? error.message : 'Unknown error',
-      })
+    } catch {
       throw redirect({
         to: '/',
+        search: { error: 'profile-not-found' },
       })
     }
   },
@@ -56,7 +54,7 @@ function RouteComponent() {
   }
 
   return (
-    <div className="mx-auto min-h-svh px-[5%] pt-8">
+    <div className="mx-auto p-8">
       <ProfileHeader listOwner={data.listOwner} />
       {data.lists.length === 0 ? (
         <EmptyListsState
