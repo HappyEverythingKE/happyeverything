@@ -1,18 +1,37 @@
-import type { ListWithItems } from '@shared/types'
+import { useState } from 'react'
+
+import type { ListItem, ListWithItems } from '@shared/types'
 import { ExternalLink, Heart } from 'lucide-react'
 
 import { cn } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
+import { DialogForm } from '@/components/ui/dialog-form'
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
+import { ReserveGiftForm } from '@/components/dashboard/forms/reserve-gift-form'
 
-export function ListDetail({ list }: { list: ListWithItems }) {
+export function ListDetail({
+  profileSlug,
+  list,
+}: {
+  profileSlug: string
+  list: ListWithItems
+}) {
   const placeholderImage = '/placeholders/gift-placeholder.svg'
+  const [selectedItem, setSelectedItem] = useState<ListItem | null>(null)
+
+  const handleDialogSubmit = () => {
+    setSelectedItem(null)
+  }
+
+  const handleDialogCancel = () => {
+    setSelectedItem(null)
+  }
 
   return (
     <div className="px-[5%] py-16 md:py-24 lg:py-20">
@@ -32,14 +51,12 @@ export function ListDetail({ list }: { list: ListWithItems }) {
               </div>
 
               {/* Status Badges */}
-              {item.status === 'gifted' && (
+              {item.stillNeeds === 0 && (
                 <Badge
                   variant="default"
                   className="absolute right-3 top-0 h-9 w-fit rounded-sm text-sm"
                 >
-                  {item.giftedBy
-                    ? `${item.giftedBy} got this for you!`
-                    : 'Gifted!'}
+                  Gifted!
                 </Badge>
               )}
 
@@ -74,7 +91,7 @@ export function ListDetail({ list }: { list: ListWithItems }) {
                   </div>
                   <div className="flex items-center gap-2">
                     <p className="text-sm">Still Needs:</p>
-                    <p className="font-medium">{item.quantityGifted || 0}</p>
+                    <p className="font-medium">{item.stillNeeds}</p>
                   </div>
                 </div>
 
@@ -149,11 +166,43 @@ export function ListDetail({ list }: { list: ListWithItems }) {
                     </div>
                   </div>
                 </div>
+
+                {/* Reserve Gift Button */}
+                <div className="flex flex-row justify-end gap-2">
+                  <Button
+                    variant="default"
+                    disabled={item.stillNeeds === 0}
+                    onClick={() => setSelectedItem(item)}
+                  >
+                    {item.stillNeeds === 0 ? 'Reserved' : "I'll get this"}
+                  </Button>
+                </div>
               </div>
             </div>
           </Card>
         ))}
       </div>
+
+      {/* Reserve Gift Dialog Form */}
+      {selectedItem && (
+        <DialogForm
+          isOpen={!!selectedItem}
+          onClose={handleDialogCancel}
+          title={`Get this gift for ${profileSlug}!`}
+        >
+          <ReserveGiftForm
+            profileSlug={profileSlug}
+            listSlug={list.slug}
+            itemReservationInfo={{
+              itemPublicId: selectedItem.publicId,
+              itemQuantity: selectedItem.quantity,
+              stillNeeds: selectedItem.stillNeeds || selectedItem.quantity,
+            }}
+            onFormSubmit={handleDialogSubmit}
+            onFormCancel={handleDialogCancel}
+          />
+        </DialogForm>
+      )}
     </div>
   )
 }

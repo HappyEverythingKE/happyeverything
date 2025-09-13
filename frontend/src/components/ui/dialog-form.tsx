@@ -30,7 +30,9 @@ function DialogForm({
           <DialogHeader className="border-sidebar-border flex-shrink-0 border-b p-6 pb-4">
             <DialogTitle className="text-lg font-semibold">{title}</DialogTitle>
             {description && (
-              <DialogDescription>{description}</DialogDescription>
+              <DialogDescription className="whitespace-pre-line">
+                {description}
+              </DialogDescription>
             )}
           </DialogHeader>
 

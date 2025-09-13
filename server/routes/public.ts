@@ -198,26 +198,38 @@ async function getPublicList(c: Context, profileId: string, listSlug: string) {
 
   const supabaseAdmin = getAdminSupabase(c)
 
-  // pull public list data using supabaseAdmin to bypass RLS
-  const { data: list, error } = await supabaseAdmin
+  // pull public list data
+  const { data: listMeta, error: listError } = await supabaseAdmin
     .from('lists')
     .select(
       `
         name, slug, description, private, password, status, created_at, updated_at,
-        list_types!inner(id, name, image_url, is_custom),
-        list_items (
-          public_id, name, quantity, size, colour, image_url, product_url, shop_name, top_pick, created_at, updated_at
-        )
+        list_types!inner(id, name, image_url, is_custom)
       `,
     )
     .eq('id', listId)
     .eq('profile_id', profileId)
-    .order('top_pick', { referencedTable: 'list_items', ascending: false })
-    .order('created_at', { referencedTable: 'list_items', ascending: false })
     .maybeSingle()
 
-  if (error || !list) {
+  if (listError || !listMeta) {
     throw new HTTPException(404, { message: 'List not found' })
+  }
+
+  // fetch items from view
+  const { data: items, error: itemsError } = await supabaseAdmin
+    .from('public_list_items_with_counts')
+    .select('*')
+    .eq('list_id', listId)
+    .order('top_pick', { ascending: false })
+    .order('created_at', { ascending: false })
+
+  if (itemsError) {
+    throw new HTTPException(500, { message: 'Failed to fetch list items' })
+  }
+
+  const list = {
+    ...listMeta,
+    items,
   }
 
   return { list, listOwner }

@@ -16,9 +16,11 @@ export const getListItemsByList = async (
 
   if (res.ok) {
     const { data } = (await res.json()) as SuccessResponse<ListItem[]>
+    console.log('data', data)
     return data
   }
   const data = (await res.json()) as ErrorResponse
+  console.log('error', data)
   throw new Error(data.error ?? 'Failed to fetch list items')
 }
 

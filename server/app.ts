@@ -30,7 +30,7 @@ const apiRoutes = app
   .route('/lists', listRoutes)
   .route('/lists', listItemRoutes)
   .route('/public', publicRoutes)
-  .route('/reservations', giftReservationRoutes)
+  .route('/public/reservations', giftReservationRoutes)
 // .route('/lists', listAccessRoutes)
 
 app.onError((err, c) => {

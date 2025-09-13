@@ -40,8 +40,8 @@ export type CurrentUser = {
   email: string
   name: string
   status: StatusType
-  avatar: string | undefined
-  country: string | undefined
+  avatar?: string
+  country?: string
 }
 
 export type Profile = {
@@ -75,7 +75,7 @@ export type List = {
   password?: string
   status: ListStatusType
   createdAt: string
-  updatedAt: string | undefined
+  updatedAt?: string
 }
 
 export type ListItem = {
@@ -83,16 +83,16 @@ export type ListItem = {
   name: string
   quantity: number
   topPick: boolean
-  size: string | undefined
-  colour: string | undefined
-  imageUrl: string | undefined
-  productUrl: string | undefined
-  shopName: string | undefined
-  status: ListItemStatusType
-  giftedBy: string | undefined
-  quantityGifted: number
+  size?: string
+  colour?: string
+  imageUrl?: string
+  productUrl?: string
+  shopName?: string
+  reservedCount: number
+  stillNeeds: number
+  gifters?: Gifter[]
   createdAt: string
-  updatedAt: string | undefined
+  updatedAt?: string
 }
 
 export type ListWithItems = List & {
@@ -106,10 +106,23 @@ export type PublicListResponse =
       privateList: Pick<List, 'name' | 'slug' | 'isPrivate'>
     }
 
+export type Gifter = {
+  gifterName: string | null
+  quantityReserved: number
+}
+
 export type GiftReservationType = {
-  gifterName: string | undefined
+  gifterName?: string
   quantityReserved: number
   createdAt: string
+}
+
+export type ReserveGiftResponse = {
+  item: {
+    publicId: string
+    quantityReserved: number
+    stillNeeds: number
+  }
 }
 
 export const SignupSchema = z.object({

@@ -28,11 +28,10 @@ export const listItemRoutes = new Hono()
 
     const supabase = getSupabase(c)
 
+    // fetch items from view
     const { data, error } = await supabase
-      .from('list_items')
-      .select(
-        'public_id, name, quantity, size, colour, image_url, product_url, shop_name, top_pick, created_at, updated_at',
-      )
+      .from('list_items_with_counts_and_gifters')
+      .select('*')
       .eq('list_id', listId)
       .order('top_pick', { ascending: false })
       .order('created_at', { ascending: false })
@@ -221,39 +220,3 @@ export const listItemRoutes = new Hono()
 
     return c.body(null, 204)
   })
-// .patch(
-//   '/:profileSlug/:listSlug/items/:itemId/status',
-//   zValidator('form', GiftedBySchema),
-//   async (c) => {
-//     const { profileSlug, listSlug, itemId } = c.req.param()
-
-//     const profileId = await resolveProfileIdFromSlug(c, profileSlug)
-//     const listId = await resolveListIdFromSlug(c, profileId, listSlug)
-
-//     const supabase = getSupabase(c)
-//     const { giftedBy, quantityGifted } = c.req.valid('form')
-
-//     const { data, error: updateError } = await supabase
-//       .from('list_items')
-//       .update({
-//         status: 'gifted',
-//         gifted_by: giftedBy,
-//         quantity_gifted: quantityGifted,
-//       })
-//       .eq('id', itemId)
-//       .eq('list_id', listId)
-//       .select('*')
-//       .single()
-
-//     if (updateError) {
-//       throw new HTTPException(500, {
-//         message: updateError.message,
-//       })
-//     }
-
-//     return c.json<SuccessResponse<ListItem>>({
-//       success: true,
-//       data: mapToListItemType(data),
-//     })
-//   },
-// )

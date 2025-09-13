@@ -63,12 +63,14 @@ export const ListItemCard = ({
           />
 
           {/* Status Badges */}
-          {item.status === 'gifted' && (
+          {item.stillNeeds === 0 && (
             <Badge
               variant="default"
               className="absolute right-3 top-0 h-9 w-fit rounded-sm text-sm"
             >
-              {item.giftedBy ? `${item.giftedBy} got this for you!` : 'Gifted!'}
+              {item.gifters
+                ? `${item.gifters[0].gifterName} got this for you!`
+                : 'Gifted!'}
             </Badge>
           )}
 
@@ -120,7 +122,7 @@ export const ListItemCard = ({
               </div>
               <div className="flex items-center gap-2">
                 <p className="text-sm">Still Needs:</p>
-                <p className="font-medium">{item.quantityGifted || 0}</p>
+                <p className="font-medium">{item.stillNeeds}</p>
               </div>
             </div>
 
