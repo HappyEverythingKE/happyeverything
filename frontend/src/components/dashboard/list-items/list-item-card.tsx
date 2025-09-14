@@ -63,16 +63,27 @@ export const ListItemCard = ({
           />
 
           {/* Status Badges */}
-          {item.stillNeeds === 0 && (
-            <Badge
-              variant="default"
-              className="absolute right-3 top-0 h-9 w-fit rounded-sm text-sm"
-            >
+
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Badge
+                variant="default"
+                className="absolute right-3 top-0 h-9 w-fit rounded-sm text-sm"
+              >
+                {item.gifters
+                  ? `${item.gifters[0].gifter_name || 'Someone'} got this for you!`
+                  : 'Gifted!'}
+              </Badge>
+            </TooltipTrigger>
+            <TooltipContent className="font-medium">
               {item.gifters
-                ? `${item.gifters[0].gifterName} got this for you!`
-                : 'Gifted!'}
-            </Badge>
-          )}
+                ?.map(
+                  (gifter) =>
+                    `${gifter.gifter_name || 'Someone'} (${gifter.quantity_reserved})`,
+                )
+                .join(', ')}
+            </TooltipContent>
+          </Tooltip>
 
           {/* topPick button */}
           <Tooltip>

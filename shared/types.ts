@@ -107,14 +107,13 @@ export type PublicListResponse =
     }
 
 export type Gifter = {
-  gifterName: string | null
-  quantityReserved: number
+  gifter_name: string | null
+  quantity_reserved: number
 }
 
 export type GiftReservationType = {
   gifterName?: string
   quantityReserved: number
-  createdAt: string
 }
 
 export type ReserveGiftResponse = {
