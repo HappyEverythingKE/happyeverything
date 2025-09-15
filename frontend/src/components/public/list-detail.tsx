@@ -189,6 +189,7 @@ export function ListDetail({
           isOpen={!!selectedItem}
           onClose={handleDialogCancel}
           title={`Get this gift for ${profileSlug}!`}
+          description="Let them know that you'll get this gift for them."
         >
           <ReserveGiftForm
             profileSlug={profileSlug}

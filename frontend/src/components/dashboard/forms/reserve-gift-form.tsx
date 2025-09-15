@@ -1,11 +1,11 @@
 import { useForm } from '@tanstack/react-form'
 
 import { useReserveGift } from '@/services/gift-reservation.api'
-import { GiftReservationCreateSchema } from '@shared/types'
 import { toast } from 'sonner'
-import type { z } from 'zod'
+import { z } from 'zod'
 
 import { Button } from '@/components/ui/button'
+import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { FieldInfo } from '@/components/field-info'
@@ -22,10 +22,26 @@ interface ReserveGiftFormProps {
   onFormCancel: () => void
 }
 
+const confirmReservationSchema = z.object({
+  gifterName: z
+    .string()
+    .max(50, 'This field must be less than 50 characters.')
+    .optional(),
+  quantityReserved: z.coerce
+    .number()
+    .int()
+    .positive()
+    .min(1, 'Please enter a quantity.'),
+  confirmReservation: z.boolean().refine((value) => value === true, {
+    message: 'Please confirm that you understand reservations cannot be undone',
+  }),
+})
+
 const defaultValues = {
   gifterName: '',
   quantityReserved: 1,
-} as z.infer<typeof GiftReservationCreateSchema>
+  confirmReservation: false,
+} as z.infer<typeof confirmReservationSchema>
 
 export function ReserveGiftForm({
   profileSlug,
@@ -41,7 +57,7 @@ export function ReserveGiftForm({
 
   const form = useForm({
     defaultValues: defaultValues,
-    validators: { onChange: GiftReservationCreateSchema },
+    validators: { onChange: confirmReservationSchema },
     onSubmit: async ({ value }) => {
       const res = await reserveGift({
         itemPublicId: itemReservationInfo.itemPublicId,
@@ -158,6 +174,40 @@ export function ReserveGiftForm({
                       Reserving: {field.state.value ? field.state.value : 0}/
                       {itemReservationInfo.stillNeeds}
                     </p>
+                    <FieldInfo field={field} />
+                  </>
+                )
+              }}
+            />
+          </div>
+
+          <div className="space-y-4">
+            <form.Field
+              name="confirmReservation"
+              children={(field) => {
+                return (
+                  <>
+                    <div className="flex items-center space-x-2">
+                      <Checkbox
+                        required
+                        id={field.name}
+                        name={field.name}
+                        onCheckedChange={(checked) =>
+                          field.setValue(checked === true)
+                        }
+                        checked={field.state.value}
+                        onBlur={field.handleBlur}
+                        aria-invalid={!field.state.meta.isValid}
+                      />
+                      <div className="grid gap-1.5 leading-none">
+                        <Label
+                          htmlFor={field.name}
+                          className="text-sm font-medium leading-relaxed peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                        >
+                          I understand that reservations cannot be undone.
+                        </Label>
+                      </div>
+                    </div>
                     <FieldInfo field={field} />
                   </>
                 )
