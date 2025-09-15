@@ -2,7 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 
 import type {
   ErrorResponse,
-  GiftReservationType,
+  GiftReservation,
   ListItem,
   ListWithItems,
   PublicListOwner,
@@ -14,7 +14,7 @@ import { client } from '@/lib/api'
 
 export const reserveGift = async (
   itemPublicId: string,
-  reservationData: Partial<GiftReservationType>,
+  reservationData: Partial<GiftReservation>,
 ) => {
   const res = await client.public.reservations[itemPublicId].$post({
     form: reservationData,
@@ -38,7 +38,7 @@ export const useReserveGift = (profileSlug: string, listSlug: string) => {
       reservationData,
     }: {
       itemPublicId: string
-      reservationData: Partial<GiftReservationType>
+      reservationData: Partial<GiftReservation>
     }) => reserveGift(itemPublicId, reservationData),
 
     onSuccess: async (res) => {

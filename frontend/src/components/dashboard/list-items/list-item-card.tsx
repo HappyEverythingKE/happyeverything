@@ -27,6 +27,8 @@ export const ListItemCard = ({
   item: ListItem
 }) => {
   const [isSheetOpen, setIsSheetOpen] = useState(false)
+  const placeholderImage = '/placeholders/gift-placeholder.svg'
+
   const handleSubmit = () => setIsSheetOpen(false)
   const handleCancel = () => setIsSheetOpen(false)
 
@@ -47,7 +49,14 @@ export const ListItemCard = ({
     }
   }
 
-  const placeholderImage = '/placeholders/gift-placeholder.svg'
+  const getGifterDisplayName = (gifters: ListItem['gifters']) => {
+    if (!gifters || gifters?.length === 0) return null
+
+    return gifters.length > 1
+      ? `${gifters.length} people`
+      : gifters[0].gifter_name || 'Someone'
+  }
+  const multiGifterDisplay = getGifterDisplayName(item.gifters)
 
   return (
     <>
@@ -63,27 +72,28 @@ export const ListItemCard = ({
           />
 
           {/* Status Badges */}
-
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Badge
-                variant="default"
-                className="absolute right-3 top-0 h-9 w-fit rounded-sm text-sm"
-              >
+          {item.gifters && item.gifters.length > 0 && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Badge
+                  variant="default"
+                  className="absolute right-3 top-0 h-9 w-fit rounded-sm text-sm"
+                >
+                  {item.gifters
+                    ? `${multiGifterDisplay} got this for you!`
+                    : 'Gifted!'}
+                </Badge>
+              </TooltipTrigger>
+              <TooltipContent className="font-medium">
                 {item.gifters
-                  ? `${item.gifters[0].gifter_name || 'Someone'} got this for you!`
-                  : 'Gifted!'}
-              </Badge>
-            </TooltipTrigger>
-            <TooltipContent className="font-medium">
-              {item.gifters
-                ?.map(
-                  (gifter) =>
-                    `${gifter.gifter_name || 'Someone'} (${gifter.quantity_reserved})`,
-                )
-                .join(', ')}
-            </TooltipContent>
-          </Tooltip>
+                  ?.map(
+                    (gifter) =>
+                      `${gifter.gifter_name || 'Someone'} (${gifter.quantity_reserved})`,
+                  )
+                  .join(', ')}
+              </TooltipContent>
+            </Tooltip>
+          )}
 
           {/* topPick button */}
           <Tooltip>

@@ -13,13 +13,14 @@ import {
   type AppEnv,
   type List,
   type ListType,
+  type ProfileGiftActivity,
   type SuccessResponse,
 } from '@/shared/types'
 import {
   resolveListIdFromSlug,
   resolveProfileIdFromSlug,
 } from '@/lib/slug-id-lookup'
-import { mapToListType } from '@/lib/utils'
+import { mapToListType, mapToProfileGiftActivityType } from '@/lib/utils'
 
 export const listRoutes = new Hono()
   .get('/list-types', async (c) => {
@@ -44,6 +45,28 @@ export const listRoutes = new Hono()
         imageUrl: item.image_url,
         isCustom: item.is_custom,
       })),
+    })
+  })
+  .get('/:profileSlug/activity', async (c) => {
+    const { profileSlug } = c.req.param()
+    const profileId = await resolveProfileIdFromSlug(c, profileSlug)
+    const supabase = getSupabase(c)
+
+    const { data, error } = await supabase
+      .from('profile_gift_activity')
+      .select('gifter_name, created_at, list_name')
+      .eq('profile_id', profileId)
+      .order('created_at', { ascending: false })
+
+    if (error) {
+      throw new HTTPException(500, {
+        message: error.message,
+      })
+    }
+
+    return c.json<SuccessResponse<ProfileGiftActivity[]>>({
+      success: true,
+      data: data.map(mapToProfileGiftActivityType) ?? [],
     })
   })
   .get('/:profileSlug', async (c) => {

@@ -4,6 +4,7 @@ import type {
   ListItem,
   ListStatusType,
   ListWithItems,
+  ProfileGiftActivity,
 } from '@/shared/types'
 
 /**
@@ -82,5 +83,15 @@ export const mapToPublicListWithItemsType = (
   return {
     ...mapToPublicListType(list),
     items: list.items.map(mapToListItemType),
+  }
+}
+
+export const mapToProfileGiftActivityType = (
+  activity: any,
+): ProfileGiftActivity => {
+  return {
+    gifterName: activity.gifter_name,
+    listName: activity.list_name,
+    createdAt: formatDate(activity.created_at),
   }
 }

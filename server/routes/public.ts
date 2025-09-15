@@ -37,6 +37,7 @@ const reservedRoutes = [
   'contact',
   'about',
   'settings',
+  'activity',
 ]
 
 // view all published lists for a profile

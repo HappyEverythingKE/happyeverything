@@ -109,7 +109,9 @@ function RouteComponent() {
           <div className="flex flex-col items-center justify-center space-y-2">
             <h1 className="text-balance text-center text-3xl">{list.name}</h1>
             {list.description && (
-              <p className="text-muted-foreground mt-2">{list.description}</p>
+              <p className="text-muted-foreground mt-2 text-balance text-center">
+                {list.description}
+              </p>
             )}
           </div>
           <div className="flex flex-col items-center justify-center space-y-1">

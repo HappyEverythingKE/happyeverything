@@ -90,7 +90,10 @@ export type ListItem = {
   shopName?: string
   reservedCount: number
   stillNeeds: number
-  gifters?: Gifter[]
+  gifters?: {
+    gifter_name: string | null
+    quantity_reserved: number
+  }[]
   createdAt: string
   updatedAt?: string
 }
@@ -106,12 +109,7 @@ export type PublicListResponse =
       privateList: Pick<List, 'name' | 'slug' | 'isPrivate'>
     }
 
-export type Gifter = {
-  gifter_name: string | null
-  quantity_reserved: number
-}
-
-export type GiftReservationType = {
+export type GiftReservation = {
   gifterName?: string
   quantityReserved: number
 }
@@ -122,6 +120,12 @@ export type ReserveGiftResponse = {
     quantityReserved: number
     stillNeeds: number
   }
+}
+
+export type ProfileGiftActivity = {
+  gifterName: string
+  listName: string
+  createdAt: string
 }
 
 export const SignupSchema = z.object({
@@ -156,7 +160,7 @@ export const ListCreateSchema = z.object({
     .max(25, 'List name must be less than 25 characters.'),
   description: z
     .string()
-    .max(50, 'The description must be less than 100 characters')
+    .max(100, 'The description must be less than 100 characters')
     .optional(),
   listTypeId: z.string(),
 })
