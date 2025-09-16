@@ -4,6 +4,7 @@ import type {
   ListItem,
   ListStatusType,
   ListWithItems,
+  ProfileGiftActivity,
 } from '@/shared/types'
 
 /**
@@ -50,9 +51,9 @@ export const mapToListItemType = (item: any): ListItem => {
     imageUrl: item.image_url,
     productUrl: item.product_url,
     shopName: item.shop_name,
-    status: item.status,
-    giftedBy: item.gifted_by || '',
-    quantityGifted: item.quantity_gifted || 0,
+    reservedCount: item.reserved_count,
+    gifters: item.gifters,
+    stillNeeds: item.still_needs,
     createdAt: formatDate(item.created_at),
     updatedAt: item.updated_at ? formatDate(item.updated_at) : undefined,
   }
@@ -81,6 +82,16 @@ export const mapToPublicListWithItemsType = (
 ): Omit<ListWithItems, 'password'> => {
   return {
     ...mapToPublicListType(list),
-    items: list.list_items.map(mapToListItemType),
+    items: list.items.map(mapToListItemType),
+  }
+}
+
+export const mapToProfileGiftActivityType = (
+  activity: any,
+): ProfileGiftActivity => {
+  return {
+    gifterName: activity.gifter_name,
+    listName: activity.list_name,
+    createdAt: formatDate(activity.created_at),
   }
 }

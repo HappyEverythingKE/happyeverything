@@ -9,6 +9,7 @@ import type {
   List,
   ListStatusType,
   ListType,
+  ProfileGiftActivity,
   SuccessResponse,
 } from '@shared/types'
 
@@ -261,4 +262,24 @@ export const listTypesQueryOptions = () =>
   queryOptions({
     queryKey: ['list-types'],
     queryFn: () => getListTypes(),
+  })
+
+export const getProfileGiftActivity = async (profileSlug: string) => {
+  const res = await client.lists[profileSlug]['activity'].$get({})
+
+  if (res.ok) {
+    const { data } = (await res.json()) as SuccessResponse<
+      ProfileGiftActivity[]
+    >
+    return data
+  }
+  const data = (await res.json()) as ErrorResponse
+  return data
+}
+
+export const profileGiftActivityQueryOptions = (profileSlug: string) =>
+  queryOptions({
+    queryKey: ['profiles', profileSlug, 'activity'],
+    queryFn: () => getProfileGiftActivity(profileSlug),
+    enabled: !!profileSlug,
   })

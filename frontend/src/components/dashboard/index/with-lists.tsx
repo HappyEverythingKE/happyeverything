@@ -1,9 +1,14 @@
 import { Link } from '@tanstack/react-router'
 
 import type { List } from '@shared/types'
-import { startCase } from 'lodash'
+import { Calendar } from 'lucide-react'
 
+import { ActivityLog } from '@/components/ui/activity-log'
+import { ActivityLogSkeleton } from '@/components/ui/activity-log-skeleton'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { SuspenseQueryBoundary } from '@/components/suspense-query-boundary'
 
 interface WithListsProps {
   profileSlug: string
@@ -13,30 +18,45 @@ interface WithListsProps {
 export function WithLists({ profileSlug, lists }: WithListsProps) {
   return (
     <div className="w-full px-8 py-4">
-      <h4 className="mb-4 text-lg font-semibold">Your wish lists</h4>
-
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3 lg:gap-12">
-        <div className="grid gap-2 md:col-span-2">
-          <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-10 pt-6 lg:grid-cols-3">
+        {/* Main Content */}
+        <div className="lg:col-span-2">
+          <h4 className="mb-4 text-lg font-semibold">Your wish lists</h4>
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
             {lists.map((list) => (
-              <div
+              <Card
                 key={list.slug}
-                className="grid grid-flow-col grid-rows-2 gap-4 rounded-lg border p-4"
+                className="relative grid grid-flow-col grid-rows-2 gap-6 overflow-hidden"
               >
-                <div className="grid">
-                  <div className="flex items-center justify-between">
-                    <h5 className="font-medium">{list.name}</h5>
-                    <p className="text-sm">{startCase(list.status)}</p>
-                  </div>
-
-                  {list.description && (
-                    <p className="text-muted-foreground mt-1 text-pretty text-sm">
-                      {list.description}
-                    </p>
-                  )}
+                <div className="absolute right-0 top-0">
+                  <Badge
+                    variant={
+                      list.status === 'published' ? 'default' : 'secondary'
+                    }
+                    className={`rounded-none rounded-bl-lg px-3 py-1.5 text-[10.5px] ${
+                      list.status === 'published'
+                        ? 'border-green-200 bg-green-100 text-green-800 dark:border-green-800 dark:bg-green-900/20 dark:text-green-400'
+                        : 'border-amber-200 bg-amber-100 text-amber-800 dark:border-amber-800 dark:bg-amber-900/20 dark:text-amber-400'
+                    }`}
+                  >
+                    {list.status.toUpperCase()}
+                  </Badge>
                 </div>
-                <div className="grid">
-                  <Button variant="outline" className="mt-2 w-full" asChild>
+
+                <CardHeader className="grid pt-6">
+                  <CardTitle className="text-lg font-semibold">
+                    {list.name}
+                  </CardTitle>
+                  <div className="text-muted-foreground flex items-center gap-1 text-xs">
+                    <Calendar className="h-3 w-3" />
+                    <span>Created {list.createdAt}</span>
+                  </div>
+                </CardHeader>
+                <CardContent className="grid">
+                  <p className="line-clamp-2 text-sm leading-relaxed">
+                    {list.description}
+                  </p>
+                  <Button variant="outline" className="mt-3 w-full" asChild>
                     <Link
                       to="/dashboard/$profileSlug/$listSlug"
                       params={{ profileSlug, listSlug: list.slug }}
@@ -44,16 +64,19 @@ export function WithLists({ profileSlug, lists }: WithListsProps) {
                       View List
                     </Link>
                   </Button>
-                </div>
-              </div>
+                </CardContent>
+              </Card>
             ))}
           </div>
         </div>
 
         {/* Sidebar */}
-        <div>
-          <h4 className="mb-4 text-lg font-semibold">Activity</h4>
-          <p className="text-muted-foreground text-sm">No recent activity</p>
+        <div className="lg:col-span-1">
+          <h2 className="mb-4 text-lg font-semibold">Activity</h2>
+
+          <SuspenseQueryBoundary fallback={<ActivityLogSkeleton />}>
+            <ActivityLog profileSlug={profileSlug} />
+          </SuspenseQueryBoundary>
         </div>
       </div>
     </div>

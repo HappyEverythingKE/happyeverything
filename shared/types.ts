@@ -40,8 +40,8 @@ export type CurrentUser = {
   email: string
   name: string
   status: StatusType
-  avatar: string | undefined
-  country: string | undefined
+  avatar?: string
+  country?: string
 }
 
 export type Profile = {
@@ -75,7 +75,7 @@ export type List = {
   password?: string
   status: ListStatusType
   createdAt: string
-  updatedAt: string | undefined
+  updatedAt?: string
 }
 
 export type ListItem = {
@@ -83,16 +83,19 @@ export type ListItem = {
   name: string
   quantity: number
   topPick: boolean
-  size: string | undefined
-  colour: string | undefined
-  imageUrl: string | undefined
-  productUrl: string | undefined
-  shopName: string | undefined
-  status: ListItemStatusType
-  giftedBy: string | undefined
-  quantityGifted: number
+  size?: string
+  colour?: string
+  imageUrl?: string
+  productUrl?: string
+  shopName?: string
+  reservedCount: number
+  stillNeeds: number
+  gifters?: {
+    gifter_name: string | null
+    quantity_reserved: number
+  }[]
   createdAt: string
-  updatedAt: string | undefined
+  updatedAt?: string
 }
 
 export type ListWithItems = List & {
@@ -106,9 +109,22 @@ export type PublicListResponse =
       privateList: Pick<List, 'name' | 'slug' | 'isPrivate'>
     }
 
-export type GiftReservationType = {
-  gifterName: string | undefined
+export type GiftReservation = {
+  gifterName?: string
   quantityReserved: number
+}
+
+export type ReserveGiftResponse = {
+  item: {
+    publicId: string
+    quantityReserved: number
+    stillNeeds: number
+  }
+}
+
+export type ProfileGiftActivity = {
+  gifterName: string
+  listName: string
   createdAt: string
 }
 
@@ -144,7 +160,7 @@ export const ListCreateSchema = z.object({
     .max(25, 'List name must be less than 25 characters.'),
   description: z
     .string()
-    .max(50, 'The description must be less than 100 characters')
+    .max(100, 'The description must be less than 100 characters')
     .optional(),
   listTypeId: z.string(),
 })

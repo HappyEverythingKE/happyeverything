@@ -99,7 +99,7 @@ function RouteComponent() {
       {list.items.length === 0 ? (
         <EmptyListsState description="This list has no items yet. Check back later!" />
       ) : (
-        <ListDetail list={list} />
+        <ListDetail list={list} profileSlug={profileSlug} />
       )}
     </div>
   )
