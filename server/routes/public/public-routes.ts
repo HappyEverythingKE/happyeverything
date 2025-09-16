@@ -20,6 +20,7 @@ import { mapToPublicListType, mapToPublicListWithItemsType } from '@/lib/utils'
 const reservedRoutes = [
   'api',
   'auth',
+  'account',
   'profile',
   'lists',
   'list-types',

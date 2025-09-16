@@ -44,6 +44,15 @@ export type CurrentUser = {
   country?: string
 }
 
+export type Account = CurrentUser & {
+  createdAt: string
+  profiles: {
+    slug: string
+    status: StatusType
+    lists: { name: string; slug: string }[]
+  }[]
+}
+
 export type Profile = {
   slug: string
   status: StatusType
@@ -135,6 +144,13 @@ export const SignupSchema = z.object({
 })
 
 export const LoginSchema = SignupSchema.pick({ email: true })
+
+export const AccountSchema = z.object({
+  name: z.string().trim().min(3, 'Please enter your full name.').max(31),
+  email: z.string().email('Please enter a valid email.'),
+  country: z.string().trim().min(1, 'Please enter a country.'),
+  avatar: z.string(),
+})
 
 export const ProfileSlugSchema = z.object({
   slug: z
