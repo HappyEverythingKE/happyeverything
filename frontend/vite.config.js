@@ -29,6 +29,7 @@ export default defineConfig({
     extensions: ['.ts', '.tsx', '.js', '.jsx'],
   },
   server: {
+    cors: false, // disable Vite's built-in CORS setting to avoid conflicts with Hono's CORS middleware
     proxy: {
       '/api': {
         target: 'http://127.0.0.1:3000',

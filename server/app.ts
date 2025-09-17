@@ -22,7 +22,17 @@ const apiRoutes = app
   .basePath('/api')
   // middleware
   .use('*', logger())
-  .use('*', cors())
+  .use(
+    '*',
+    cors({
+      origin: [
+        process.env['APP_BASE_URL'] ||
+          'https://happyeverything-frontend.onrender.com',
+        'http://127.0.0.1:5173',
+      ],
+      credentials: true,
+    }),
+  )
   .use('*', supabaseMiddleware())
   // routes
   .route('/auth', authRoutes)
