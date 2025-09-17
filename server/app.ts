@@ -30,6 +30,8 @@ const apiRoutes = app
           'https://happyeverything-frontend.onrender.com',
         'http://127.0.0.1:5173',
       ],
+      allowHeaders: ['Content-Type', 'Authorization'],
+      allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
       credentials: true,
     }),
   )
