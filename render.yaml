@@ -1,0 +1,54 @@
+previews:
+  generation: manual
+  expireAfterDays: 3
+
+services:
+  - type: web
+    name: happyeverything-backend
+    runtime: node
+    root: .
+    buildCommand: pnpm install --frozen-lockfile && pnpm build
+    startCommand: pnpm start
+    region: frankfurt
+    branch: main
+    plan: free
+    autoDeploy: false
+    envVars:
+      - key: APP_BASE_URL
+        value: http://localhost:5173
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_PUBLIC_KEY
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: SUPABASE_PROJECT_ID
+        sync: false
+      - key: MAX_PROFILES_PER_USER
+        sync: false
+      - key: MAX_LISTS_PER_PROFILE
+        sync: false
+      - key: MAX_ITEMS_PER_LIST
+        sync: false
+      - key: MAX_TOP_PICKS_PER_LIST
+        sync: false
+
+  - type: web
+    name: happyeverything-frontend
+    runtime: static
+    root: frontend
+    buildCommand: pnpm install --frozen-lockfile && pnpm build
+    startCommand: pnpm start
+    staticPublishPath: './dist'
+    pullRequestPreviewsEnabled: true
+    region: frankfurt
+    branch: main
+    plan: free
+    autoDeploy: false
+    envVars:
+      - key: APP_BASE_URL
+        value: http://localhost:5173
+      - key: VITE_SUPABASE_URL
+        sync: false
+      - key: VITE_SUPABASE_PUBLIC_KEY
+        sync: false
