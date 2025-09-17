@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { useForm } from '@tanstack/react-form'
 import { useSuspenseQuery } from '@tanstack/react-query'
@@ -5,6 +6,7 @@ import { useSuspenseQuery } from '@tanstack/react-query'
 import IconLogo from '@/assets/logos/logo-icon.svg'
 import {
   accountQueryOptions,
+  updateEmail,
   useDeleteAccount,
   useUpdateAccount,
 } from '@/services/account.api'
@@ -44,15 +46,40 @@ const countries = populateCountries()
 
 function RouteComponent() {
   const navigate = useNavigate()
-
   const { data: account } = useSuspenseQuery(accountQueryOptions)
+
+  const [isEditing, setIsEditing] = useState<string | null>(null)
+  const [email, setEmail] = useState<string>(account.email)
 
   const initials = prettifyInitials(account.name)
 
   // update account
   const { mutateAsync: updateAccount } = useUpdateAccount()
   // delete account
-  const { mutateAsync: deleteAccount } = useDeleteAccount()
+  const { mutateAsync: deleteAccount, isPending: isDeleting } =
+    useDeleteAccount()
+
+  const handleEdit = (field: string) => {
+    setIsEditing(field)
+  }
+
+  const handleSave = () => {
+    setIsEditing(null)
+  }
+
+  const handleEmailChange = async () => {
+    try {
+      await updateEmail(email)
+      toast.success('Your email has been updated.')
+      setIsEditing(null)
+    } catch (err) {
+      toast.error('Failed to update email', { description: String(err) })
+    }
+  }
+
+  const handleCancel = () => {
+    setIsEditing(null)
+  }
 
   const handleDeleteAccount = async () => {
     try {
@@ -70,7 +97,6 @@ function RouteComponent() {
 
   const defaultValues = {
     name: account.name,
-    email: account.email,
     country: account.country,
     avatar: account.avatar,
   } as z.infer<typeof AccountSchema>
@@ -137,7 +163,7 @@ function RouteComponent() {
 
           {/* Personal Details */}
           <div className="flex flex-col gap-4">
-            <h2 className="text-lg">Account details</h2>
+            <h2 className="text-xl">Account details</h2>
 
             <form
               className="space-y-6"
@@ -166,38 +192,6 @@ function RouteComponent() {
                             placeholder="Your full name"
                             maxLength={31}
                           />
-                          <p className="-mt-1 ml-1 text-xs text-gray-500">
-                            This will be visible on your profile page.
-                          </p>
-                          <FieldInfo field={field} />
-                        </>
-                      )
-                    }}
-                  />
-                </div>
-
-                <div className="flex-1 space-y-3">
-                  <form.Field
-                    name="email"
-                    children={(field) => {
-                      return (
-                        <>
-                          <Label htmlFor={field.name}>Email</Label>
-                          <Input
-                            type="email"
-                            id={field.name}
-                            name={field.name}
-                            value={field.state.value}
-                            onChange={(e) => field.handleChange(e.target.value)}
-                            onBlur={field.handleBlur}
-                            aria-invalid={!field.state.meta.isValid}
-                            placeholder="Your email address"
-                            autoComplete="email"
-                          />
-                          <p className="-mt-1 ml-1 text-xs text-gray-500">
-                            All communications will be sent to this email
-                            address.
-                          </p>
                           <FieldInfo field={field} />
                         </>
                       )
@@ -306,9 +300,70 @@ function RouteComponent() {
             </form>
           </div>
 
+          {/* Update Email */}
+          {/* <div className="flex flex-col gap-4 border-t pt-8">
+            <h2 className="text-lg">Update email</h2>
+            <div className="flex items-center justify-between">
+              <div>
+                <Label className="text-md font-bold">Update email</Label>
+                <p className="text-sm">
+                  All communications will be sent to this email address.
+                </p>
+              </div>
+              <Button variant="destructive" onClick={handleUpdateEmail}>
+                Update
+              </Button>
+            </div>
+          </div> */}
+
+          {/* Update Email */}
+          <div className="flex flex-col gap-4">
+            <h2 className="text-xl">Update email</h2>
+            <div className="flex items-end justify-between">
+              <div className="flex-1 space-y-3">
+                <Label htmlFor={'email'}>Email</Label>
+                <p className="pb-2 text-sm">
+                  Your email will be updated immediately. Please check your
+                  spelling before saving.
+                </p>
+                {isEditing === 'email' ? (
+                  <div className="mt-2 flex items-center gap-2">
+                    <Input
+                      type="email"
+                      id={'email'}
+                      name={'email'}
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      aria-invalid={!email}
+                      placeholder="Your email address"
+                      autoComplete="email"
+                    />
+                    <Button size="sm" onClick={handleEmailChange}>
+                      Save
+                    </Button>
+                    <Button size="sm" variant="outline" onClick={handleCancel}>
+                      Cancel
+                    </Button>
+                  </div>
+                ) : (
+                  <p className="text-muted-foreground mt-1">{email}</p>
+                )}
+              </div>
+              {isEditing !== 'email' && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => handleEdit('email')}
+                >
+                  Edit
+                </Button>
+              )}
+            </div>
+          </div>
+
           {/* Manage Account */}
-          <div className="flex flex-col gap-4 border-t pt-8">
-            <h2 className="text-lg">Manage account</h2>
+          <div className="flex flex-col gap-4 pt-8">
+            <h2 className="text-xl">Manage account</h2>
             <div className="flex items-center justify-between">
               <div>
                 <Label className="text-md font-bold">Delete account</Label>
@@ -316,7 +371,13 @@ function RouteComponent() {
                   Permanently delete your Happy Everything account.
                 </p>
               </div>
-              <Button variant="destructive" onClick={handleDeleteAccount}>
+              {/* TODO: Add confirmation modal */}
+              <Button
+                variant="destructive"
+                onClick={handleDeleteAccount}
+                disabled={isDeleting}
+              >
+                {isDeleting ? 'Deleting...' : 'Delete'}
                 Delete
               </Button>
             </div>

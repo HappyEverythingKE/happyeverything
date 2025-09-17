@@ -7,6 +7,7 @@ import {
   getUserSession,
 } from '@/middleware/auth.middleware'
 import { zValidator } from '@hono/zod-validator'
+import { z } from 'zod'
 
 import {
   AccountSchema,
@@ -41,28 +42,41 @@ export const accountManagementRoutes = new Hono()
       },
     })
   })
-  .patch('/', getUserSession, zValidator('form', AccountSchema), async (c) => {
+  .patch('/email', getUserSession, async (c) => {
     const user = c.get('user')!
-    const { name, email, country, avatar } = c.req.valid('form')
+    const { email } = await c.req.json<{ email: string }>()
 
-    const supabase = getSupabase(c)
+    const supabaseAdmin = getAdminSupabase(c)
 
-    // update auth.users email using the Admin API
-    const { data: authUser, error: authError } =
-      await supabase.auth.admin.updateUserById(user.id, { email })
-
-    console.log('BE authUser', authUser)
-
-    if (authError) {
-      throw new HTTPException(500, {
-        message: `Auth update failed: ${authError.message}`,
+    // validate email
+    if (!z.string().email().safeParse(email).success) {
+      throw new HTTPException(400, {
+        message: 'Invalid email',
+        cause: { form: true },
       })
     }
+
+    const { error } = await supabaseAdmin.auth.admin.updateUserById(user.id, {
+      email,
+    })
+    if (error) {
+      throw new HTTPException(500, {
+        message: error.message,
+      })
+    }
+
+    return c.json({ success: true }, 200)
+  })
+  .patch('/', getUserSession, zValidator('form', AccountSchema), async (c) => {
+    const user = c.get('user')!
+    const { name, country, avatar } = c.req.valid('form')
+
+    const supabase = getSupabase(c)
 
     // update accounts table
     const { data, error } = await supabase
       .from('accounts')
-      .update({ name, email, country, avatar })
+      .update({ name, country, avatar })
       .eq('id', user.id)
       .select(
         'email, name, status, avatar, country, created_at, profiles!inner(slug, status, lists!inner(name, slug))',
