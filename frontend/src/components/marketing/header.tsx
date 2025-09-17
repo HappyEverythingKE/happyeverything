@@ -62,7 +62,7 @@ export function Header() {
             <Link to="/">
               <img
                 src={MobileLogo}
-                alt="My Happy Everything"
+                alt="Happy Everything"
                 className="lg:hidden"
                 width="90"
                 height="42"
@@ -71,7 +71,7 @@ export function Header() {
             <Link to="/">
               <img
                 src={PrimaryLogo}
-                alt="My Happy Everything"
+                alt="Happy Everything"
                 className="hidden lg:block"
                 width="320"
                 height="63"

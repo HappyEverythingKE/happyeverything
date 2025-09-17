@@ -198,7 +198,7 @@ function RouteComponent() {
                             className="font-normal leading-5"
                           >
                             By submitting this form, I consent to receiving
-                            communications from My Happy Everything.
+                            communications from Happy Everything.
                           </Label>
 
                           <p className="text-muted-foreground text-xs">

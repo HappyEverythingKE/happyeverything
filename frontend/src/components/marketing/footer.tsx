@@ -80,7 +80,7 @@ export function Footer() {
           <Link to="/">
             <img
               src={FooterLogo}
-              alt="My Happy Everything"
+              alt="Happy Everything"
               width="300px"
               height="140px"
               className="mb-6 inline-block w-full sm:mb-0"
@@ -90,7 +90,7 @@ export function Footer() {
       </div>
       <div className="flex flex-col items-center justify-between pt-6 text-center text-sm md:flex-row md:items-center md:pb-0 md:pt-8">
         <p className="mb-2 mt-5 font-medium md:mt-0">
-          &copy; {new Date().getFullYear()} My Happy Everything. All rights
+          &copy; {new Date().getFullYear()} Happy Everything. All rights
           reserved.
         </p>
         <a

@@ -114,8 +114,8 @@ export function LoginForm() {
 
           <div>
             <p className="text-center text-xs text-gray-500">
-              By creating an account, you agree to My Happy Everything’s Terms
-              of Service and Privacy Policy.
+              By creating an account, you agree to Happy Everything’s Terms of
+              Service and Privacy Policy.
             </p>
           </div>
         </div>

@@ -1,5 +1,5 @@
 {
-  "name": "myhappyeverything",
+  "name": "happyeverything",
   "private": true,
   "workspaces": [
     "frontend"

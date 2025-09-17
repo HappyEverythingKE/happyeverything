@@ -85,8 +85,8 @@ export function BenefitSection() {
             Get the gifts you <span className="font-italic">actually</span> want
           </h2>
           <p className="text-balance">
-            My Happy Everything makes it simple for your loved ones to know
-            exactly what you want, so every gift feels personal and appreciated.
+            Happy Everything makes it simple for your loved ones to know exactly
+            what you want, so every gift feels personal and appreciated.
             <br />
             No confusion. No duplicates. Just joyful, thoughtful giving.
           </p>

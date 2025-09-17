@@ -62,7 +62,7 @@ export function NavSidebar({
                   <div className="flex items-center justify-center">
                     <img
                       src={IconLogo}
-                      alt="My Happy Everything"
+                      alt="Happy Everything"
                       className="size-22 aspect-square"
                       width="110px"
                       height="62px"
@@ -90,7 +90,7 @@ export function NavSidebar({
                 <div className="flex items-center justify-center">
                   <img
                     src={IconLogo}
-                    alt="My Happy Everything"
+                    alt="Happy Everything"
                     className="size-22 aspect-square"
                     width="110px"
                     height="62px"
