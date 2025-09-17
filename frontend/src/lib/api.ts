@@ -1,6 +1,8 @@
 import { hcWithType } from '@server/hc'
 
-export const client = hcWithType('/', {
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/'
+
+export const client = hcWithType(API_BASE_URL, {
   fetch: (input: RequestInfo | URL, init?: RequestInit) =>
     fetch(input, {
       ...init,

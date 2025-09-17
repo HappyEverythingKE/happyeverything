@@ -1,21 +1,24 @@
 previews:
   generation: manual
-  expireAfterDays: 3
+  plan: free
+  expireAfterDays: 1
 
 services:
   - type: web
     name: happyeverything-backend
     runtime: node
+    plan: free
+    region: frankfurt
+    branch: main
+    autoDeployTrigger: off
     root: .
     buildCommand: pnpm install --frozen-lockfile && pnpm build:server
     startCommand: pnpm --filter server start
-    region: frankfurt
-    branch: main
-    plan: free
-    autoDeploy: false
     envVars:
+      - key: NODE_ENV
+        sync: false
       - key: APP_BASE_URL
-        value: http://localhost:5173
+        sync: false
       - key: SUPABASE_URL
         sync: false
       - key: SUPABASE_PUBLIC_KEY
@@ -36,17 +39,20 @@ services:
   - type: web
     name: happyeverything-frontend
     runtime: static
+    plan: free
+    region: frankfurt
+    branch: main
+    autoDeployTrigger: off
     root: .
     buildCommand: pnpm install --frozen-lockfile && pnpm build:frontend
     staticPublishPath: frontend/dist
-    pullRequestPreviewsEnabled: true
-    region: frankfurt
-    branch: main
-    plan: free
-    autoDeploy: false
     envVars:
-      - key: APP_BASE_URL
-        value: http://localhost:5173
+      - key: NODE_ENV
+        sync: false
+      - key: VITE_APP_BASE_URL
+        sync: false
+      - key: VITE_API_BASE_URL
+        sync: false
       - key: VITE_SUPABASE_URL
         sync: false
       - key: VITE_SUPABASE_PUBLIC_KEY
