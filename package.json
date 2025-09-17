@@ -50,7 +50,11 @@
     "typescript-eslint": "^8.32.1"
   },
   "lint-staged": {
-    "server/**/*.{js,ts}": ["pnpm lint:server"],
-    "frontend/**/*.{js,ts,tsx}": ["pnpm lint:frontend"]
+    "server/**/*.{js,ts}": [
+      "pnpm lint:server"
+    ],
+    "frontend/**/*.{js,ts,tsx}": [
+      "pnpm lint:frontend"
+    ]
   }
 }
