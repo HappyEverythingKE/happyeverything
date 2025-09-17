@@ -1,7 +1,6 @@
 import { Hono, type Context } from 'hono'
 import { HTTPException } from 'hono/http-exception'
 
-import { getAdminSupabase } from '@/middleware/auth.middleware'
 import { zValidator } from '@hono/zod-validator'
 import { z } from 'zod'
 
@@ -10,12 +9,13 @@ import type {
   ListWithItems,
   PublicListOwner,
   SuccessResponse,
-} from '@/shared/types'
+} from '../../shared/types'
 import {
   resolveListIdFromSlug,
   resolveProfileIdFromSlug,
-} from '@/lib/slug-id-lookup'
-import { mapToPublicListType, mapToPublicListWithItemsType } from '@/lib/utils'
+} from '../lib/slug-id-lookup'
+import { mapToPublicListType, mapToPublicListWithItemsType } from '../lib/utils'
+import { getAdminSupabase } from '../middleware/auth.middleware'
 
 const reservedRoutes = [
   'api',

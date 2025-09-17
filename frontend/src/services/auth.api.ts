@@ -77,7 +77,7 @@ export const getVerifyOTP = async (token_hash: string, type: string) => {
     const data = (await res.json()) as SuccessResponse
     return data
   }
-  const data = (await res.json()) as ErrorResponse
+  const data = (await res.json()) as unknown as ErrorResponse
   throw new Error(data.error ?? 'Verification failed')
 }
 
@@ -100,7 +100,7 @@ export const getCurrentUser = async () => {
     const { data } = (await res.json()) as SuccessResponse<CurrentUser>
     return data
   }
-  const data = (await res.json()) as ErrorResponse
+  const data = (await res.json()) as unknown as ErrorResponse
   throw new Error(data.error ?? 'Failed to fetch user')
 }
 
@@ -113,7 +113,7 @@ export const getLogout = async () => {
   const res = await client.auth.logout.$get({})
 
   if (!res.ok) {
-    const data = (await res.json()) as ErrorResponse
+    const data = (await res.json()) as unknown as ErrorResponse
     throw new Error(data.error ?? 'Failed to log out')
   }
 }

@@ -5,7 +5,7 @@ import type {
   ListStatusType,
   ListWithItems,
   ProfileGiftActivity,
-} from '@/shared/types'
+} from '../../shared/types'
 
 /**
  * Formats a date string to "day month (short) year" format

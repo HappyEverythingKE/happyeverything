@@ -1,7 +1,7 @@
 import type { Context } from 'hono'
 import { HTTPException } from 'hono/http-exception'
 
-import { getSupabase } from '@/middleware/auth.middleware'
+import { getSupabase } from '../middleware/auth.middleware'
 
 const listItemIdCache = new Map<string, string>()
 

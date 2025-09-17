@@ -1,0 +1,11 @@
+{
+  "name": "server",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "dotenv -e ../.env tsx watch index.ts",
+    "build": "tsc && rm -rf dist/shared",
+    "start": "node dist/index.js",
+    "lint": "eslint ."
+  }
+}

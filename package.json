@@ -2,17 +2,22 @@
   "name": "happyeverything",
   "private": true,
   "workspaces": [
-    "frontend"
+    "frontend",
+    "server"
   ],
   "type": "module",
   "scripts": {
-    "dev": "tsx watch server/index.ts",
-    "build": "tsc",
-    "start": "node dist/index.js",
+    "dev": "pnpm --filter server dev",
+    "dev:server": "pnpm --filter server dev",
+    "dev:frontend": "pnpm --filter frontend dev",
+    "build": "pnpm --filter server build && pnpm --filter frontend build",
+    "build:server": "pnpm --filter server build",
+    "build:frontend": "pnpm --filter frontend build",
+    "start": "pnpm --filter server start",
     "format": "prettier --check .",
     "format:fix": "prettier --write .",
     "lint": "eslint .",
-    "lint:server": "pnpm --filter . lint",
+    "lint:server": "pnpm --filter server lint",
     "lint:frontend": "pnpm --filter frontend lint",
     "prepare": "husky"
   },
@@ -25,6 +30,7 @@
     "@tanstack/zod-adapter": "^1.121.2",
     "dev": "^0.1.3",
     "dotenv": "^16.5.0",
+    "dotenv-cli": "^10.0.0",
     "hono": "^4.9.7",
     "zod": "^3.25.28"
   },
@@ -44,9 +50,7 @@
     "typescript-eslint": "^8.32.1"
   },
   "lint-staged": {
-    "*": [
-      "pnpm lint:server",
-      "pnpm lint:frontend"
-    ]
+    "server/**/*.{js,ts}": ["pnpm lint:server"],
+    "frontend/**/*.{js,ts,tsx}": ["pnpm lint:frontend"]
   }
 }

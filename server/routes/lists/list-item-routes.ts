@@ -2,7 +2,6 @@ import { Hono } from 'hono'
 import { env } from 'hono/adapter'
 import { HTTPException } from 'hono/http-exception'
 
-import { getSupabase } from '@/middleware/auth.middleware'
 import { zValidator } from '@hono/zod-validator'
 
 import {
@@ -11,13 +10,14 @@ import {
   type AppEnv,
   type ListItem,
   type SuccessResponse,
-} from '@/shared/types'
-import { resolveListItemIdFromPublicId } from '@/lib/public-id-lookup'
+} from '../../../shared/types'
+import { resolveListItemIdFromPublicId } from '../../lib/public-id-lookup'
 import {
   resolveListIdFromSlug,
   resolveProfileIdFromSlug,
-} from '@/lib/slug-id-lookup'
-import { mapToListItemType } from '@/lib/utils'
+} from '../../lib/slug-id-lookup'
+import { mapToListItemType } from '../../lib/utils'
+import { getSupabase } from '../../middleware/auth.middleware'
 
 export const listItemRoutes = new Hono()
   .get('/:profileSlug/:listSlug/items', async (c) => {

@@ -16,7 +16,7 @@ export const reserveGift = async (
   itemPublicId: string,
   reservationData: Partial<GiftReservation>,
 ) => {
-  const res = await client.public.reservations[itemPublicId].$post({
+  const res = await (client.public.reservations as any)[itemPublicId].$post({
     form: reservationData,
   })
 

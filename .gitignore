@@ -9,7 +9,8 @@
 .idea/shelf
 
 # deps
-node_modules/
+node_modules
+dist
 
 # env
 .env

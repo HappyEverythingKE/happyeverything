@@ -7,8 +7,8 @@ services:
     name: happyeverything-backend
     runtime: node
     root: .
-    buildCommand: pnpm install --frozen-lockfile && pnpm build
-    startCommand: pnpm start
+    buildCommand: pnpm install --frozen-lockfile && pnpm build:server
+    startCommand: pnpm --filter server start
     region: frankfurt
     branch: main
     plan: free
@@ -36,10 +36,9 @@ services:
   - type: web
     name: happyeverything-frontend
     runtime: static
-    root: frontend
-    buildCommand: pnpm install --frozen-lockfile && pnpm build
-    startCommand: pnpm start
-    staticPublishPath: './dist'
+    root: .
+    buildCommand: pnpm install --frozen-lockfile && pnpm build:frontend
+    staticPublishPath: frontend/dist
     pullRequestPreviewsEnabled: true
     region: frankfurt
     branch: main

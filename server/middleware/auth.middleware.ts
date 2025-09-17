@@ -1,15 +1,13 @@
 import type { Context, MiddlewareHandler } from 'hono'
-import { env } from 'hono/adapter'
 import { getCookie, setCookie } from 'hono/cookie'
 import { createMiddleware } from 'hono/factory'
 import { HTTPException } from 'hono/http-exception'
 
-import type { UserContext } from '@/user-context'
 import { createServerClient } from '@supabase/ssr'
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { createClient as createAdminClient } from '@supabase/supabase-js'
 
-import type { AppEnv } from '@/shared/types'
+import type { UserContext } from '../user-context'
 
 declare module 'hono' {
   interface ContextVariableMap {
@@ -30,8 +28,9 @@ export const getAdminSupabase = (c: Context) => {
 
 export const supabaseMiddleware = (): MiddlewareHandler => {
   return async (c, next) => {
-    const { SUPABASE_URL, SUPABASE_PUBLIC_KEY, SUPABASE_SERVICE_ROLE_KEY } =
-      env<AppEnv>(c)
+    const SUPABASE_URL = process.env['SUPABASE_URL']
+    const SUPABASE_PUBLIC_KEY = process.env['SUPABASE_PUBLIC_KEY']
+    const SUPABASE_SERVICE_ROLE_KEY = process.env['SUPABASE_SERVICE_ROLE_KEY']
 
     if (!SUPABASE_URL) {
       throw new Error('SUPABASE_URL missing!')

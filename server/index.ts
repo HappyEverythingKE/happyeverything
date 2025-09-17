@@ -1,7 +1,8 @@
 import 'dotenv/config'
 
-import app from '@/app'
 import { serve } from '@hono/node-server'
+
+import app from './app'
 
 // server config
 const server = serve(

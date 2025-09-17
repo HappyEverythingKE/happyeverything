@@ -2,7 +2,6 @@ import { Hono } from 'hono'
 import { env } from 'hono/adapter'
 import { HTTPException } from 'hono/http-exception'
 
-import { getSupabase } from '@/middleware/auth.middleware'
 import { zValidator } from '@hono/zod-validator'
 import slugify from '@sindresorhus/slugify'
 
@@ -15,12 +14,13 @@ import {
   type ListType,
   type ProfileGiftActivity,
   type SuccessResponse,
-} from '@/shared/types'
+} from '../../../shared/types'
 import {
   resolveListIdFromSlug,
   resolveProfileIdFromSlug,
-} from '@/lib/slug-id-lookup'
-import { mapToListType, mapToProfileGiftActivityType } from '@/lib/utils'
+} from '../../lib/slug-id-lookup'
+import { mapToListType, mapToProfileGiftActivityType } from '../../lib/utils'
+import { getSupabase } from '../../middleware/auth.middleware'
 
 export const listRoutes = new Hono()
   .get('/list-types', async (c) => {

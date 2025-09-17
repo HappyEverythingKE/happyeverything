@@ -23,14 +23,15 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
-      "@shared": path.resolve(__dirname, "../shared"),
-      "@server": path.resolve(__dirname, "../server"),
+      '@shared': path.resolve(__dirname, '../shared'),
+      '@server': path.resolve(__dirname, '../server'),
     },
+    extensions: ['.ts', '.tsx', '.js', '.jsx'],
   },
   server: {
     proxy: {
-      "/api": {
-        target: "http://127.0.0.1:3000",
+      '/api': {
+        target: 'http://127.0.0.1:3000',
         changeOrigin: true,
       },
     },

@@ -50,7 +50,7 @@ export const getProfiles = async () => {
     return data
   }
 
-  const data = (await res.json()) as ErrorResponse
+  const data = (await res.json()) as unknown as ErrorResponse
   throw new Error(data.error ?? 'Failed to fetch profiles')
 }
 

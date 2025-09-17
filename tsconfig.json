@@ -1,35 +1,17 @@
 {
+  "files": [],
+  "references": [{ "path": "./server" }, { "path": "./frontend" }],
   "compilerOptions": {
-    "target": "ESNext",
+    "target": "ES2022",
     "module": "ESNext",
-    "lib": ["ESNext"],
-    "moduleDetection": "force",
-    "jsx": "react-jsx",
-    "allowJs": true,
-
-    /* Bundler mode */
-    "moduleResolution": "bundler",
-    "allowImportingTsExtensions": true,
-    "verbatimModuleSyntax": true,
-    "noEmit": true,
-
-    // Best practices
+    "moduleResolution": "Node",
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
     "strict": true,
     "skipLibCheck": true,
-    "noFallthroughCasesInSwitch": true,
-
-    // Some stricter flags
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "noPropertyAccessFromIndexSignature": true,
-
-    "types": ["node"],
-    "jsxImportSource": "hono/jsx",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
     "outDir": "./dist",
-    "paths": {
-      "@/*": ["./server/*"],
-      "@/shared/*": ["./shared/*"]
-    }
-  },
-  "exclude": ["node_modules"]
+    "rootDir": "."
+  }
 }

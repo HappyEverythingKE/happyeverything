@@ -16,13 +16,13 @@ import type {
 import { client } from '@/lib/api'
 
 export const getListsByProfile = async (profileSlug: string) => {
-  const res = await client.lists[profileSlug].$get({})
+  const res = await (client.lists as any)[profileSlug].$get({})
 
   if (res.ok) {
     const { data } = (await res.json()) as SuccessResponse<List[]>
     return data
   }
-  const data = (await res.json()) as ErrorResponse
+  const data = (await res.json()) as unknown as ErrorResponse
   throw new Error(data.error ?? 'Failed to fetch lists')
 }
 
@@ -37,7 +37,7 @@ export const createList = async (
   profileSlug: string,
   listData: Partial<List>,
 ) => {
-  const res = await client.lists[profileSlug].$post({
+  const res = await (client.lists as any)[profileSlug].$post({
     form: listData,
   })
 
@@ -64,13 +64,13 @@ export const useCreateList = (profileSlug: string) => {
 }
 
 export const fetchList = async (profileSlug: string, listSlug: string) => {
-  const res = await client.lists[profileSlug][listSlug].$get({})
+  const res = await (client.lists as any)[profileSlug][listSlug].$get({})
 
   if (res.ok) {
     const { data } = (await res.json()) as SuccessResponse<List>
     return data
   }
-  const data = (await res.json()) as ErrorResponse
+  const data = (await res.json()) as unknown as ErrorResponse
   throw new Error(data.error ?? 'Failed to fetch list')
 }
 
@@ -86,7 +86,7 @@ export const updateList = async (
   listSlug: string,
   listData: Partial<List>,
 ) => {
-  const res = await client.lists[profileSlug][listSlug].$patch({
+  const res = await (client.lists as any)[profileSlug][listSlug].$patch({
     form: listData,
   })
 
@@ -131,7 +131,7 @@ export const updateListStatus = async (
   listSlug: string,
   status: ListStatusType,
 ) => {
-  const res = await client.lists[profileSlug][listSlug].status.$patch({
+  const res = await (client.lists as any)[profileSlug][listSlug].status.$patch({
     json: { status },
   })
 
@@ -140,7 +140,7 @@ export const updateListStatus = async (
     return data
   }
 
-  const data = (await res.json()) as ErrorResponse
+  const data = (await res.json()) as unknown as ErrorResponse
   throw new Error(data.error ?? 'Failed to update list status')
 }
 
@@ -179,7 +179,7 @@ export const shareList = async (
   listSlug: string,
   listData: Partial<List>,
 ) => {
-  const res = await client.lists[profileSlug][listSlug].share.$patch({
+  const res = await (client.lists as any)[profileSlug][listSlug].share.$patch({
     form: listData,
   })
 
@@ -220,10 +220,10 @@ export const useShareList = (profileSlug: string, listSlug: string) => {
 }
 
 export const deleteList = async (profileSlug: string, listSlug: string) => {
-  const res = await client.lists[profileSlug][listSlug].$delete({})
+  const res = await (client.lists as any)[profileSlug][listSlug].$delete({})
 
   if (!res.ok) {
-    const data = (await res.json()) as ErrorResponse
+    const data = (await res.json()) as unknown as ErrorResponse
     throw new Error(data.error ?? 'Failed to delete the list')
   }
 }
@@ -254,7 +254,7 @@ export const getListTypes = async () => {
     const { data } = (await res.json()) as SuccessResponse<ListType[]>
     return data
   }
-  const data = (await res.json()) as ErrorResponse
+  const data = (await res.json()) as unknown as ErrorResponse
   throw new Error(data.error ?? 'Failed to fetch list types')
 }
 
@@ -265,7 +265,7 @@ export const listTypesQueryOptions = () =>
   })
 
 export const getProfileGiftActivity = async (profileSlug: string) => {
-  const res = await client.lists[profileSlug]['activity'].$get({})
+  const res = await (client.lists as any)[profileSlug]['activity'].$get({})
 
   if (res.ok) {
     const { data } = (await res.json()) as SuccessResponse<
@@ -273,7 +273,7 @@ export const getProfileGiftActivity = async (profileSlug: string) => {
     >
     return data
   }
-  const data = (await res.json()) as ErrorResponse
+  const data = (await res.json()) as unknown as ErrorResponse
   return data
 }
 

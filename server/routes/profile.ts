@@ -2,7 +2,6 @@ import { Hono } from 'hono'
 import { env } from 'hono/adapter'
 import { HTTPException } from 'hono/http-exception'
 
-import { getSupabase, getUserSession } from '@/middleware/auth.middleware'
 import { zValidator } from '@hono/zod-validator'
 
 import {
@@ -10,7 +9,8 @@ import {
   type AppEnv,
   type Profile,
   type SuccessResponse,
-} from '@/shared/types'
+} from '../../shared/types'
+import { getSupabase, getUserSession } from '../middleware/auth.middleware'
 
 export const profileRoutes = new Hono()
   .post(

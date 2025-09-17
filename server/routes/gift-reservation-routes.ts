@@ -1,14 +1,14 @@
 import { Hono } from 'hono'
 import { HTTPException } from 'hono/http-exception'
 
-import { getAdminSupabase } from '@/middleware/auth.middleware'
 import { zValidator } from '@hono/zod-validator'
 
 import {
   GiftReservationCreateSchema,
   type ReserveGiftResponse,
   type SuccessResponse,
-} from '@/shared/types'
+} from '../../shared/types'
+import { getAdminSupabase } from '../middleware/auth.middleware'
 
 export const giftReservationRoutes = new Hono().post(
   '/:itemPublicId',

@@ -3,11 +3,6 @@ import { env } from 'hono/adapter'
 import { HTTPException } from 'hono/http-exception'
 import type { ContentfulStatusCode } from 'hono/utils/http-status'
 
-import {
-  getAdminSupabase,
-  getSupabase,
-  getUserSession,
-} from '@/middleware/auth.middleware'
 import { zValidator } from '@hono/zod-validator'
 import { z } from 'zod'
 
@@ -16,7 +11,12 @@ import type {
   AuthContext,
   CurrentUser,
   SuccessResponse,
-} from '@/shared/types'
+} from '../../shared/types'
+import {
+  getAdminSupabase,
+  getSupabase,
+  getUserSession,
+} from '../middleware/auth.middleware'
 
 export const authRoutes = new Hono()
   .post(

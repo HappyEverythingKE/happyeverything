@@ -12,7 +12,7 @@ export const getListItemsByList = async (
   profileSlug: string,
   listSlug: string,
 ) => {
-  const res = await client.lists[profileSlug][listSlug].items.$get({})
+  const res = await (client.lists as any)[profileSlug][listSlug].items.$get({})
 
   if (res.ok) {
     const { data } = (await res.json()) as SuccessResponse<ListItem[]>
@@ -34,7 +34,7 @@ export const createListItem = async (
   listSlug: string,
   listItemData: Partial<ListItem>,
 ) => {
-  const res = await client.lists[profileSlug][listSlug].items.$post({
+  const res = await (client.lists as any)[profileSlug][listSlug].items.$post({
     form: listItemData,
   })
 
@@ -91,7 +91,7 @@ export const updateListItem = async (
   itemPublicId: string,
   listItemData: Partial<ListItem>,
 ) => {
-  const res = await client.lists[profileSlug][listSlug].items[
+  const res = await (client.lists as any)[profileSlug][listSlug].items[
     itemPublicId
   ].$patch({
     form: listItemData,
@@ -146,7 +146,7 @@ export const updateListItemPriority = async (
   itemPublicId: string,
   topPick: boolean,
 ) => {
-  const res = await client.lists[profileSlug][listSlug].items[
+  const res = await (client.lists as any)[profileSlug][listSlug].items[
     itemPublicId
   ].priority.$patch({
     form: { topPick: Boolean(topPick) },
@@ -211,7 +211,7 @@ export const deleteListItem = async (
   listSlug: string,
   itemPublicId: string,
 ) => {
-  const res = await client.lists[profileSlug][listSlug].items[
+  const res = await (client.lists as any)[profileSlug][listSlug].items[
     itemPublicId
   ].$delete({})
 

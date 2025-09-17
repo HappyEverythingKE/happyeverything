@@ -15,7 +15,7 @@ import type {
 import { client } from '@/lib/api'
 
 export const getPublicLists = async (profileSlug: string) => {
-  const res = await client.public[profileSlug].$get({})
+  const res = await (client.public as any)[profileSlug].$get({})
 
   if (res.ok) {
     const { data } = (await res.json()) as SuccessResponse<{
@@ -39,7 +39,7 @@ export const fetchPublicList = async (
   profileSlug: string,
   listSlug: string,
 ) => {
-  const res = await client.public[profileSlug][listSlug].$get({})
+  const res = await (client.public as any)[profileSlug][listSlug].$get({})
   const data = await res.json()
 
   if (!res.ok) {
@@ -71,7 +71,7 @@ export const checkPublicListPassword = async (
   listSlug: string,
   password: string,
 ) => {
-  const res = await client.public[profileSlug][listSlug].access.$post({
+  const res = await (client.public as any)[profileSlug][listSlug].access.$post({
     form: { password },
   })
 

@@ -3,17 +3,17 @@ import { cors } from 'hono/cors'
 import { HTTPException } from 'hono/http-exception'
 import { logger } from 'hono/logger'
 
-import { supabaseMiddleware } from '@/middleware/auth.middleware'
-import { authRoutes } from '@/routes/auth'
-import { giftReservationRoutes } from '@/routes/gift-reservation-routes'
-import { listItemRoutes } from '@/routes/lists/list-item-routes'
-import { listRoutes } from '@/routes/lists/list-routes'
-import { profileRoutes } from '@/routes/profile'
-import { publicRoutes } from '@/routes/public'
-import type { UserContext } from '@/user-context'
 import { serveStatic } from '@hono/node-server/serve-static'
 
-import type { ErrorResponse } from '@/shared/types'
+import type { ErrorResponse } from '../shared/types'
+import { supabaseMiddleware } from './middleware/auth.middleware'
+import { authRoutes } from './routes/auth'
+import { giftReservationRoutes } from './routes/gift-reservation-routes'
+import { listItemRoutes } from './routes/lists/list-item-routes'
+import { listRoutes } from './routes/lists/list-routes'
+import { profileRoutes } from './routes/profile'
+import { publicRoutes } from './routes/public'
+import type { UserContext } from './user-context'
 
 const app = new Hono<UserContext>()
 
