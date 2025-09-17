@@ -27,5 +27,8 @@
       "@/*": ["./*"],
       "@shared/*": ["../shared/*"]
     }
+  },
+  "tsc-alias": {
+    "resolveFullPaths": true
   }
 }
