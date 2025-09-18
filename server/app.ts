@@ -1,5 +1,4 @@
 import { Hono } from 'hono'
-import { cors } from 'hono/cors'
 import { HTTPException } from 'hono/http-exception'
 import { logger } from 'hono/logger'
 
@@ -21,20 +20,26 @@ const app = new Hono<UserContext>()
 const apiRoutes = app
   .basePath('/api')
   // middleware
+  .use('*', async (c, next) => {
+    const origin = c.req.header('origin')
+    const allowed = [
+      'https://happyeverything-frontend.onrender.com',
+      'http://localhost:5173',
+    ]
+
+    if (origin && allowed.includes(origin)) {
+      c.header('Access-Control-Allow-Origin', origin)
+    }
+    c.header('Access-Control-Allow-Credentials', 'true')
+    c.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
+    c.header('Access-Control-Allow-Headers', 'Content-Type, Authorization')
+
+    if (c.req.method === 'OPTIONS') {
+      return new Response(null, { status: 204 })
+    }
+    return await next()
+  })
   .use('*', logger())
-  .use(
-    '*',
-    cors({
-      origin: [
-        process.env['APP_BASE_URL'] ||
-          'https://happyeverything-frontend.onrender.com',
-        'http://127.0.0.1:5173',
-      ],
-      allowHeaders: ['Content-Type', 'Authorization'],
-      allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-      credentials: true,
-    }),
-  )
   .use('*', supabaseMiddleware())
   // routes
   .route('/auth', authRoutes)
