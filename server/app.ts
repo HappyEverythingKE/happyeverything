@@ -23,6 +23,7 @@ const apiRoutes = app
   .use('*', async (c, next) => {
     const origin = c.req.header('origin')
     const allowed = [
+      'https://www.myhappyeverything.com',
       'https://happyeverything-frontend.onrender.com',
       'http://localhost:5173',
     ]
