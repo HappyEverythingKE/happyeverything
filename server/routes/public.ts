@@ -19,6 +19,7 @@ import { getAdminSupabase } from '../middleware/auth.middleware'
 
 const reservedRoutes = [
   'api',
+  'v1',
   'auth',
   'profile',
   'lists',

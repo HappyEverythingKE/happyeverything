@@ -18,7 +18,7 @@ const app = new Hono<UserContext>()
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const apiRoutes = app
-  .basePath('/api')
+  .basePath('/v1')
   // middleware
   .use('*', async (c, next) => {
     const origin = c.req.header('origin')

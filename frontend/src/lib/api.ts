@@ -8,4 +8,4 @@ export const client = hcWithType(API_BASE_URL, {
       ...init,
       credentials: 'include',
     }),
-}).api
+}).v1
