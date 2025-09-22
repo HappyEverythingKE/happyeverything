@@ -1,3 +1,5 @@
+import '../../frontend/instrument.js'
+
 import { StrictMode } from 'react'
 import { createRouter, RouterProvider } from '@tanstack/react-router'
 

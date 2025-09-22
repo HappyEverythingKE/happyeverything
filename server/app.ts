@@ -1,9 +1,12 @@
+import './instrument.mjs'
+
 import { Hono } from 'hono'
 import { cors } from 'hono/cors'
 import { HTTPException } from 'hono/http-exception'
 import { logger } from 'hono/logger'
 
 import { serveStatic } from '@hono/node-server/serve-static'
+import * as Sentry from '@sentry/node'
 
 import type { ErrorResponse } from '../shared/types'
 import { supabaseMiddleware } from './middleware/auth.middleware'
@@ -30,6 +33,17 @@ const apiRoutes = app
   )
   .use('*', logger())
   .use('*', supabaseMiddleware())
+  .use((c, next) => {
+    // Only set user context if user exists
+    const user = c.get('user')!
+    if (user?.email) {
+      Sentry.setUser({
+        email: user.email,
+      })
+    }
+
+    return next()
+  })
   // routes
   .route('/auth', authRoutes)
   .route('/profile', profileRoutes)
@@ -58,6 +72,8 @@ app.onError((err, c) => {
     return errResponse
   }
 
+  // Report unexpected errors.
+  Sentry.captureException(err)
   return c.json<ErrorResponse>(
     // handle unexpected errors
     {
@@ -69,6 +85,14 @@ app.onError((err, c) => {
     },
     500,
   )
+})
+
+app.get('/debug-sentry', () => {
+  // Send a log before throwing the error
+  Sentry.logger.info('User triggered test error', {
+    action: 'test_error_endpoint',
+  })
+  throw new Error('My first Sentry error!')
 })
 
 app.get('*', serveStatic({ root: './frontend/dist' }))

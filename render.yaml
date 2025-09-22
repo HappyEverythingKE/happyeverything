@@ -29,6 +29,8 @@ services:
         sync: false
       - key: SUPABASE_PROJECT_ID
         sync: false
+      - key: SENTRY_DSN
+        sync: false
       - key: MAX_PROFILES_PER_USER
         sync: false
       - key: MAX_LISTS_PER_PROFILE
@@ -60,4 +62,6 @@ services:
       - key: VITE_SUPABASE_URL
         sync: false
       - key: VITE_SUPABASE_PUBLIC_KEY
+        sync: false
+      - key: SENTRY_DSN
         sync: false
