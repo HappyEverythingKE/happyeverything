@@ -25,27 +25,29 @@ function DialogForm({
 }: DialogFormProps) {
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-h-[90vh] max-w-2xl overflow-hidden p-0">
-        <div className="flex max-h-[90vh] flex-col">
-          <DialogHeader className="border-sidebar-border flex-shrink-0 border-b p-6 pb-4">
-            <DialogTitle className="text-lg font-semibold">{title}</DialogTitle>
-            {description && (
-              <DialogDescription className="whitespace-pre-line">
-                {description}
-              </DialogDescription>
-            )}
-          </DialogHeader>
-
-          {/* Dialog Content */}
-          <div className="flex-1 overflow-y-auto p-6 pt-4">{children}</div>
-
-          {/* Dialog Footer */}
-          {footer && (
-            <div className="border-sidebar-border flex-shrink-0 border-t p-6 pt-4">
-              {footer}
-            </div>
+      <DialogContent className="h-[80vh] overflow-hidden p-0">
+        <DialogHeader className="border-sidebar-border flex-shrink-0 border-b p-4 pb-3 sm:p-6 sm:pb-4">
+          <DialogTitle className="text-base font-semibold sm:text-lg">
+            {title}
+          </DialogTitle>
+          {description && (
+            <DialogDescription className="whitespace-pre-line text-sm">
+              {description}
+            </DialogDescription>
           )}
+        </DialogHeader>
+
+        {/* Dialog Content */}
+        <div className="flex-1 overflow-y-auto p-4 pt-3 sm:p-6 sm:pt-4">
+          {children}
         </div>
+
+        {/* Dialog Footer */}
+        {footer && (
+          <div className="border-sidebar-border flex-shrink-0 border-t p-4 pt-3 sm:p-6 sm:pt-4">
+            {footer}
+          </div>
+        )}
       </DialogContent>
     </Dialog>
   )

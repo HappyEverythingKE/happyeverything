@@ -62,13 +62,13 @@ export const ListItemCard = ({
     <>
       <Card
         key={item.publicId}
-        className="overflow-hidden border-stone-200 bg-white p-6 transition-shadow hover:shadow-md"
+        className="flex h-full w-full flex-col overflow-hidden border-stone-200 bg-white p-6 transition-shadow hover:shadow-md"
       >
-        <div className="relative mb-4">
+        <div className="relative mb-4 flex h-36 items-center justify-center overflow-hidden rounded-md bg-gray-50">
           <img
             src={item.imageUrl || placeholderImage}
             alt={item.name}
-            className="mx-auto h-36 w-auto object-cover"
+            className="h-full w-full object-contain"
           />
 
           {/* Status Badges */}
@@ -77,10 +77,10 @@ export const ListItemCard = ({
               <TooltipTrigger asChild>
                 <Badge
                   variant="default"
-                  className="absolute right-3 top-0 h-9 w-fit rounded-sm text-sm"
+                  className="bg-accent text-accent-foreground absolute left-1/2 top-1/2 h-9 w-fit -translate-x-1/2 -translate-y-1/2 rounded-sm text-xs"
                 >
                   {item.gifters
-                    ? `${multiGifterDisplay} got this for you!`
+                    ? `${multiGifterDisplay} gifted you!`
                     : 'Gifted!'}
                 </Badge>
               </TooltipTrigger>
@@ -128,7 +128,7 @@ export const ListItemCard = ({
         </div>
 
         {/* Card Content */}
-        <div className="flex flex-col justify-between gap-6">
+        <div className="flex flex-1 flex-col justify-between gap-6">
           {/* Product Title */}
           <h2 className="text-md font-semibold leading-tight text-gray-700">
             {item.name}
