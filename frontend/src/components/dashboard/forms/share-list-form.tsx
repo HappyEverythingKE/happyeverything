@@ -246,16 +246,16 @@ export function ShareListForm({
         <Label className="text-md font-bold">Share your unique link</Label>
         {/* Copy link */}
         <div className="mb-4 flex flex-col gap-3 sm:mb-6 sm:flex-row sm:items-center">
-          <div className="flex items-center rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 sm:px-4 sm:py-3 md:flex-1">
-            <LinkIcon className="mr-2 hidden h-4 w-4 text-gray-400 sm:block" />
-            <span className="truncate text-sm text-gray-600">
+          <div className="flex min-w-0 flex-1 items-center overflow-hidden rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 sm:px-4 sm:py-3">
+            <LinkIcon className="mr-2 h-4 w-4 flex-shrink-0 text-gray-400 sm:mr-3" />
+            <span className="min-w-0 truncate text-sm text-gray-600">
               {shareableListLink}
             </span>
           </div>
           <Button
             onClick={handleCopy}
             variant="secondary"
-            className="rounded-lg border border-gray-200 bg-gray-100 px-4 py-2 text-gray-700 hover:bg-gray-200 sm:px-6 sm:py-3"
+            className="flex-shrink-0 rounded-lg border border-gray-200 bg-gray-100 px-4 py-2 text-gray-700 hover:bg-gray-200 sm:px-6 sm:py-3"
           >
             {copied ? (
               <CheckIcon className="mr-2 h-4 w-4" />

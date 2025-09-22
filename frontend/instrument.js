@@ -20,12 +20,12 @@ Sentry.init({
       // Additional SDK configuration goes in here, for example:
       colorScheme: 'system',
     }),
-    //  user-feedback
+    //  console logging
+    Sentry.consoleLoggingIntegration({ levels: ['warn', 'error'] }),
   ],
   //  logs
   // Enable logs to be sent to Sentry
   enableLogs: true,
-  //  logs
   //  performance
   // Set tracesSampleRate to 1.0 to capture 100%
   // of transactions for tracing.

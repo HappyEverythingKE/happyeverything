@@ -60,7 +60,6 @@ function RouteComponent() {
   // handle case where list gets deleted while user is on the page
   useEffect(() => {
     if (listError) {
-      console.error('List query error:', listError)
       toast.error('An error occurred', {
         description: 'This list is not available',
       })
