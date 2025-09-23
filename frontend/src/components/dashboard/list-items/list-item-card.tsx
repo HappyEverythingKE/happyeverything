@@ -51,7 +51,6 @@ export const ListItemCard = ({
 
   const getGifterDisplayName = (gifters: ListItem['gifters']) => {
     if (!gifters || gifters?.length === 0) return null
-
     return gifters.length > 1
       ? `${gifters.length} people`
       : gifters[0].gifter_name || 'Someone'
@@ -62,26 +61,32 @@ export const ListItemCard = ({
     <>
       <Card
         key={item.publicId}
-        className="flex h-full w-full flex-col overflow-hidden border-stone-200 bg-white p-6 transition-shadow hover:shadow-md"
+        className="relative flex h-full w-full flex-col overflow-hidden rounded-md border-stone-200 bg-white p-6 transition-shadow hover:shadow-md"
       >
-        <div className="relative mb-4 flex h-36 items-center justify-center overflow-hidden rounded-md bg-gray-50">
+        {/* Dim overlay when gifted */}
+        {item.stillNeeds === 0 && (
+          <div className="pointer-events-none absolute inset-0 z-10 rounded-2xl bg-gradient-to-b from-transparent to-gray-200/70 dark:to-gray-900/70" />
+        )}
+
+        {/* Image / Badge Area */}
+        <div className="h-38 relative flex items-center justify-center overflow-hidden">
           <img
             src={item.imageUrl || placeholderImage}
             alt={item.name}
             className="h-full w-full object-contain"
           />
 
-          {/* Status Badges */}
+          {/* Gifted Badge */}
           {item.gifters && item.gifters.length > 0 && (
             <Tooltip>
               <TooltipTrigger asChild>
                 <Badge
-                  variant="default"
-                  className="bg-accent text-accent-foreground absolute left-1/2 top-1/2 h-9 w-fit -translate-x-1/2 -translate-y-1/2 rounded-sm text-xs"
+                  variant="blush"
+                  className="bg-blush/40 text-amethyst absolute right-2 top-0 px-3 py-1"
                 >
                   {item.gifters
-                    ? `${multiGifterDisplay} gifted you!`
-                    : 'Gifted!'}
+                    ? `${multiGifterDisplay} gifted you`
+                    : 'Anonymous gifted you'}
                 </Badge>
               </TooltipTrigger>
               <TooltipContent className="font-medium">
@@ -95,7 +100,7 @@ export const ListItemCard = ({
             </Tooltip>
           )}
 
-          {/* topPick button */}
+          {/* Top Pick Button */}
           <Tooltip>
             <TooltipTrigger asChild>
               <Button
@@ -104,8 +109,8 @@ export const ListItemCard = ({
                 onClick={handleTopPickToggle}
                 disabled={isPending}
                 className={cn(
-                  'group absolute left-3 top-0 h-8 w-8',
-                  item.topPick ? 'bg-blush' : 'hover:bg-blush bg-white/80',
+                  'group absolute left-2 top-0 h-8 w-8 rounded-full',
+                  item.topPick ? 'bg-blush' : 'hover:bg-blush/20 bg-white/80',
                 )}
               >
                 <Heart
@@ -128,107 +133,80 @@ export const ListItemCard = ({
         </div>
 
         {/* Card Content */}
-        <div className="flex flex-1 flex-col justify-between gap-6">
+        <div className="flex flex-1 flex-col justify-between">
           {/* Product Title */}
-          <h2 className="text-md font-semibold leading-tight text-gray-700">
+          <h2 className="text-foreground mb-4 border-y py-2 font-semibold">
             {item.name}
           </h2>
 
-          <div className="space-y-2">
-            {/* Details Section */}
-            <div className="flex flex-row justify-between gap-2">
-              <div className="flex items-center gap-2">
-                <p className="text-sm">Requested:</p>
-                <p className="font-medium">{item.quantity}</p>
-              </div>
-              <div className="flex items-center gap-2">
-                <p className="text-sm">Still Needs:</p>
-                <p className="font-medium">{item.stillNeeds}</p>
-              </div>
-            </div>
-
-            <div className="flex flex-row justify-between gap-2">
-              <div className="flex items-center gap-2">
-                <p className="text-sm">Size:</p>
-                <p
-                  className={cn(
-                    'font-medium',
-                    !item.size && 'text-sm font-semibold text-gray-500',
-                  )}
-                >
-                  {item.size || 'N/A'}
-                </p>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <p className="text-sm">Colour:</p>
-                <p
-                  className={cn(
-                    'font-medium',
-                    !item.colour && 'text-sm font-semibold text-gray-500',
-                  )}
-                >
-                  {item.colour || 'N/A'}
-                </p>
-              </div>
-            </div>
-
-            {/* Where to Buy */}
+          {/* Details Grid */}
+          <dl className="grid grid-cols-2 gap-x-4 gap-y-4 text-sm md:text-base">
             <div>
-              <h3 className="-mb-1 pt-2 text-gray-700">Where to buy</h3>
-              <div className="flex flex-row justify-between gap-2">
-                <div className="flex items-center gap-2">
-                  <p className="text-sm">Shop:</p>
-                  <p
-                    className={cn(
-                      'font-medium',
-                      !item.shopName && 'text-sm font-semibold text-gray-500',
-                    )}
-                  >
-                    {item.shopName || 'N/A'}
-                  </p>
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <p className="text-sm">Product link:</p>
-                  <Button
-                    variant="link"
-                    asChild
-                    className="p-0 has-[>svg]:px-0"
-                  >
-                    <a
-                      href={item.productUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className={cn(
-                        !item.productUrl &&
-                          'text-gray-500! pointer-events-none text-sm',
-                      )}
-                    >
-                      {item.productUrl ? (
-                        <ExternalLink
-                          className={cn('hover:text-blush h-4 w-4')}
-                        />
-                      ) : (
-                        'N/A'
-                      )}
-                    </a>
-                  </Button>
-                </div>
-              </div>
+              <dt className="text-muted-foreground">Requested</dt>
+              <dd className="font-medium">{item.quantity}</dd>
             </div>
-          </div>
 
-          {/* Edit Button */}
-          <div className="flex justify-end">
-            <Button
-              className="w-full lg:w-fit"
-              variant="outline"
-              onClick={() => setIsSheetOpen(true)}
-            >
-              Edit
-            </Button>
-          </div>
+            <div>
+              <dt className="text-muted-foreground">Still Needs</dt>
+              <dd className="font-medium">{item.stillNeeds}</dd>
+            </div>
+
+            <div>
+              <dt className="text-muted-foreground">Size</dt>
+              <dd className={cn('font-medium', !item.size && 'text-gray-500')}>
+                {item.size || '—'}
+              </dd>
+            </div>
+
+            <div>
+              <dt className="text-muted-foreground">Colour</dt>
+              <dd
+                className={cn('font-medium', !item.colour && 'text-gray-500')}
+              >
+                {item.colour || '—'}
+              </dd>
+            </div>
+
+            <div>
+              <dt className="text-muted-foreground">Shop</dt>
+              <dd
+                className={cn('font-medium', !item.shopName && 'text-gray-500')}
+              >
+                {item.shopName || '—'}
+              </dd>
+            </div>
+
+            <div>
+              <dt className="text-muted-foreground">Product link</dt>
+              {item.productUrl ? (
+                <dd>
+                  <a
+                    href={item.productUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:text-primary hover:underline-offset-3 inline-flex items-center gap-1 font-medium underline"
+                  >
+                    View{' '}
+                    <ExternalLink className="hover:text-blush h-3.5 w-3.5" />
+                  </a>
+                </dd>
+              ) : (
+                <dd className="text-gray-500">—</dd>
+              )}
+            </div>
+          </dl>
+        </div>
+
+        {/* Footer */}
+        <div className="flex justify-center">
+          <Button
+            className="w-full"
+            variant="outline"
+            onClick={() => setIsSheetOpen(true)}
+            disabled={item.stillNeeds === 0}
+          >
+            {item.stillNeeds === 0 ? 'Completed' : 'Edit'}
+          </Button>
         </div>
       </Card>
 

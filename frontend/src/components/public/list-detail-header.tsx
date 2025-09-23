@@ -34,7 +34,7 @@ export function ListDetailHeader({
           <h1 className="mb-4 text-balance text-3xl md:text-4xl">
             {listInfo.name}
           </h1>
-          <div className="mb-6 flex items-center justify-center">
+          <div className="mb-6 flex flex-col items-center justify-center md:flex-row">
             <Button
               variant="link"
               asChild
@@ -49,13 +49,13 @@ export function ListDetailHeader({
               </Link>
             </Button>
 
-            <DotIcon className="size-6 text-gray-800" />
+            <DotIcon className="hidden size-6 text-gray-700 md:block" />
 
             <p className="text-base font-medium text-gray-700">
               {listInfo.createdAt}
             </p>
           </div>
-          <p className="text-md mx-auto max-w-2xl leading-relaxed text-gray-700">
+          <p className="text-md mx-auto max-w-xl leading-relaxed text-gray-700">
             {listInfo.description}
           </p>
         </div>

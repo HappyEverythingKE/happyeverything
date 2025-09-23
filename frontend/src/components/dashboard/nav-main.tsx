@@ -66,7 +66,9 @@ export function NavMain({ profileSlug }: { profileSlug: string }) {
       </SidebarGroup>
 
       <SidebarGroup>
-        <SidebarGroupLabel>Your wish lists</SidebarGroupLabel>
+        <SidebarGroupLabel className="text-sm text-black">
+          Your wish lists
+        </SidebarGroupLabel>
         <SidebarMenu>
           {lists.map((item) => (
             <SidebarMenuItem key={item.slug}>

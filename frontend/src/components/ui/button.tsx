@@ -20,7 +20,7 @@ const buttonVariants = cva(
           'bg-accent text-accent-foreground shadow-xs hover:bg-accent/80',
         ghost:
           'hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50',
-        link: 'text-tertiary hover:underline-offset-4 hover:underline decoration-inherit',
+        link: 'text-dusk hover:text-primary hover:underline-offset-3 hover:underline decoration-inherit',
         buttonIcon:
           'justify-start hover:bg-tangerine! hover:text-primary-foreground! dark:hover:bg-accent/50',
       },

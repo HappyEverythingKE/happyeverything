@@ -27,24 +27,27 @@ export function ProfileListsGrid({ profileSlug, lists }: WithPublicListsProps) {
     <section className="px-[15%] py-16 md:py-24 lg:py-20">
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
         {lists.map((list, index) => (
-          <Card key={index} className="w-full max-w-xs">
+          <Card key={index} className="relative w-full max-w-xs">
+            {list.isPrivate && (
+              <Badge
+                variant="blush"
+                className="absolute right-0 top-0 z-10 rounded-none rounded-bl-lg rounded-tr-lg border-none px-4 py-3 [&>svg]:size-4"
+              >
+                <LockIcon className="text-destructive" />
+              </Badge>
+            )}
             <CardHeader>
-              <div className="relative mb-4 block aspect-[3/2] w-full">
+              <div className="relative mb-6 block aspect-[3/2] w-full">
                 <img
                   src={list.listType.imageUrl || placeholderImage}
                   alt={list.name}
                   className="absolute size-full rounded-xl object-cover"
                 />
-                {list.isPrivate && (
-                  <Badge className="bg-background absolute right-4 top-4 px-2 py-1">
-                    <LockIcon className="size-4 text-black" />
-                  </Badge>
-                )}
               </div>
               <CardTitle>{list.name}</CardTitle>
-              <CardDescription className="flex flex-col gap-1 text-gray-600">
-                <p className="text-sm">{startCase(list.listType.name)}</p>
-                <p className="text-xs">Created: {list.createdAt}</p>
+              <CardDescription className="mt-2 flex flex-col text-sm">
+                <p>{startCase(list.listType.name)}</p>
+                <p>Created: {list.createdAt}</p>
               </CardDescription>
             </CardHeader>
             <CardFooter>

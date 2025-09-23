@@ -31,13 +31,13 @@ export function WithLists({ profileSlug, lists }: WithListsProps) {
                 <div className="absolute right-0 top-0">
                   <Badge
                     variant={
-                      list.status === 'published' ? 'default' : 'secondary'
-                    }
-                    className={`rounded-none rounded-bl-lg px-3 py-1.5 text-[10.5px] ${
                       list.status === 'published'
-                        ? 'border-green-200 bg-green-100 text-green-800 dark:border-green-800 dark:bg-green-900/20 dark:text-green-400'
-                        : 'border-amber-200 bg-amber-100 text-amber-800 dark:border-amber-800 dark:bg-amber-900/20 dark:text-amber-400'
-                    }`}
+                        ? 'tangerine'
+                        : list.status === 'draft'
+                          ? 'coral'
+                          : 'harbor'
+                    }
+                    className="rounded-none rounded-bl-lg border-none px-3 py-2 text-[10.5px]"
                   >
                     {list.status.toUpperCase()}
                   </Badge>
