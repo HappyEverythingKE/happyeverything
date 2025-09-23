@@ -48,8 +48,8 @@ function RouteComponent() {
         <div className="absolute bottom-24 left-32 h-3 w-16 rounded bg-green-300 opacity-40 blur-sm" />
       </div>
 
-      <div className="relative flex min-h-svh items-center justify-center">
-        <Card className="flex w-full max-w-lg">
+      <div className="relative flex min-h-svh items-center justify-center p-6">
+        <Card className="flex w-full max-w-lg overflow-hidden">
           <CardHeader className="gap-3">
             <CardTitle className="text-lg">Select a Profile</CardTitle>
             <CardDescription className="text-pretty text-base">

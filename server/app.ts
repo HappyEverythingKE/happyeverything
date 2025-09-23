@@ -54,9 +54,6 @@ const apiRoutes = app
 // .route('/lists', listAccessRoutes)
 
 app.onError((err, c) => {
-  // Report all errors.
-  Sentry.captureException(err)
-
   // handle expected errors
   if (err instanceof HTTPException) {
     const errResponse =
@@ -75,6 +72,8 @@ app.onError((err, c) => {
     return errResponse
   }
 
+  // report only unexpected errors.
+  Sentry.captureException(err)
   return c.json<ErrorResponse>(
     // handle unexpected errors
     {

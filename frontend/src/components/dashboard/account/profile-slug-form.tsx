@@ -1,8 +1,9 @@
-import { useNavigate } from '@tanstack/react-router'
+import { Link, useNavigate } from '@tanstack/react-router'
 import { useForm } from '@tanstack/react-form'
 
 import { useCreateProfile } from '@/services/profile.api'
 import { ProfileSlugSchema } from '@shared/types'
+import { ArrowLeftIcon } from 'lucide-react'
 import { toast } from 'sonner'
 import type { z } from 'zod'
 
@@ -51,7 +52,7 @@ export function ProfileSlugForm() {
   })
 
   return (
-    <Card className="flex w-full max-w-lg">
+    <Card className="flex max-w-[90vw] flex-1 md:w-full md:max-w-lg">
       <CardHeader className="gap-3">
         <CardTitle className="text-lg">Claim your username</CardTitle>
         <CardDescription className="text-balance text-base">
@@ -72,7 +73,7 @@ export function ProfileSlugForm() {
             children={(field) => {
               return (
                 <>
-                  <div className="relative">
+                  <div className="relative overflow-hidden">
                     <span className="text-muted-foreground absolute left-3 top-1/2 -translate-y-1/2 text-sm">
                       @
                     </span>
@@ -84,6 +85,7 @@ export function ProfileSlugForm() {
                       onChange={(e) => field.handleChange(e.target.value)}
                       aria-invalid={!field.state.meta.isValid}
                       className="pl-7"
+                      maxLength={20}
                     />
                   </div>
                   <FieldInfo field={field} />
@@ -96,10 +98,8 @@ export function ProfileSlugForm() {
           <form.Subscribe
             selector={(state) => [state.values.slug]}
             children={([slugValue]) => (
-              <div className="text-center">
-                <span className="text-sm text-gray-500">
-                  happyeverything.com/{slugValue || ''}
-                </span>
+              <div className="wrap-anywhere text-center text-sm text-gray-500">
+                happyeverything.com/{slugValue || ''}
               </div>
             )}
           />
@@ -133,6 +133,14 @@ export function ProfileSlugForm() {
             )}
           />
         </form>
+        <div className="mt-3 flex flex-col">
+          <Button asChild variant="link" className="p-0 text-xs text-gray-500">
+            <div className="flex items-center gap-0">
+              <ArrowLeftIcon className="h-4 w-4" />
+              <Link to="/dashboard">Return to dashboard</Link>
+            </div>
+          </Button>
+        </div>
       </CardContent>
     </Card>
   )
