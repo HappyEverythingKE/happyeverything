@@ -74,7 +74,7 @@ function RouteComponent() {
             </Link>
           </Button>
         </div>
-        <p className="text-balance text-center">
+        <p className="text-balance pb-1 text-center">
           This is a private list.
           <br />
           Enter the password to access it.

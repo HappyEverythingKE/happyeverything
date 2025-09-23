@@ -30,7 +30,7 @@ export function ActivityLog({ profileSlug }: { profileSlug: string }) {
                   <Gift className="text-muted-foreground h-4 w-4" />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="text-sm font-medium leading-relaxed">
+                  <p className="font-medium leading-relaxed">
                     {log.gifterName || 'Someone'} got you a gift from{' '}
                     {log.listName} list!
                   </p>

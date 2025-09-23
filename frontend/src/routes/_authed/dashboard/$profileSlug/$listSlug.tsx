@@ -4,7 +4,6 @@ import { useQuery } from '@tanstack/react-query'
 
 import { listItemsQueryOptions } from '@/services/list-item.api'
 import { fetchListQueryOptions } from '@/services/list.api'
-import { startCase } from 'lodash'
 import { DotIcon, Settings, Share2 } from 'lucide-react'
 import { toast } from 'sonner'
 
@@ -108,35 +107,62 @@ function RouteComponent() {
           <div className="flex flex-col items-center justify-center space-y-2">
             <h1 className="text-balance text-center text-3xl">{list.name}</h1>
             {list.description && (
-              <p className="text-muted-foreground mt-2 text-balance text-center">
+              <p className="text-muted-foreground mt-2 max-w-xl text-balance text-center">
                 {list.description}
               </p>
             )}
           </div>
-          <div className="flex flex-col items-center justify-center space-y-1">
+          <div className="flex flex-col items-center justify-center space-y-4">
             <div className="flex flex-col items-center gap-2 md:flex-row">
               <div className="flex flex-col items-center md:flex-row md:gap-2">
-                <p className="text-xs font-semibold">Status: </p>
-                <Badge variant="secondary">{startCase(list.status)}</Badge>
-              </div>
-
-              <DotIcon className="hidden size-6 text-gray-800 md:block" />
-
-              <div className="flex flex-col items-center md:flex-row md:gap-2">
-                <p className="text-xs font-semibold">Visibility: </p>
-                <Badge variant="secondary">
-                  {list.status === 'published'
-                    ? list.isPrivate
-                      ? 'Private'
-                      : 'Public'
-                    : 'Not Published'}
+                <p className="text-xs font-semibold uppercase text-gray-700">
+                  List Type:{' '}
+                </p>
+                <Badge variant="amethyst">
+                  {list.listType.name.toUpperCase()}
                 </Badge>
               </div>
-            </div>
 
-            <div className="flex flex-col items-center md:flex-row md:gap-2">
-              <p className="text-xs font-semibold">List Type: </p>
-              <Badge variant="secondary">{startCase(list.listType.name)}</Badge>
+              <DotIcon className="hidden size-6 text-gray-700 md:block" />
+
+              <div className="flex flex-col items-center md:flex-row md:gap-2">
+                <p className="text-xs font-semibold uppercase text-gray-700">
+                  Status:{' '}
+                </p>
+                <Badge
+                  variant={
+                    list.status === 'published'
+                      ? 'tangerine'
+                      : list.status === 'draft'
+                        ? 'coral'
+                        : 'harbor'
+                  }
+                  className="px-3 text-xs"
+                >
+                  {list.status.toUpperCase()}
+                </Badge>
+              </div>
+
+              <DotIcon className="hidden size-6 text-gray-700 md:block" />
+
+              <div className="flex flex-col items-center md:flex-row md:gap-2">
+                <p className="text-xs font-semibold uppercase text-gray-700">
+                  Visibility:{' '}
+                </p>
+                {list.status === 'published' && (
+                  <Badge
+                    variant={list.isPrivate ? 'blush' : 'dusk'}
+                    className="px-3 text-xs"
+                  >
+                    {list.isPrivate ? 'PRIVATE' : 'PUBLIC'}
+                  </Badge>
+                )}
+                {list.status !== 'published' && (
+                  <Badge variant="coral" className="px-3 text-xs">
+                    NOT PUBLISHED
+                  </Badge>
+                )}
+              </div>
             </div>
           </div>
 

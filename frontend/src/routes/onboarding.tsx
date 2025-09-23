@@ -27,7 +27,7 @@ function RouteComponent() {
       </div>
 
       {/* card */}
-      <div className="relative flex min-h-svh items-center justify-center">
+      <div className="relative flex min-h-svh items-center justify-center p-6">
         <ProfileSlugForm />
       </div>
     </div>
