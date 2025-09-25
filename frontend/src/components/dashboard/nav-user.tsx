@@ -1,6 +1,6 @@
 'use client'
 
-import { useNavigate, useRouter } from '@tanstack/react-router'
+import { Link, useNavigate, useRouter } from '@tanstack/react-router'
 import { useQueryClient } from '@tanstack/react-query'
 
 import { getLogout } from '@/services/auth.api'
@@ -94,8 +94,13 @@ export function NavUser({
             <DropdownMenuGroup>
               <ProfileSwitcher profiles={profiles} currentSlug={currentSlug} />
               <DropdownMenuItem>
-                <BadgeCheck />
-                Account
+                <Link
+                  to="/dashboard/account"
+                  className="flex items-center gap-2"
+                >
+                  <BadgeCheck />
+                  Account
+                </Link>
               </DropdownMenuItem>
               <DropdownMenuItem>
                 <Bell />

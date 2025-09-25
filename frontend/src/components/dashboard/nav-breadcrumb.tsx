@@ -24,11 +24,17 @@ export default function NavBreadcrumb({ userName }: { userName: string }) {
   })
 
   const isHome = breadcrumbs.length === 1 && breadcrumbs[0].label === 'Home'
+  const isAccount =
+    breadcrumbs.length === 1 && breadcrumbs[0].label === 'Account'
 
   return (
     <>
       {isHome ? (
         <h1 className="md:text-md">Welcome, {userName}</h1>
+      ) : isAccount ? (
+        <h1 className="md:text-md">
+          <Link to="/dashboard">Back to Home</Link>
+        </h1>
       ) : (
         <Breadcrumb>
           <BreadcrumbList>

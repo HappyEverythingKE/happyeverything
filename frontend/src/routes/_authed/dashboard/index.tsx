@@ -52,7 +52,7 @@ function RouteComponent() {
         <Card className="flex w-full max-w-lg overflow-hidden">
           <CardHeader className="gap-3">
             <CardTitle className="text-lg">Select a Profile</CardTitle>
-            <CardDescription className="text-pretty text-base">
+            <CardDescription className="text-balance text-base">
               Select a profile below to manage its lists and settings or{' '}
               <Link
                 to="/onboarding"

@@ -8,6 +8,11 @@ import type { CurrentUser, Profile } from '@shared/types'
 import { LifeBuoy, Send } from 'lucide-react'
 
 import {
+  NavSecondarySkeleton,
+  NavSidebarSkeleton,
+  NavUserSkeleton,
+} from '@/components/ui/navbar-skeleton'
+import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
@@ -53,7 +58,7 @@ export function NavSidebar({
   // guard against undefined selectedProfile during query invalidation
   if (!selectedProfile) {
     return (
-      <Sidebar variant="inset" collapsible="icon" {...props}>
+      <Sidebar variant="inset" {...props}>
         <SidebarHeader>
           <SidebarMenu>
             <SidebarMenuItem>
@@ -74,14 +79,20 @@ export function NavSidebar({
           </SidebarMenu>
         </SidebarHeader>
         <SidebarContent className="pt-4">
-          <div className="text-muted-foreground p-4 text-sm">Loading...</div>
+          <NavSidebarSkeleton />
         </SidebarContent>
+        <SidebarSeparator />
+        <NavSecondarySkeleton />
+        <SidebarSeparator />
+        <SidebarFooter>
+          <NavUserSkeleton />
+        </SidebarFooter>
       </Sidebar>
     )
   }
 
   return (
-    <Sidebar variant="inset" collapsible="icon" {...props}>
+    <Sidebar variant="inset" {...props}>
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
