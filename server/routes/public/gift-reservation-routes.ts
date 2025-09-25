@@ -7,8 +7,8 @@ import {
   GiftReservationCreateSchema,
   type ReserveGiftResponse,
   type SuccessResponse,
-} from '../../shared/types'
-import { getAdminSupabase } from '../middleware/auth.middleware'
+} from '../../../shared/types'
+import { getAdminSupabase } from '../../middleware/auth.middleware'
 
 export const giftReservationRoutes = new Hono().post(
   '/:itemPublicId',

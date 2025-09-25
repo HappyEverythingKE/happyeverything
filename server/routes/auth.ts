@@ -6,11 +6,12 @@ import type { ContentfulStatusCode } from 'hono/utils/http-status'
 import { zValidator } from '@hono/zod-validator'
 import { z } from 'zod'
 
-import type {
-  AppEnv,
-  AuthContext,
-  CurrentUser,
-  SuccessResponse,
+import {
+  SignupSchema,
+  type AppEnv,
+  type AuthContext,
+  type CurrentUser,
+  type SuccessResponse,
 } from '../../shared/types'
 import {
   getAdminSupabase,
@@ -19,63 +20,56 @@ import {
 } from '../middleware/auth.middleware'
 
 export const authRoutes = new Hono()
-  .post(
-    '/signup',
-    zValidator(
-      'form',
-      z.object({ email: z.string(), name: z.string(), country: z.string() }),
-    ),
-    async (c) => {
-      const supabase = getSupabase(c)
-      const supabaseAdmin = getAdminSupabase(c)
-      const { email, name, country } = c.req.valid('form')
+  .post('/signup', zValidator('form', SignupSchema), async (c) => {
+    const supabase = getSupabase(c)
+    const supabaseAdmin = getAdminSupabase(c)
+    const { email, name, country } = c.req.valid('form')
 
-      // check if user already exists using supabaseAdmin to bypass RLS
-      const { data: existingUser, error: searchError } = await supabaseAdmin
-        .from('accounts')
-        .select('email')
-        .ilike('email', email)
-        .maybeSingle()
+    // check if user already exists using supabaseAdmin to bypass RLS
+    const { data: existingUser, error: searchError } = await supabaseAdmin
+      .from('accounts')
+      .select('email')
+      .ilike('email', email)
+      .maybeSingle()
 
-      if (searchError) {
-        throw new HTTPException(500, {
-          message: 'Error checking user.',
-        })
-      }
-
-      if (existingUser) {
-        throw new HTTPException(400, {
-          message: 'Looks like you already have an account. Log in instead.',
-          cause: { form: true },
-        })
-      }
-
-      const { APP_BASE_URL } = env<AppEnv>(c)
-      const redirectURL = `${APP_BASE_URL}/auth-confirm`
-
-      const { error: signupError } = await supabase.auth.signInWithOtp({
-        email,
-        options: {
-          data: { name, country },
-          emailRedirectTo: redirectURL,
-        },
+    if (searchError) {
+      throw new HTTPException(500, {
+        message: 'Error checking user.',
       })
+    }
 
-      if (signupError) {
-        throw new HTTPException(signupError.status as ContentfulStatusCode, {
-          message: signupError.message,
-          cause: { form: true },
-        })
-      }
+    if (existingUser) {
+      throw new HTTPException(400, {
+        message: 'Looks like you already have an account. Log in instead.',
+        cause: { form: true },
+      })
+    }
 
-      return c.json<SuccessResponse>(
-        {
-          success: true,
-        },
-        200,
-      )
-    },
-  )
+    const { APP_BASE_URL } = env<AppEnv>(c)
+    const redirectURL = `${APP_BASE_URL}/auth-confirm`
+
+    const { error: signupError } = await supabase.auth.signInWithOtp({
+      email,
+      options: {
+        data: { name, country },
+        emailRedirectTo: redirectURL,
+      },
+    })
+
+    if (signupError) {
+      throw new HTTPException(signupError.status as ContentfulStatusCode, {
+        message: signupError.message,
+        cause: { form: true },
+      })
+    }
+
+    return c.json<SuccessResponse>(
+      {
+        success: true,
+      },
+      200,
+    )
+  })
   .post(
     '/login',
     zValidator('form', z.object({ email: z.string() })),
@@ -187,7 +181,7 @@ export const authRoutes = new Hono()
       email: account.email,
       name: account.name,
       status: account.status,
-      avatar: account.avatar || providerAvatar,
+      avatar: account.avatar || providerAvatar || undefined,
       country: account.country,
     }
 

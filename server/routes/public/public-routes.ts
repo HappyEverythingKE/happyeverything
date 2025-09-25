@@ -9,18 +9,22 @@ import type {
   ListWithItems,
   PublicListOwner,
   SuccessResponse,
-} from '../../shared/types'
+} from '../../../shared/types'
 import {
   resolveListIdFromSlug,
   resolveProfileIdFromSlug,
-} from '../lib/slug-id-lookup'
-import { mapToPublicListType, mapToPublicListWithItemsType } from '../lib/utils'
-import { getAdminSupabase } from '../middleware/auth.middleware'
+} from '../../lib/slug-id-lookup'
+import {
+  mapToPublicListType,
+  mapToPublicListWithItemsType,
+} from '../../lib/utils'
+import { getAdminSupabase } from '../../middleware/auth.middleware'
 
 const reservedRoutes = [
   'api',
   'v1',
   'auth',
+  'account',
   'profile',
   'lists',
   'list-types',
