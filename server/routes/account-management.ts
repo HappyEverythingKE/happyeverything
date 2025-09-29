@@ -1,11 +1,6 @@
 import { Hono } from 'hono'
 import { HTTPException } from 'hono/http-exception'
 
-import {
-  getAdminSupabase,
-  getSupabase,
-  getUserSession,
-} from '@/middleware/auth.middleware'
 import { zValidator } from '@hono/zod-validator'
 import { z } from 'zod'
 
@@ -14,6 +9,11 @@ import {
   type Account,
   type SuccessResponse,
 } from '../../shared/types'
+import {
+  getAdminSupabase,
+  getSupabase,
+  getUserSession,
+} from '../middleware/auth.middleware'
 
 export const accountManagementRoutes = new Hono()
   .get('/', getUserSession, async (c) => {
@@ -23,8 +23,9 @@ export const accountManagementRoutes = new Hono()
     const { data: account, error: accountError } = await supabase
       .from('accounts')
       .select(
-        'email, name, status, avatar, country, created_at, profiles!inner(slug, status, lists!inner(name, slug))',
+        'email, name, status, avatar, country, created_at, profiles(slug, status, created_at, lists(name, slug))',
       )
+      .order('created_at', { referencedTable: 'profiles', ascending: false })
       .eq('id', user.id)
       .single()
 
@@ -80,8 +81,9 @@ export const accountManagementRoutes = new Hono()
       .update({ name, country })
       .eq('id', user.id)
       .select(
-        'email, name, status, avatar, country, created_at, profiles!inner(slug, status, lists!inner(name, slug))',
+        'email, name, status, avatar, country, created_at, profiles(slug, status, created_at, lists(name, slug))',
       )
+      .order('created_at', { referencedTable: 'profiles', ascending: false })
       .single()
 
     if (error) {

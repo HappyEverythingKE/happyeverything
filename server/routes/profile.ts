@@ -10,6 +10,7 @@ import {
   type Profile,
   type SuccessResponse,
 } from '../../shared/types'
+import { resolveProfileIdFromSlug } from '../lib/slug-id-lookup'
 import { getSupabase, getUserSession } from '../middleware/auth.middleware'
 
 export const profileRoutes = new Hono()
@@ -94,4 +95,62 @@ export const profileRoutes = new Hono()
       success: true,
       data,
     })
+  })
+  .patch(
+    '/:profileSlug',
+    getUserSession,
+    zValidator('form', ProfileSlugSchema),
+    async (c) => {
+      const { profileSlug } = c.req.param()
+      const { slug: newSlug } = c.req.valid('form')
+      const supabase = getSupabase(c)
+
+      const profileId = await resolveProfileIdFromSlug(c, profileSlug)
+
+      // Update the profile slug
+      const { data, error } = await supabase
+        .from('profiles')
+        .update({ slug: newSlug })
+        .eq('id', profileId)
+        .select('slug, status')
+        .single()
+
+      if (error) {
+        if (error.code === '23505') {
+          // Supabase/Postgres unique constraint violation
+          throw new HTTPException(409, {
+            message: 'That username is already taken. Try another!',
+            cause: { form: true },
+          })
+        }
+
+        throw new HTTPException(500, {
+          message: 'Failed to update profile',
+        })
+      }
+
+      return c.json<SuccessResponse<Profile>>({
+        success: true,
+        data,
+      })
+    },
+  )
+  .delete('/:profileSlug', async (c) => {
+    const { profileSlug } = c.req.param()
+    const supabase = getSupabase(c)
+
+    const profileId = await resolveProfileIdFromSlug(c, profileSlug)
+
+    const { error: deleteError } = await supabase
+      .from('profiles')
+      .delete()
+      .eq('id', profileId)
+
+    if (deleteError) {
+      throw new HTTPException(500, {
+        message: 'Failed to delete profile',
+      })
+    }
+
+    return c.body(null, 204)
   })
