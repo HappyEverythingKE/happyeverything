@@ -58,7 +58,11 @@ export function NavMain({ profileSlug }: { profileSlug: string }) {
     <>
       <SidebarGroup>
         <SidebarMenuButton asChild tooltip="New wish list">
-          <Button variant="buttonIcon" onClick={() => setIsSheetOpen(true)}>
+          <Button
+            variant="outline"
+            onClick={() => setIsSheetOpen(true)}
+            className="hover:border-transparent! w-fit justify-start"
+          >
             <PlusCircle />
             <span>New wish list</span>
           </Button>

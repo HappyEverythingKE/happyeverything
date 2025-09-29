@@ -5,7 +5,7 @@ import { useQueryClient } from '@tanstack/react-query'
 
 import { getLogout } from '@/services/auth.api'
 import type { CurrentUser, Profile } from '@shared/types'
-import { BadgeCheck, Bell, ChevronsUpDown, LogOut } from 'lucide-react'
+import { BadgeCheck, ChevronsUpDown, LogOut } from 'lucide-react'
 
 import { supabase } from '@/lib/supabase'
 import { prettifyInitials } from '@/lib/utils'
@@ -101,10 +101,6 @@ export function NavUser({
                   <BadgeCheck />
                   Account
                 </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Bell />
-                Notifications
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />

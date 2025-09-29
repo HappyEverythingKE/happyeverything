@@ -1,6 +1,6 @@
 import { createFileRoute, redirect } from '@tanstack/react-router'
 
-import { ProfileSlugForm } from '@/components/dashboard/account/profile-slug-form'
+import { OnboardingForm } from '@/components/dashboard/account/onboarding-form'
 
 export const Route = createFileRoute('/onboarding')({
   beforeLoad: async ({ context }) => {
@@ -28,7 +28,7 @@ function RouteComponent() {
 
       {/* card */}
       <div className="relative flex min-h-svh items-center justify-center p-6">
-        <ProfileSlugForm />
+        <OnboardingForm />
       </div>
     </div>
   )

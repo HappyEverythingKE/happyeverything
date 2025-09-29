@@ -22,7 +22,7 @@ const defaultValues = {
   slug: '',
 } as z.infer<typeof ProfileSlugSchema>
 
-export function ProfileSlugForm() {
+export function OnboardingForm() {
   const navigate = useNavigate()
   const { mutateAsync: createProfile } = useCreateProfile()
 
