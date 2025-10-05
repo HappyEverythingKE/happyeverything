@@ -49,7 +49,7 @@ function RouteComponent() {
       </div>
 
       <div className="relative flex min-h-svh items-center justify-center p-6">
-        <Card className="flex w-full max-w-lg overflow-hidden">
+        <Card className="flex w-full max-w-xl overflow-hidden">
           <CardHeader className="gap-3">
             <CardTitle className="text-lg">Select a Profile</CardTitle>
             <CardDescription className="text-balance text-base">
@@ -62,7 +62,7 @@ function RouteComponent() {
               </Link>
             </CardDescription>
           </CardHeader>
-          <CardContent className="py-6">
+          <CardContent className="w-full py-6">
             {allProfiles.length === 0 ? (
               <div className="space-y-4 text-center">
                 <p className="text-muted-foreground">No profiles found</p>
@@ -78,9 +78,9 @@ function RouteComponent() {
                     to="/dashboard/$profileSlug"
                     params={{ profileSlug: profile.slug }}
                   >
-                    <Card className="hover:border-primary/50 group h-full w-48 cursor-pointer transition-all hover:shadow-lg">
-                      <CardHeader className="flex flex-col items-center justify-between space-y-2 pb-3">
-                        <CardTitle className="group-hover:text-primary text-xl transition-colors">
+                    <Card className="hover:border-primary/50 group h-full w-60 cursor-pointer overflow-hidden transition-all hover:shadow-lg">
+                      <CardHeader className="flex min-w-0 flex-col items-center justify-between space-y-2 pb-3">
+                        <CardTitle className="group-hover:text-primary wrap-anywhere w-full truncate text-center text-xl transition-colors">
                           {profile.slug}
                         </CardTitle>
                         <Badge

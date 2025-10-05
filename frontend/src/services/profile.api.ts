@@ -23,7 +23,6 @@ export const getProfiles = async () => {
 export const allProfilesQueryOptions = queryOptions({
   queryKey: ['profiles'],
   queryFn: getProfiles,
-  staleTime: Infinity,
 })
 
 export const postProfile = async (slug: string) => {

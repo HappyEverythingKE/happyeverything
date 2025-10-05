@@ -56,7 +56,7 @@ export function OnboardingForm() {
       <CardHeader className="gap-3">
         <CardTitle className="text-lg">Claim your username</CardTitle>
         <CardDescription className="text-balance text-base">
-          Your username will be used to make your shareable link unique.
+          Your username is used to make your shareable link unique.
         </CardDescription>
       </CardHeader>
       <CardContent className="py-6">
