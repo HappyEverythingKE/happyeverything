@@ -15,7 +15,7 @@ import {
   getUserSession,
 } from '../middleware/auth.middleware'
 
-export const accountManagementRoutes = new Hono()
+export const accountRoutes = new Hono()
   .get('/', getUserSession, async (c) => {
     const user = c.get('user')!
     const supabase = getSupabase(c)

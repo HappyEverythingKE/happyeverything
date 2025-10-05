@@ -10,7 +10,7 @@ import * as Sentry from '@sentry/node'
 
 import type { ErrorResponse } from '../shared/types'
 import { supabaseMiddleware } from './middleware/auth.middleware'
-import { accountManagementRoutes } from './routes/account-management'
+import { accountRoutes } from './routes/account'
 import { authRoutes } from './routes/auth'
 import { listItemRoutes } from './routes/lists/list-item-routes'
 import { listRoutes } from './routes/lists/list-routes'
@@ -47,7 +47,7 @@ const apiRoutes = app
   })
   // routes
   .route('/auth', authRoutes)
-  .route('/account', accountManagementRoutes)
+  .route('/account', accountRoutes)
   .route('/profile', profileRoutes)
   .route('/lists', listRoutes)
   .route('/lists', listItemRoutes)

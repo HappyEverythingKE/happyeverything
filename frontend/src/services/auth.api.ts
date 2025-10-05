@@ -11,58 +11,47 @@ import { client } from '@/lib/api'
 
 export const postSignup = async ({
   email,
-  name,
-  country,
+  password,
 }: {
   email: string
-  name: string
-  country: string
+  password: string
 }) => {
-  try {
-    const res = await client.auth.signup.$post({
-      form: {
-        email,
-        name,
-        country,
-      },
-    })
+  const res = await client.auth.signup.$post({
+    form: {
+      email,
+      password,
+    },
+  })
 
-    if (res.ok) {
-      const data = (await res.json()) as SuccessResponse
-      return data
-    }
-    const data = (await res.json()) as unknown as ErrorResponse
+  if (res.ok) {
+    const data = (await res.json()) as SuccessResponse
     return data
-  } catch (error) {
-    return {
-      success: false,
-      error: String(error),
-      isFormError: false,
-    } as ErrorResponse
   }
+
+  const data = (await res.json()) as unknown as ErrorResponse
+  return data
 }
 
-export const postLogin = async ({ email }: { email: string }) => {
-  try {
-    const res = await client.auth.login.$post({
-      form: {
-        email,
-      },
-    })
+export const postLogin = async ({
+  email,
+  password,
+}: {
+  email: string
+  password: string
+}) => {
+  const res = await client.auth.login.$post({
+    form: {
+      email,
+      password,
+    },
+  })
 
-    if (res.ok) {
-      const data = (await res.json()) as SuccessResponse
-      return data
-    }
-    const data = (await res.json()) as unknown as ErrorResponse
+  if (res.ok) {
+    const data = (await res.json()) as SuccessResponse
     return data
-  } catch (error) {
-    return {
-      success: false,
-      error: String(error),
-      isFormError: false,
-    } as ErrorResponse
   }
+  const data = (await res.json()) as unknown as ErrorResponse
+  return data
 }
 
 export const getVerifyOTP = async (token_hash: string, type: string) => {
@@ -79,6 +68,21 @@ export const getVerifyOTP = async (token_hash: string, type: string) => {
   }
   const data = (await res.json()) as unknown as ErrorResponse
   throw new Error(data.error ?? 'Verification failed')
+}
+
+export const postResendConfirmationEmail = async (email: string) => {
+  const res = await client.auth['resend-confirmation-email'].$post({
+    form: {
+      email,
+    },
+  })
+
+  if (res.ok) {
+    const data = (await res.json()) as SuccessResponse
+    return data
+  }
+  const data = (await res.json()) as unknown as ErrorResponse
+  throw new Error(data.error || 'Resend confirmation email failed')
 }
 
 export const getSession = async () => {
@@ -100,6 +104,7 @@ export const getCurrentUser = async () => {
     const { data } = (await res.json()) as SuccessResponse<CurrentUser>
     return data
   }
+
   const data = (await res.json()) as unknown as ErrorResponse
   throw new Error(data.error ?? 'Failed to fetch user')
 }

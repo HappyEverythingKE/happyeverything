@@ -1,9 +1,10 @@
-import { Link } from '@tanstack/react-router'
+import { Link, useNavigate, useRouter } from '@tanstack/react-router'
 import { useForm } from '@tanstack/react-form'
+import { useQueryClient } from '@tanstack/react-query'
 
 import { postLogin } from '@/services/auth.api'
-import { LoginSchema } from '@shared/types'
-import { toast } from 'sonner'
+import { allProfilesQueryOptions } from '@/services/profile.api'
+import { SignupSchema } from '@shared/types'
 import { type z } from 'zod'
 
 import { Button } from '@/components/ui/button'
@@ -11,23 +12,49 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { FieldInfo } from '@/components/field-info'
 
+import { Spinner } from '../ui/spinner'
+
 const defaultValues = {
   email: '',
-} as z.infer<typeof LoginSchema>
+  password: '',
+} as z.infer<typeof SignupSchema>
 
 export function LoginForm() {
+  const navigate = useNavigate()
+  const router = useRouter()
+  const queryClient = useQueryClient()
+
   const form = useForm({
     defaultValues: defaultValues,
-    validators: { onChange: LoginSchema },
+    validators: { onChange: SignupSchema },
     onSubmit: async ({ value }) => {
-      const res = await postLogin({ email: value.email })
+      const res = await postLogin({
+        email: value.email,
+        password: value.password,
+      })
+
       if (res.success) {
-        toast.success('Check your email for a login link!')
+        await queryClient.invalidateQueries()
+        await router.invalidate()
+
+        // Navigate user based on profile status
+        try {
+          const profiles = await queryClient.ensureQueryData(
+            allProfilesQueryOptions,
+          )
+          if (!profiles || profiles.length === 0) {
+            navigate({ to: '/onboarding' })
+          } else {
+            navigate({ to: '/dashboard' })
+          }
+        } catch {
+          // If profile fetch fails, try navigating to dashboard anyway
+          navigate({ to: '/dashboard' })
+        }
       } else {
-        toast.error('Login failed', { description: res.error })
         form.setErrorMap({
           // @ts-expect-error error is a string but onSubmit expects an object mapping to the fields
-          onSubmit: res.error || 'Unexpected error',
+          onSubmit: res.error || 'An unexpected error occurred',
         })
       }
     },
@@ -48,7 +75,7 @@ export function LoginForm() {
             <h1 className="text-3xl md:pb-2">Welcome back!</h1>
             <p className="text-balance">Log in to manage your wish lists</p>
           </div>
-          <div className="grid gap-6">
+          <div className="grid gap-4">
             <div className="grid gap-2">
               <form.Field
                 name="email"
@@ -73,11 +100,35 @@ export function LoginForm() {
               />
             </div>
 
+            <div className="grid gap-2">
+              <form.Field
+                name="password"
+                children={(field) => {
+                  return (
+                    <>
+                      <Label htmlFor={field.name}>Password</Label>
+                      <Input
+                        id={field.name}
+                        type="password"
+                        value={field.state.value}
+                        onBlur={field.handleBlur}
+                        onChange={(e) => field.handleChange(e.target.value)}
+                        aria-invalid={!field.state.meta.isValid}
+                        placeholder="Enter your password"
+                        autoComplete="password"
+                      />
+                      <FieldInfo field={field} />
+                    </>
+                  )
+                }}
+              />
+            </div>
+
             <form.Subscribe
               selector={(state) => [state.errorMap]}
               children={([errorMap]) =>
                 errorMap.onSubmit ? (
-                  <p className="text-destructive text-sm font-medium">
+                  <p className="text-destructive overflow-hidden text-clip text-sm font-medium">
                     {errorMap.onSubmit}
                   </p>
                 ) : null
@@ -95,9 +146,15 @@ export function LoginForm() {
                 <Button
                   type="submit"
                   disabled={!canSubmit || isPristine || isSubmitting}
-                  className="w-full"
+                  className="mt-2 w-full"
                 >
-                  {isSubmitting ? 'Working...' : 'Log In'}
+                  {isSubmitting ? (
+                    <span className="flex items-center gap-2">
+                      <Spinner /> Beep Boop...
+                    </span>
+                  ) : (
+                    'Log In'
+                  )}
                 </Button>
               )}
             />

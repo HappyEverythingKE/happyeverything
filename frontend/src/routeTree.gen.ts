@@ -14,11 +14,14 @@ import { Route as rootRoute } from './routes/__root'
 import { Route as SignupImport } from './routes/signup'
 import { Route as OnboardingImport } from './routes/onboarding'
 import { Route as LoginImport } from './routes/login'
-import { Route as AuthConfirmImport } from './routes/auth-confirm'
 import { Route as PublicImport } from './routes/_public'
 import { Route as MarketingImport } from './routes/_marketing'
 import { Route as AuthedImport } from './routes/_authed'
+import { Route as AuthRouteImport } from './routes/auth/route'
 import { Route as MarketingIndexImport } from './routes/_marketing.index'
+import { Route as AuthAuthVerifyImport } from './routes/auth/auth-verify'
+import { Route as AuthAuthErrorImport } from './routes/auth/auth-error'
+import { Route as AuthAuthConfirmImport } from './routes/auth/auth-confirm'
 import { Route as MarketingContactImport } from './routes/_marketing.contact'
 import { Route as PublicProfileSlugIndexImport } from './routes/_public/$profileSlug/index'
 import { Route as AuthedDashboardIndexImport } from './routes/_authed/dashboard/index'
@@ -49,12 +52,6 @@ const LoginRoute = LoginImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
-const AuthConfirmRoute = AuthConfirmImport.update({
-  id: '/auth-confirm',
-  path: '/auth-confirm',
-  getParentRoute: () => rootRoute,
-} as any)
-
 const PublicRoute = PublicImport.update({
   id: '/_public',
   getParentRoute: () => rootRoute,
@@ -70,10 +67,34 @@ const AuthedRoute = AuthedImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
+const AuthRouteRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRoute,
+} as any)
+
 const MarketingIndexRoute = MarketingIndexImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => MarketingRoute,
+} as any)
+
+const AuthAuthVerifyRoute = AuthAuthVerifyImport.update({
+  id: '/auth-verify',
+  path: '/auth-verify',
+  getParentRoute: () => AuthRouteRoute,
+} as any)
+
+const AuthAuthErrorRoute = AuthAuthErrorImport.update({
+  id: '/auth-error',
+  path: '/auth-error',
+  getParentRoute: () => AuthRouteRoute,
+} as any)
+
+const AuthAuthConfirmRoute = AuthAuthConfirmImport.update({
+  id: '/auth-confirm',
+  path: '/auth-confirm',
+  getParentRoute: () => AuthRouteRoute,
 } as any)
 
 const MarketingContactRoute = MarketingContactImport.update({
@@ -139,6 +160,13 @@ const AuthedDashboardProfileSlugListSlugRoute =
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRoute
+    }
     '/_authed': {
       id: '/_authed'
       path: ''
@@ -158,13 +186,6 @@ declare module '@tanstack/react-router' {
       path: ''
       fullPath: ''
       preLoaderRoute: typeof PublicImport
-      parentRoute: typeof rootRoute
-    }
-    '/auth-confirm': {
-      id: '/auth-confirm'
-      path: '/auth-confirm'
-      fullPath: '/auth-confirm'
-      preLoaderRoute: typeof AuthConfirmImport
       parentRoute: typeof rootRoute
     }
     '/login': {
@@ -194,6 +215,27 @@ declare module '@tanstack/react-router' {
       fullPath: '/contact'
       preLoaderRoute: typeof MarketingContactImport
       parentRoute: typeof MarketingImport
+    }
+    '/auth/auth-confirm': {
+      id: '/auth/auth-confirm'
+      path: '/auth-confirm'
+      fullPath: '/auth/auth-confirm'
+      preLoaderRoute: typeof AuthAuthConfirmImport
+      parentRoute: typeof AuthRouteImport
+    }
+    '/auth/auth-error': {
+      id: '/auth/auth-error'
+      path: '/auth-error'
+      fullPath: '/auth/auth-error'
+      preLoaderRoute: typeof AuthAuthErrorImport
+      parentRoute: typeof AuthRouteImport
+    }
+    '/auth/auth-verify': {
+      id: '/auth/auth-verify'
+      path: '/auth-verify'
+      fullPath: '/auth/auth-verify'
+      preLoaderRoute: typeof AuthAuthVerifyImport
+      parentRoute: typeof AuthRouteImport
     }
     '/_marketing/': {
       id: '/_marketing/'
@@ -262,6 +304,22 @@ declare module '@tanstack/react-router' {
 }
 
 // Create and export the route tree
+
+interface AuthRouteRouteChildren {
+  AuthAuthConfirmRoute: typeof AuthAuthConfirmRoute
+  AuthAuthErrorRoute: typeof AuthAuthErrorRoute
+  AuthAuthVerifyRoute: typeof AuthAuthVerifyRoute
+}
+
+const AuthRouteRouteChildren: AuthRouteRouteChildren = {
+  AuthAuthConfirmRoute: AuthAuthConfirmRoute,
+  AuthAuthErrorRoute: AuthAuthErrorRoute,
+  AuthAuthVerifyRoute: AuthAuthVerifyRoute,
+}
+
+const AuthRouteRouteWithChildren = AuthRouteRoute._addFileChildren(
+  AuthRouteRouteChildren,
+)
 
 interface AuthedDashboardProfileSlugRouteRouteChildren {
   AuthedDashboardProfileSlugListSlugRoute: typeof AuthedDashboardProfileSlugListSlugRoute
@@ -339,12 +397,15 @@ const PublicRouteWithChildren =
   PublicRoute._addFileChildren(PublicRouteChildren)
 
 export interface FileRoutesByFullPath {
+  '/auth': typeof AuthRouteRouteWithChildren
   '': typeof PublicRouteWithChildren
-  '/auth-confirm': typeof AuthConfirmRoute
   '/login': typeof LoginRoute
   '/onboarding': typeof OnboardingRoute
   '/signup': typeof SignupRoute
   '/contact': typeof MarketingContactRoute
+  '/auth/auth-confirm': typeof AuthAuthConfirmRoute
+  '/auth/auth-error': typeof AuthAuthErrorRoute
+  '/auth/auth-verify': typeof AuthAuthVerifyRoute
   '/': typeof MarketingIndexRoute
   '/dashboard/$profileSlug': typeof AuthedDashboardProfileSlugRouteRouteWithChildren
   '/dashboard/account': typeof AuthedDashboardAccountRouteRouteWithChildren
@@ -357,12 +418,15 @@ export interface FileRoutesByFullPath {
 }
 
 export interface FileRoutesByTo {
+  '/auth': typeof AuthRouteRouteWithChildren
   '': typeof PublicRouteWithChildren
-  '/auth-confirm': typeof AuthConfirmRoute
   '/login': typeof LoginRoute
   '/onboarding': typeof OnboardingRoute
   '/signup': typeof SignupRoute
   '/contact': typeof MarketingContactRoute
+  '/auth/auth-confirm': typeof AuthAuthConfirmRoute
+  '/auth/auth-error': typeof AuthAuthErrorRoute
+  '/auth/auth-verify': typeof AuthAuthVerifyRoute
   '/': typeof MarketingIndexRoute
   '/$profileSlug/$listSlug': typeof PublicProfileSlugListSlugRoute
   '/dashboard': typeof AuthedDashboardIndexRoute
@@ -374,14 +438,17 @@ export interface FileRoutesByTo {
 
 export interface FileRoutesById {
   __root__: typeof rootRoute
+  '/auth': typeof AuthRouteRouteWithChildren
   '/_authed': typeof AuthedRouteWithChildren
   '/_marketing': typeof MarketingRouteWithChildren
   '/_public': typeof PublicRouteWithChildren
-  '/auth-confirm': typeof AuthConfirmRoute
   '/login': typeof LoginRoute
   '/onboarding': typeof OnboardingRoute
   '/signup': typeof SignupRoute
   '/_marketing/contact': typeof MarketingContactRoute
+  '/auth/auth-confirm': typeof AuthAuthConfirmRoute
+  '/auth/auth-error': typeof AuthAuthErrorRoute
+  '/auth/auth-verify': typeof AuthAuthVerifyRoute
   '/_marketing/': typeof MarketingIndexRoute
   '/_authed/dashboard/$profileSlug': typeof AuthedDashboardProfileSlugRouteRouteWithChildren
   '/_authed/dashboard/account': typeof AuthedDashboardAccountRouteRouteWithChildren
@@ -396,12 +463,15 @@ export interface FileRoutesById {
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
+    | '/auth'
     | ''
-    | '/auth-confirm'
     | '/login'
     | '/onboarding'
     | '/signup'
     | '/contact'
+    | '/auth/auth-confirm'
+    | '/auth/auth-error'
+    | '/auth/auth-verify'
     | '/'
     | '/dashboard/$profileSlug'
     | '/dashboard/account'
@@ -413,12 +483,15 @@ export interface FileRouteTypes {
     | '/dashboard/account/'
   fileRoutesByTo: FileRoutesByTo
   to:
+    | '/auth'
     | ''
-    | '/auth-confirm'
     | '/login'
     | '/onboarding'
     | '/signup'
     | '/contact'
+    | '/auth/auth-confirm'
+    | '/auth/auth-error'
+    | '/auth/auth-verify'
     | '/'
     | '/$profileSlug/$listSlug'
     | '/dashboard'
@@ -428,14 +501,17 @@ export interface FileRouteTypes {
     | '/dashboard/account'
   id:
     | '__root__'
+    | '/auth'
     | '/_authed'
     | '/_marketing'
     | '/_public'
-    | '/auth-confirm'
     | '/login'
     | '/onboarding'
     | '/signup'
     | '/_marketing/contact'
+    | '/auth/auth-confirm'
+    | '/auth/auth-error'
+    | '/auth/auth-verify'
     | '/_marketing/'
     | '/_authed/dashboard/$profileSlug'
     | '/_authed/dashboard/account'
@@ -449,20 +525,20 @@ export interface FileRouteTypes {
 }
 
 export interface RootRouteChildren {
+  AuthRouteRoute: typeof AuthRouteRouteWithChildren
   AuthedRoute: typeof AuthedRouteWithChildren
   MarketingRoute: typeof MarketingRouteWithChildren
   PublicRoute: typeof PublicRouteWithChildren
-  AuthConfirmRoute: typeof AuthConfirmRoute
   LoginRoute: typeof LoginRoute
   OnboardingRoute: typeof OnboardingRoute
   SignupRoute: typeof SignupRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
+  AuthRouteRoute: AuthRouteRouteWithChildren,
   AuthedRoute: AuthedRouteWithChildren,
   MarketingRoute: MarketingRouteWithChildren,
   PublicRoute: PublicRouteWithChildren,
-  AuthConfirmRoute: AuthConfirmRoute,
   LoginRoute: LoginRoute,
   OnboardingRoute: OnboardingRoute,
   SignupRoute: SignupRoute,
@@ -478,13 +554,21 @@ export const routeTree = rootRoute
     "__root__": {
       "filePath": "__root.tsx",
       "children": [
+        "/auth",
         "/_authed",
         "/_marketing",
         "/_public",
-        "/auth-confirm",
         "/login",
         "/onboarding",
         "/signup"
+      ]
+    },
+    "/auth": {
+      "filePath": "auth/route.tsx",
+      "children": [
+        "/auth/auth-confirm",
+        "/auth/auth-error",
+        "/auth/auth-verify"
       ]
     },
     "/_authed": {
@@ -509,9 +593,6 @@ export const routeTree = rootRoute
         "/_public/$profileSlug/"
       ]
     },
-    "/auth-confirm": {
-      "filePath": "auth-confirm.tsx"
-    },
     "/login": {
       "filePath": "login.tsx"
     },
@@ -524,6 +605,18 @@ export const routeTree = rootRoute
     "/_marketing/contact": {
       "filePath": "_marketing.contact.tsx",
       "parent": "/_marketing"
+    },
+    "/auth/auth-confirm": {
+      "filePath": "auth/auth-confirm.tsx",
+      "parent": "/auth"
+    },
+    "/auth/auth-error": {
+      "filePath": "auth/auth-error.tsx",
+      "parent": "/auth"
+    },
+    "/auth/auth-verify": {
+      "filePath": "auth/auth-verify.tsx",
+      "parent": "/auth"
     },
     "/_marketing/": {
       "filePath": "_marketing.index.tsx",

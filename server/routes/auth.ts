@@ -4,7 +4,7 @@ import { HTTPException } from 'hono/http-exception'
 import type { ContentfulStatusCode } from 'hono/utils/http-status'
 
 import { zValidator } from '@hono/zod-validator'
-import { z } from 'zod'
+import { type EmailOtpType } from '@supabase/supabase-js'
 
 import {
   SignupSchema,
@@ -23,7 +23,7 @@ export const authRoutes = new Hono()
   .post('/signup', zValidator('form', SignupSchema), async (c) => {
     const supabase = getSupabase(c)
     const supabaseAdmin = getAdminSupabase(c)
-    const { email, name, country } = c.req.valid('form')
+    const { email, password } = c.req.valid('form')
 
     // check if user already exists using supabaseAdmin to bypass RLS
     const { data: existingUser, error: searchError } = await supabaseAdmin
@@ -45,15 +45,9 @@ export const authRoutes = new Hono()
       })
     }
 
-    const { APP_BASE_URL } = env<AppEnv>(c)
-    const redirectURL = `${APP_BASE_URL}/auth-confirm`
-
-    const { error: signupError } = await supabase.auth.signInWithOtp({
+    const { error: signupError } = await supabase.auth.signUp({
       email,
-      options: {
-        data: { name, country },
-        emailRedirectTo: redirectURL,
-      },
+      password,
     })
 
     if (signupError) {
@@ -70,48 +64,65 @@ export const authRoutes = new Hono()
       200,
     )
   })
+  .post('/login', zValidator('form', SignupSchema), async (c) => {
+    const supabase = getSupabase(c)
+    const supabaseAdmin = getAdminSupabase(c)
+    const { email, password } = c.req.valid('form')
+
+    // check if user already exists using supabaseAdmin to bypass RLS
+    const { data: existingUser, error: searchError } = await supabaseAdmin
+      .from('accounts')
+      .select('email')
+      .ilike('email', email)
+      .maybeSingle()
+
+    if (searchError) {
+      throw new HTTPException(500, {
+        message: 'Error checking user.',
+      })
+    }
+
+    if (!existingUser) {
+      throw new HTTPException(400, {
+        message: 'Create your account through our Sign Up page.',
+        cause: { form: true },
+      })
+    }
+
+    const { error: loginError } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    })
+
+    if (loginError) {
+      throw new HTTPException(loginError.status as ContentfulStatusCode, {
+        message: loginError.message,
+        cause: { form: true },
+      })
+    }
+
+    return c.json<SuccessResponse>(
+      {
+        success: true,
+      },
+      200,
+    )
+  })
   .post(
-    '/login',
-    zValidator('form', z.object({ email: z.string() })),
+    '/resend-confirmation-email',
+    zValidator('form', SignupSchema.pick({ email: true })),
     async (c) => {
       const supabase = getSupabase(c)
-      const supabaseAdmin = getAdminSupabase(c)
       const { email } = c.req.valid('form')
 
-      // check if user already exists using supabaseAdmin to bypass RLS
-      const { data: existingUser, error: searchError } = await supabaseAdmin
-        .from('accounts')
-        .select('email')
-        .ilike('email', email)
-        .maybeSingle()
-
-      if (searchError) {
-        throw new HTTPException(500, {
-          message: 'Error checking user.',
-        })
-      }
-
-      if (!existingUser) {
-        throw new HTTPException(400, {
-          message: 'Create an account through our Sign Up page.',
-          cause: { form: true },
-        })
-      }
-
-      const { APP_BASE_URL } = env<AppEnv>(c)
-      const redirectURL = `${APP_BASE_URL}/auth-confirm`
-
-      const { error: loginError } = await supabase.auth.signInWithOtp({
+      const { error } = await supabase.auth.resend({
         email,
-        options: {
-          emailRedirectTo: redirectURL,
-        },
+        type: 'signup',
       })
 
-      if (loginError) {
-        throw new HTTPException(loginError.status as ContentfulStatusCode, {
-          message: loginError.message,
-          cause: { form: true },
+      if (error) {
+        throw new HTTPException(error.status as ContentfulStatusCode, {
+          message: error.message,
         })
       }
 
@@ -124,9 +135,9 @@ export const authRoutes = new Hono()
     },
   )
   .get('/confirm', async (c) => {
-    // callback url gets called every time user logs/signs-in with magic link
+    // callback url for token exchange
     const token_hash = c.req.query('token_hash')!
-    const type = c.req.query('type')
+    const type = c.req.query('type') as EmailOtpType | null
 
     if (!token_hash || !type) {
       throw new HTTPException(400, {

@@ -139,11 +139,14 @@ export type ProfileGiftActivity = {
 
 export const SignupSchema = z.object({
   email: z.string().email('Please enter a valid email.'),
-  name: z.string().trim().min(3, 'Please enter your full name.').max(31),
-  country: z.string().trim().min(1, 'Please enter a country.'),
+  password: z
+    .string()
+    .min(8, 'Password must be at least 8 characters long.')
+    .max(32, 'Password cannot exceed 32 characters.')
+    .regex(/[A-Z]/, 'Password must contain at least one uppercase letter.')
+    .regex(/[a-z]/, 'Password must contain at least one lowercase letter.')
+    .regex(/\d/, 'Password must contain at least one digit.'),
 })
-
-export const LoginSchema = SignupSchema.pick({ email: true })
 
 export const AccountSchema = z.object({
   name: z.string().trim().min(3, 'Please enter your full name.').max(31),
