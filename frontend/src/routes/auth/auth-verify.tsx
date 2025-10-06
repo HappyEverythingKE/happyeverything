@@ -92,7 +92,7 @@ function RouteComponent() {
       const message = (error as Error).message
       setStatus('error')
       setErrorMessage(message)
-      toast.error('Resend confirmation email failed')
+      toast.error('Failed to resend confirmation email')
     }
   }
 

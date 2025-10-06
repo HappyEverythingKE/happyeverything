@@ -20,7 +20,6 @@ import { Route as AuthedImport } from './routes/_authed'
 import { Route as AuthRouteImport } from './routes/auth/route'
 import { Route as MarketingIndexImport } from './routes/_marketing.index'
 import { Route as AuthAuthVerifyImport } from './routes/auth/auth-verify'
-import { Route as AuthAuthErrorImport } from './routes/auth/auth-error'
 import { Route as AuthAuthConfirmImport } from './routes/auth/auth-confirm'
 import { Route as MarketingContactImport } from './routes/_marketing.contact'
 import { Route as PublicProfileSlugIndexImport } from './routes/_public/$profileSlug/index'
@@ -82,12 +81,6 @@ const MarketingIndexRoute = MarketingIndexImport.update({
 const AuthAuthVerifyRoute = AuthAuthVerifyImport.update({
   id: '/auth-verify',
   path: '/auth-verify',
-  getParentRoute: () => AuthRouteRoute,
-} as any)
-
-const AuthAuthErrorRoute = AuthAuthErrorImport.update({
-  id: '/auth-error',
-  path: '/auth-error',
   getParentRoute: () => AuthRouteRoute,
 } as any)
 
@@ -223,13 +216,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthAuthConfirmImport
       parentRoute: typeof AuthRouteImport
     }
-    '/auth/auth-error': {
-      id: '/auth/auth-error'
-      path: '/auth-error'
-      fullPath: '/auth/auth-error'
-      preLoaderRoute: typeof AuthAuthErrorImport
-      parentRoute: typeof AuthRouteImport
-    }
     '/auth/auth-verify': {
       id: '/auth/auth-verify'
       path: '/auth-verify'
@@ -307,13 +293,11 @@ declare module '@tanstack/react-router' {
 
 interface AuthRouteRouteChildren {
   AuthAuthConfirmRoute: typeof AuthAuthConfirmRoute
-  AuthAuthErrorRoute: typeof AuthAuthErrorRoute
   AuthAuthVerifyRoute: typeof AuthAuthVerifyRoute
 }
 
 const AuthRouteRouteChildren: AuthRouteRouteChildren = {
   AuthAuthConfirmRoute: AuthAuthConfirmRoute,
-  AuthAuthErrorRoute: AuthAuthErrorRoute,
   AuthAuthVerifyRoute: AuthAuthVerifyRoute,
 }
 
@@ -404,7 +388,6 @@ export interface FileRoutesByFullPath {
   '/signup': typeof SignupRoute
   '/contact': typeof MarketingContactRoute
   '/auth/auth-confirm': typeof AuthAuthConfirmRoute
-  '/auth/auth-error': typeof AuthAuthErrorRoute
   '/auth/auth-verify': typeof AuthAuthVerifyRoute
   '/': typeof MarketingIndexRoute
   '/dashboard/$profileSlug': typeof AuthedDashboardProfileSlugRouteRouteWithChildren
@@ -425,7 +408,6 @@ export interface FileRoutesByTo {
   '/signup': typeof SignupRoute
   '/contact': typeof MarketingContactRoute
   '/auth/auth-confirm': typeof AuthAuthConfirmRoute
-  '/auth/auth-error': typeof AuthAuthErrorRoute
   '/auth/auth-verify': typeof AuthAuthVerifyRoute
   '/': typeof MarketingIndexRoute
   '/$profileSlug/$listSlug': typeof PublicProfileSlugListSlugRoute
@@ -447,7 +429,6 @@ export interface FileRoutesById {
   '/signup': typeof SignupRoute
   '/_marketing/contact': typeof MarketingContactRoute
   '/auth/auth-confirm': typeof AuthAuthConfirmRoute
-  '/auth/auth-error': typeof AuthAuthErrorRoute
   '/auth/auth-verify': typeof AuthAuthVerifyRoute
   '/_marketing/': typeof MarketingIndexRoute
   '/_authed/dashboard/$profileSlug': typeof AuthedDashboardProfileSlugRouteRouteWithChildren
@@ -470,7 +451,6 @@ export interface FileRouteTypes {
     | '/signup'
     | '/contact'
     | '/auth/auth-confirm'
-    | '/auth/auth-error'
     | '/auth/auth-verify'
     | '/'
     | '/dashboard/$profileSlug'
@@ -490,7 +470,6 @@ export interface FileRouteTypes {
     | '/signup'
     | '/contact'
     | '/auth/auth-confirm'
-    | '/auth/auth-error'
     | '/auth/auth-verify'
     | '/'
     | '/$profileSlug/$listSlug'
@@ -510,7 +489,6 @@ export interface FileRouteTypes {
     | '/signup'
     | '/_marketing/contact'
     | '/auth/auth-confirm'
-    | '/auth/auth-error'
     | '/auth/auth-verify'
     | '/_marketing/'
     | '/_authed/dashboard/$profileSlug'
@@ -567,7 +545,6 @@ export const routeTree = rootRoute
       "filePath": "auth/route.tsx",
       "children": [
         "/auth/auth-confirm",
-        "/auth/auth-error",
         "/auth/auth-verify"
       ]
     },
@@ -608,10 +585,6 @@ export const routeTree = rootRoute
     },
     "/auth/auth-confirm": {
       "filePath": "auth/auth-confirm.tsx",
-      "parent": "/auth"
-    },
-    "/auth/auth-error": {
-      "filePath": "auth/auth-error.tsx",
       "parent": "/auth"
     },
     "/auth/auth-verify": {
