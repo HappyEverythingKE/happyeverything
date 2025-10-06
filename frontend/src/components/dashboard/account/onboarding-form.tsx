@@ -1,11 +1,16 @@
 import { useState } from 'react'
 import { useNavigate } from '@tanstack/react-router'
 import { useForm } from '@tanstack/react-form'
+import { useSuspenseQuery } from '@tanstack/react-query'
 
 import { useUpdateAccount } from '@/services/account.api'
-import { useCreateProfile } from '@/services/profile.api'
+import { userQueryOptions } from '@/services/auth.api'
+import {
+  allProfilesQueryOptions,
+  useCreateProfile,
+} from '@/services/profile.api'
 import { AccountSchema, ProfileSlugSchema } from '@shared/types'
-import { ArrowLeft, Check, ChevronsUpDown } from 'lucide-react'
+import { ArrowLeft, ArrowRight, Check, ChevronsUpDown } from 'lucide-react'
 import { toast } from 'sonner'
 import type { z } from 'zod'
 
@@ -36,11 +41,6 @@ import {
 import { Spinner } from '@/components/ui/spinner'
 import { FieldInfo } from '@/components/field-info'
 
-const defaultValuesAccount = {
-  name: '',
-  country: '',
-} as z.infer<typeof AccountSchema>
-
 const defaultValuesProfileSlug = {
   slug: '',
 } as z.infer<typeof ProfileSlugSchema>
@@ -49,13 +49,18 @@ const countries = populateCountries()
 
 export function OnboardingForm() {
   const navigate = useNavigate()
-  const { mutateAsync: createProfile } = useCreateProfile()
+  const { data: user } = useSuspenseQuery(userQueryOptions)
+  const { data: profiles } = useSuspenseQuery(allProfilesQueryOptions)
   const { mutateAsync: updateAccount } = useUpdateAccount()
+  const { mutateAsync: createProfile } = useCreateProfile()
   const [currentStep, setCurrentStep] = useState<1 | 2>(1)
 
   // Step 1: Account form (name and country)
   const formAccount = useForm({
-    defaultValues: defaultValuesAccount,
+    defaultValues: {
+      name: user.name,
+      country: user.country,
+    } as z.infer<typeof AccountSchema>,
     validators: { onChange: AccountSchema },
     onSubmit: async ({ value }) => {
       try {
@@ -103,6 +108,14 @@ export function OnboardingForm() {
 
   const handleBackToStep1 = () => {
     setCurrentStep(1)
+  }
+
+  const handleSkipToStep2 = () => {
+    setCurrentStep(2)
+  }
+
+  const handleSkipToDashboard = () => {
+    navigate({ to: '/dashboard' })
   }
 
   return (
@@ -266,6 +279,8 @@ export function OnboardingForm() {
                     <span className="flex items-center gap-2">
                       <Spinner /> Saving
                     </span>
+                  ) : user.name !== null && user.country !== null ? (
+                    'Update'
                   ) : (
                     'Continue'
                   )}
@@ -362,8 +377,22 @@ export function OnboardingForm() {
           </form>
         )}
 
+        {currentStep === 1 && user.name !== null && user.country !== null && (
+          <div className="mx-auto mt-3 flex w-fit flex-col">
+            <Button
+              variant="link"
+              className="p-0 text-xs text-gray-500"
+              onClick={handleSkipToStep2}
+            >
+              <div className="flex items-center gap-0.5">
+                <ArrowRight className="h-4 w-4" /> Skip
+              </div>
+            </Button>
+          </div>
+        )}
+
         {currentStep === 2 && (
-          <div className="mt-3 flex flex-col">
+          <div className="mx-auto mt-3 flex w-fit flex-col">
             <Button
               variant="link"
               className="p-0 text-xs text-gray-500"
@@ -371,6 +400,20 @@ export function OnboardingForm() {
             >
               <div className="flex items-center gap-0.5">
                 <ArrowLeft className="h-4 w-4" /> Back to Account Info
+              </div>
+            </Button>
+          </div>
+        )}
+
+        {currentStep === 2 && profiles.length > 0 && (
+          <div className="mx-auto flex w-fit flex-col">
+            <Button
+              variant="link"
+              className="p-0 text-xs text-gray-500"
+              onClick={handleSkipToDashboard}
+            >
+              <div className="flex items-center gap-0.5">
+                <ArrowRight className="h-4 w-4" /> Skip to dashboard
               </div>
             </Button>
           </div>

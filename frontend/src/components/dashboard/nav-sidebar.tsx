@@ -2,10 +2,15 @@
 
 import * as React from 'react'
 import { Link } from '@tanstack/react-router'
+import { useSuspenseQuery } from '@tanstack/react-query'
 
 import IconLogo from '@/assets/logos/logo-icon.svg'
-import type { CurrentUser, Profile } from '@shared/types'
-import { LifeBuoy, Send } from 'lucide-react'
+import {
+  allProfilesQueryOptions,
+  fetchProfileQueryOptions,
+} from '@/services/profile.api'
+import type { CurrentUser } from '@shared/types'
+import { LifeBuoy } from 'lucide-react'
 
 import {
   NavSecondarySkeleton,
@@ -35,28 +40,17 @@ const navData = {
       url: '#',
       icon: LifeBuoy,
     },
-    {
-      title: 'Feedback',
-      url: '#',
-      icon: Send,
-    },
   ],
 }
 
 interface NavSidebarProps extends React.ComponentProps<typeof Sidebar> {
   user: CurrentUser
-  selectedProfile?: Profile
-  allProfiles: Profile[]
+  profileSlug?: string
 }
 
-export function NavSidebar({
-  user,
-  selectedProfile,
-  allProfiles,
-  ...props
-}: NavSidebarProps) {
-  // guard against undefined selectedProfile during query invalidation
-  if (!selectedProfile) {
+export function NavSidebar({ user, profileSlug, ...props }: NavSidebarProps) {
+  // profileSlug is undefined when the user is on their accounts page
+  if (!profileSlug) {
     return (
       <Sidebar variant="inset" {...props}>
         <SidebarHeader>
@@ -90,6 +84,11 @@ export function NavSidebar({
       </Sidebar>
     )
   }
+
+  const { data: allProfiles } = useSuspenseQuery(allProfilesQueryOptions)
+  const { data: selectedProfile } = useSuspenseQuery(
+    fetchProfileQueryOptions(profileSlug)!,
+  )
 
   return (
     <Sidebar variant="inset" {...props}>

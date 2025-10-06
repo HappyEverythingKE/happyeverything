@@ -96,45 +96,63 @@ export const profileRoutes = new Hono()
       data,
     })
   })
-  .patch(
-    '/:profileSlug',
-    getUserSession,
-    zValidator('form', ProfileSlugSchema),
-    async (c) => {
-      const { profileSlug } = c.req.param()
-      const { slug: newSlug } = c.req.valid('form')
-      const supabase = getSupabase(c)
+  .get('/:profileSlug', async (c) => {
+    const { profileSlug } = c.req.param()
+    const supabase = getSupabase(c)
 
-      const profileId = await resolveProfileIdFromSlug(c, profileSlug)
+    const profileId = await resolveProfileIdFromSlug(c, profileSlug)
 
-      // Update the profile slug
-      const { data, error } = await supabase
-        .from('profiles')
-        .update({ slug: newSlug })
-        .eq('id', profileId)
-        .select('slug, status')
-        .single()
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('slug, status')
+      .eq('id', profileId)
+      .single()
 
-      if (error) {
-        if (error.code === '23505') {
-          // Supabase/Postgres unique constraint violation
-          throw new HTTPException(409, {
-            message: 'That username is already taken. Try another!',
-            cause: { form: true },
-          })
-        }
+    if (error) {
+      throw new HTTPException(500, {
+        message: 'Failed to fetch profile',
+      })
+    }
 
-        throw new HTTPException(500, {
-          message: 'Failed to update profile',
+    return c.json<SuccessResponse<Profile>>({
+      success: true,
+      data,
+    })
+  })
+  .patch('/:profileSlug', zValidator('form', ProfileSlugSchema), async (c) => {
+    const { profileSlug } = c.req.param()
+    const { slug: newSlug } = c.req.valid('form')
+    const supabase = getSupabase(c)
+
+    const profileId = await resolveProfileIdFromSlug(c, profileSlug)
+
+    // Update the profile slug
+    const { data, error } = await supabase
+      .from('profiles')
+      .update({ slug: newSlug })
+      .eq('id', profileId)
+      .select('slug, status')
+      .single()
+
+    if (error) {
+      if (error.code === '23505') {
+        // Supabase/Postgres unique constraint violation
+        throw new HTTPException(409, {
+          message: 'That username is already taken. Try another!',
+          cause: { form: true },
         })
       }
 
-      return c.json<SuccessResponse<Profile>>({
-        success: true,
-        data,
+      throw new HTTPException(500, {
+        message: 'Failed to update profile',
       })
-    },
-  )
+    }
+
+    return c.json<SuccessResponse<Profile>>({
+      success: true,
+      data,
+    })
+  })
   .delete('/:profileSlug', async (c) => {
     const { profileSlug } = c.req.param()
     const supabase = getSupabase(c)

@@ -24,7 +24,6 @@ export const fetchAccount = async () => {
 export const accountQueryOptions = queryOptions({
   queryKey: ['account'],
   queryFn: fetchAccount,
-  staleTime: Infinity,
 })
 
 export const updateAccount = async (accountData: {
@@ -50,9 +49,19 @@ export const useUpdateAccount = () => {
   return useMutation({
     mutationFn: (accountData: { name: string; country: string }) =>
       updateAccount(accountData),
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ['account'] })
-      await queryClient.invalidateQueries({ queryKey: ['current-user'] })
+    onSuccess: async (res) => {
+      if (!res.success) return
+
+      const updatedCurrentUser = {
+        email: res.data.email,
+        name: res.data.name,
+        status: res.data.status,
+        avatar: res.data.avatar,
+        country: res.data.country,
+      }
+
+      queryClient.setQueryData(['account'], res.data)
+      queryClient.setQueryData(['current-user'], updatedCurrentUser)
     },
   })
 }
