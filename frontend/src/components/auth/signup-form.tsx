@@ -1,12 +1,20 @@
+import { useState } from 'react'
 import { Link, useNavigate } from '@tanstack/react-router'
 import { useForm } from '@tanstack/react-form'
 
 import { postSignup } from '@/services/auth.api'
 import { SignupSchema } from '@shared/types'
+import { Eye, EyeClosed } from 'lucide-react'
 import { type z } from 'zod'
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupButton,
+  InputGroupInput,
+} from '@/components/ui/input-group'
 import { Label } from '@/components/ui/label'
 import { Spinner } from '@/components/ui/spinner'
 import { FieldInfo } from '@/components/field-info'
@@ -18,6 +26,7 @@ const defaultValues = {
 
 export function SignupForm() {
   const navigate = useNavigate()
+  const [showPassword, setShowPassword] = useState<boolean>(false)
 
   const form = useForm({
     defaultValues: defaultValues,
@@ -87,16 +96,30 @@ export function SignupForm() {
                   return (
                     <>
                       <Label htmlFor={field.name}>Password</Label>
-                      <Input
-                        id={field.name}
-                        type="password"
-                        value={field.state.value}
-                        onBlur={field.handleBlur}
-                        onChange={(e) => field.handleChange(e.target.value)}
-                        aria-invalid={!field.state.meta.isValid}
-                        placeholder="Enter your password"
-                        autoComplete="new-password"
-                      />
+                      <InputGroup>
+                        <InputGroupInput
+                          id={field.name}
+                          type={showPassword ? 'text' : 'password'}
+                          value={field.state.value}
+                          onBlur={field.handleBlur}
+                          onChange={(e) => field.handleChange(e.target.value)}
+                          aria-invalid={!field.state.meta.isValid}
+                          placeholder="Enter your password"
+                          autoComplete="new-password"
+                        />
+                        <InputGroupAddon align="inline-end">
+                          <InputGroupButton
+                            aria-label="Show"
+                            title="Show password"
+                            size="icon-xs"
+                            onClick={() => {
+                              setShowPassword(!showPassword)
+                            }}
+                          >
+                            {showPassword ? <EyeClosed /> : <Eye />}
+                          </InputGroupButton>
+                        </InputGroupAddon>
+                      </InputGroup>
                       <FieldInfo field={field} />
                     </>
                   )
@@ -142,7 +165,7 @@ export function SignupForm() {
         </form>
 
         <div className="mt-6 flex flex-col gap-6">
-          <div className="text-center">
+          <div className="text-center text-sm">
             Already have an account?{' '}
             <Button asChild variant="link" className="p-0">
               <Link to="/login">Log In</Link>

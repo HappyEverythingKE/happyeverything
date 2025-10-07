@@ -1,30 +1,42 @@
-import { Link, useNavigate, useRouter } from '@tanstack/react-router'
+import { useState } from 'react'
+import { useNavigate, useRouter } from '@tanstack/react-router'
 import { useForm } from '@tanstack/react-form'
 import { useQueryClient } from '@tanstack/react-query'
 
 import { postLogin } from '@/services/auth.api'
 import { allProfilesQueryOptions } from '@/services/profile.api'
 import { SignupSchema } from '@shared/types'
+import { Eye, EyeClosed } from 'lucide-react'
 import { type z } from 'zod'
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupButton,
+  InputGroupInput,
+} from '@/components/ui/input-group'
 import { Label } from '@/components/ui/label'
+import { Spinner } from '@/components/ui/spinner'
 import { FieldInfo } from '@/components/field-info'
-
-import { Spinner } from '../ui/spinner'
 
 const defaultValues = {
   email: '',
   password: '',
 } as z.infer<typeof SignupSchema>
 
-export function LoginForm() {
+export function LoginForm({
+  setResetPassword,
+}: {
+  setResetPassword: (resetPassword: boolean) => void
+}) {
   const navigate = useNavigate()
   const router = useRouter()
   const queryClient = useQueryClient()
+  const [showPassword, setShowPassword] = useState<boolean>(false)
 
-  const form = useForm({
+  const loginForm = useForm({
     defaultValues: defaultValues,
     validators: { onChange: SignupSchema },
     onSubmit: async ({ value }) => {
@@ -52,7 +64,7 @@ export function LoginForm() {
           navigate({ to: '/dashboard' })
         }
       } else {
-        form.setErrorMap({
+        loginForm.setErrorMap({
           // @ts-expect-error error is a string but onSubmit expects an object mapping to the fields
           onSubmit: res.error || 'An unexpected error occurred',
         })
@@ -68,7 +80,7 @@ export function LoginForm() {
           onSubmit={(e) => {
             e.preventDefault()
             e.stopPropagation()
-            form.handleSubmit()
+            loginForm.handleSubmit()
           }}
         >
           <div className="flex flex-col items-center gap-2 text-center">
@@ -77,7 +89,7 @@ export function LoginForm() {
           </div>
           <div className="grid gap-4">
             <div className="grid gap-2">
-              <form.Field
+              <loginForm.Field
                 name="email"
                 children={(field) => {
                   return (
@@ -92,6 +104,7 @@ export function LoginForm() {
                         aria-invalid={!field.state.meta.isValid}
                         placeholder="me@example.com"
                         autoComplete="username"
+                        required
                       />
                       <FieldInfo field={field} />
                     </>
@@ -101,22 +114,48 @@ export function LoginForm() {
             </div>
 
             <div className="grid gap-2">
-              <form.Field
+              <loginForm.Field
                 name="password"
                 children={(field) => {
                   return (
                     <>
-                      <Label htmlFor={field.name}>Password</Label>
-                      <Input
-                        id={field.name}
-                        type="password"
-                        value={field.state.value}
-                        onBlur={field.handleBlur}
-                        onChange={(e) => field.handleChange(e.target.value)}
-                        aria-invalid={!field.state.meta.isValid}
-                        placeholder="Enter your password"
-                        autoComplete="password"
-                      />
+                      <div className="flex items-center justify-between">
+                        <Label htmlFor={field.name}>Password</Label>
+                        <Button
+                          variant="link"
+                          size="sm"
+                          className="p-0 text-xs underline"
+                          onClick={() => {
+                            setResetPassword(true)
+                          }}
+                        >
+                          Forgot password?
+                        </Button>
+                      </div>
+                      <InputGroup>
+                        <InputGroupInput
+                          id={field.name}
+                          type={showPassword ? 'text' : 'password'}
+                          value={field.state.value}
+                          onBlur={field.handleBlur}
+                          onChange={(e) => field.handleChange(e.target.value)}
+                          aria-invalid={!field.state.meta.isValid}
+                          placeholder="Enter your password"
+                          autoComplete="current-password"
+                        />
+                        <InputGroupAddon align="inline-end">
+                          <InputGroupButton
+                            aria-label="Show"
+                            title="Show password"
+                            size="icon-xs"
+                            onClick={() => {
+                              setShowPassword(!showPassword)
+                            }}
+                          >
+                            {showPassword ? <EyeClosed /> : <Eye />}
+                          </InputGroupButton>
+                        </InputGroupAddon>
+                      </InputGroup>
                       <FieldInfo field={field} />
                     </>
                   )
@@ -124,7 +163,7 @@ export function LoginForm() {
               />
             </div>
 
-            <form.Subscribe
+            <loginForm.Subscribe
               selector={(state) => [state.errorMap]}
               children={([errorMap]) =>
                 errorMap.onSubmit ? (
@@ -136,7 +175,7 @@ export function LoginForm() {
             />
 
             {/* Form submission */}
-            <form.Subscribe
+            <loginForm.Subscribe
               selector={(state) => [
                 state.canSubmit,
                 state.isSubmitting,
@@ -160,22 +199,6 @@ export function LoginForm() {
             />
           </div>
         </form>
-
-        <div className="mt-6 flex flex-col gap-6">
-          <div className="text-center">
-            Don&apos;t have an account yet?{' '}
-            <Button asChild variant="link" className="p-0">
-              <Link to="/signup">Sign Up</Link>
-            </Button>
-          </div>
-
-          <div>
-            <p className="text-center text-xs text-gray-500">
-              By creating an account, you agree to Happy Everything’s Terms of
-              Service and Privacy Policy.
-            </p>
-          </div>
-        </div>
       </div>
     </>
   )

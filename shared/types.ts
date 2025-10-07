@@ -148,6 +148,9 @@ export const SignupSchema = z.object({
     .regex(/\d/, 'Password must contain at least one digit.'),
 })
 
+export const EmailSchema = SignupSchema.pick({ email: true })
+export const PasswordSchema = SignupSchema.pick({ password: true })
+
 export const AccountSchema = z.object({
   name: z.string().trim().min(3, 'Please enter your full name.').max(31),
   // email: z.string().email('Please enter a valid email.'),

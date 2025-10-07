@@ -66,32 +66,6 @@ export const useUpdateAccount = () => {
   })
 }
 
-export const updateEmail = async (email: string) => {
-  const res = await client.account.email.$patch({
-    json: { email },
-  })
-
-  if (res.ok) {
-    const data = (await res.json()) as SuccessResponse
-    return data
-  }
-
-  const data = (await res.json()) as unknown as ErrorResponse
-  throw new Error(data.error ?? 'Failed to update email')
-}
-
-export const useUpdateEmail = () => {
-  const queryClient = useQueryClient()
-
-  return useMutation({
-    mutationFn: (email: string) => updateEmail(email),
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ['account'] })
-      await queryClient.invalidateQueries({ queryKey: ['current-user'] })
-    },
-  })
-}
-
 export const deleteAccount = async () => {
   const res = await client.account.$delete({})
 

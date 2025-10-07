@@ -30,7 +30,7 @@ export default function NavBreadcrumb({ userName }: { userName: string }) {
   return (
     <>
       {isHome ? (
-        <h1 className="md:text-md">Welcome, {userName}</h1>
+        <h1 className="md:text-md">Welcome @{userName}</h1>
       ) : isAccount ? (
         <h1 className="md:text-md">
           <Link to="/dashboard">Back to Home</Link>

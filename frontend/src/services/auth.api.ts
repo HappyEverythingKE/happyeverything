@@ -1,4 +1,8 @@
-import { queryOptions } from '@tanstack/react-query'
+import {
+  queryOptions,
+  useMutation,
+  useQueryClient,
+} from '@tanstack/react-query'
 
 import type {
   AuthContext,
@@ -68,6 +72,47 @@ export const getVerifyOTP = async (token_hash: string, type: string) => {
   }
   const data = (await res.json()) as unknown as ErrorResponse
   throw new Error(data.error ?? 'Verification failed')
+}
+
+export const updatePassword = async (password: string) => {
+  const res = await client.auth.password.$patch({
+    json: { password },
+  })
+
+  if (res.ok) {
+    const data = (await res.json()) as SuccessResponse
+    return data
+  }
+  const data = (await res.json()) as unknown as ErrorResponse
+  throw new Error(data.error ?? 'Failed to update password')
+}
+
+export const updateEmail = async (email: string) => {
+  const res = await client.auth.email.$patch({
+    json: { email },
+  })
+
+  if (res.ok) {
+    const data = (await res.json()) as SuccessResponse
+    return data
+  }
+
+  const data = (await res.json()) as unknown as ErrorResponse
+  throw new Error(data.error ?? 'Failed to update email')
+}
+
+// TODO: add supabase trigger to update account email when auth email is updated
+export const useUpdateEmail = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (email: string) => updateEmail(email),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['current-user'] })
+      // TODO: see if this is needed after the supabase trigger is added
+      await queryClient.invalidateQueries({ queryKey: ['account'] })
+    },
+  })
 }
 
 export const postResendConfirmationEmail = async (email: string) => {

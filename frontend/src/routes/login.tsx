@@ -2,7 +2,7 @@ import { createFileRoute, redirect } from '@tanstack/react-router'
 
 import { userQueryOptions } from '@/services/auth.api'
 
-import { LoginForm } from '@/components/auth/login-form'
+import { LoginPage } from '@/components/auth/login-page'
 import { TwoColLayout } from '@/components/layout/two-col-layout'
 
 export const Route = createFileRoute('/login')({
@@ -23,7 +23,7 @@ export const Route = createFileRoute('/login')({
 function RouteComponent() {
   return (
     <TwoColLayout>
-      <LoginForm />
+      <LoginPage />
     </TwoColLayout>
   )
 }

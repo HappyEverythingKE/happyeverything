@@ -29,6 +29,7 @@ import { Route as AuthedDashboardAccountRouteImport } from './routes/_authed/das
 import { Route as AuthedDashboardProfileSlugRouteImport } from './routes/_authed/dashboard/$profileSlug/route'
 import { Route as AuthedDashboardAccountIndexImport } from './routes/_authed/dashboard/account/index'
 import { Route as AuthedDashboardProfileSlugIndexImport } from './routes/_authed/dashboard/$profileSlug/index'
+import { Route as AuthedDashboardAccountNewPasswordImport } from './routes/_authed/dashboard/account/new-password'
 import { Route as AuthedDashboardProfileSlugListSlugImport } from './routes/_authed/dashboard/$profileSlug/$listSlug'
 
 // Create/Update Routes
@@ -140,6 +141,13 @@ const AuthedDashboardProfileSlugIndexRoute =
     id: '/',
     path: '/',
     getParentRoute: () => AuthedDashboardProfileSlugRouteRoute,
+  } as any)
+
+const AuthedDashboardAccountNewPasswordRoute =
+  AuthedDashboardAccountNewPasswordImport.update({
+    id: '/new-password',
+    path: '/new-password',
+    getParentRoute: () => AuthedDashboardAccountRouteRoute,
   } as any)
 
 const AuthedDashboardProfileSlugListSlugRoute =
@@ -272,6 +280,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthedDashboardProfileSlugListSlugImport
       parentRoute: typeof AuthedDashboardProfileSlugRouteImport
     }
+    '/_authed/dashboard/account/new-password': {
+      id: '/_authed/dashboard/account/new-password'
+      path: '/new-password'
+      fullPath: '/dashboard/account/new-password'
+      preLoaderRoute: typeof AuthedDashboardAccountNewPasswordImport
+      parentRoute: typeof AuthedDashboardAccountRouteImport
+    }
     '/_authed/dashboard/$profileSlug/': {
       id: '/_authed/dashboard/$profileSlug/'
       path: '/'
@@ -323,11 +338,14 @@ const AuthedDashboardProfileSlugRouteRouteWithChildren =
   )
 
 interface AuthedDashboardAccountRouteRouteChildren {
+  AuthedDashboardAccountNewPasswordRoute: typeof AuthedDashboardAccountNewPasswordRoute
   AuthedDashboardAccountIndexRoute: typeof AuthedDashboardAccountIndexRoute
 }
 
 const AuthedDashboardAccountRouteRouteChildren: AuthedDashboardAccountRouteRouteChildren =
   {
+    AuthedDashboardAccountNewPasswordRoute:
+      AuthedDashboardAccountNewPasswordRoute,
     AuthedDashboardAccountIndexRoute: AuthedDashboardAccountIndexRoute,
   }
 
@@ -396,6 +414,7 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof AuthedDashboardIndexRoute
   '/$profileSlug': typeof PublicProfileSlugIndexRoute
   '/dashboard/$profileSlug/$listSlug': typeof AuthedDashboardProfileSlugListSlugRoute
+  '/dashboard/account/new-password': typeof AuthedDashboardAccountNewPasswordRoute
   '/dashboard/$profileSlug/': typeof AuthedDashboardProfileSlugIndexRoute
   '/dashboard/account/': typeof AuthedDashboardAccountIndexRoute
 }
@@ -414,6 +433,7 @@ export interface FileRoutesByTo {
   '/dashboard': typeof AuthedDashboardIndexRoute
   '/$profileSlug': typeof PublicProfileSlugIndexRoute
   '/dashboard/$profileSlug/$listSlug': typeof AuthedDashboardProfileSlugListSlugRoute
+  '/dashboard/account/new-password': typeof AuthedDashboardAccountNewPasswordRoute
   '/dashboard/$profileSlug': typeof AuthedDashboardProfileSlugIndexRoute
   '/dashboard/account': typeof AuthedDashboardAccountIndexRoute
 }
@@ -437,6 +457,7 @@ export interface FileRoutesById {
   '/_authed/dashboard/': typeof AuthedDashboardIndexRoute
   '/_public/$profileSlug/': typeof PublicProfileSlugIndexRoute
   '/_authed/dashboard/$profileSlug/$listSlug': typeof AuthedDashboardProfileSlugListSlugRoute
+  '/_authed/dashboard/account/new-password': typeof AuthedDashboardAccountNewPasswordRoute
   '/_authed/dashboard/$profileSlug/': typeof AuthedDashboardProfileSlugIndexRoute
   '/_authed/dashboard/account/': typeof AuthedDashboardAccountIndexRoute
 }
@@ -459,6 +480,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/$profileSlug'
     | '/dashboard/$profileSlug/$listSlug'
+    | '/dashboard/account/new-password'
     | '/dashboard/$profileSlug/'
     | '/dashboard/account/'
   fileRoutesByTo: FileRoutesByTo
@@ -476,6 +498,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/$profileSlug'
     | '/dashboard/$profileSlug/$listSlug'
+    | '/dashboard/account/new-password'
     | '/dashboard/$profileSlug'
     | '/dashboard/account'
   id:
@@ -497,6 +520,7 @@ export interface FileRouteTypes {
     | '/_authed/dashboard/'
     | '/_public/$profileSlug/'
     | '/_authed/dashboard/$profileSlug/$listSlug'
+    | '/_authed/dashboard/account/new-password'
     | '/_authed/dashboard/$profileSlug/'
     | '/_authed/dashboard/account/'
   fileRoutesById: FileRoutesById
@@ -607,6 +631,7 @@ export const routeTree = rootRoute
       "filePath": "_authed/dashboard/account/route.tsx",
       "parent": "/_authed",
       "children": [
+        "/_authed/dashboard/account/new-password",
         "/_authed/dashboard/account/"
       ]
     },
@@ -625,6 +650,10 @@ export const routeTree = rootRoute
     "/_authed/dashboard/$profileSlug/$listSlug": {
       "filePath": "_authed/dashboard/$profileSlug/$listSlug.tsx",
       "parent": "/_authed/dashboard/$profileSlug"
+    },
+    "/_authed/dashboard/account/new-password": {
+      "filePath": "_authed/dashboard/account/new-password.tsx",
+      "parent": "/_authed/dashboard/account"
     },
     "/_authed/dashboard/$profileSlug/": {
       "filePath": "_authed/dashboard/$profileSlug/index.tsx",

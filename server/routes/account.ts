@@ -2,7 +2,6 @@ import { Hono } from 'hono'
 import { HTTPException } from 'hono/http-exception'
 
 import { zValidator } from '@hono/zod-validator'
-import { z } from 'zod'
 
 import {
   AccountSchema,
@@ -42,32 +41,6 @@ export const accountRoutes = new Hono()
         createdAt: account.created_at,
       },
     })
-  })
-  .patch('/email', getUserSession, async (c) => {
-    // TODO: once email is integrated, update this to send confirmation email to user instead of updating the email directly
-    const user = c.get('user')!
-    const { email } = await c.req.json<{ email: string }>()
-
-    const supabaseAdmin = getAdminSupabase(c)
-
-    // validate email
-    if (!z.string().email().safeParse(email).success) {
-      throw new HTTPException(400, {
-        message: 'Invalid email',
-        cause: { form: true },
-      })
-    }
-
-    const { error } = await supabaseAdmin.auth.admin.updateUserById(user.id, {
-      email,
-    })
-    if (error) {
-      throw new HTTPException(500, {
-        message: error.message,
-      })
-    }
-
-    return c.json({ success: true }, 200)
   })
   .patch('/', getUserSession, zValidator('form', AccountSchema), async (c) => {
     const user = c.get('user')!

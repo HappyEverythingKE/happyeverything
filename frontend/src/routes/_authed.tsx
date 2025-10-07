@@ -11,7 +11,7 @@ export const Route = createFileRoute('/_authed')({
     }
 
     const user = await context.queryClient.ensureQueryData(userQueryOptions)
-    if (user.name === '' || user.country === '') {
+    if (user.name === null || user.country === null) {
       throw redirect({ to: '/onboarding' })
     }
 

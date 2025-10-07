@@ -32,7 +32,7 @@ function RouteComponent() {
     <SidebarProvider>
       <NavSidebar user={user} profileSlug={profileSlug} />
       <SidebarInset>
-        <NavHeader user={user} />
+        <NavHeader displayName={profileSlug} />
         <main className="flex-1">
           <Outlet />
         </main>

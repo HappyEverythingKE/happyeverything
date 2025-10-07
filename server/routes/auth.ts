@@ -7,6 +7,8 @@ import { zValidator } from '@hono/zod-validator'
 import { type EmailOtpType } from '@supabase/supabase-js'
 
 import {
+  EmailSchema,
+  PasswordSchema,
   SignupSchema,
   type AppEnv,
   type AuthContext,
@@ -45,9 +47,14 @@ export const authRoutes = new Hono()
       })
     }
 
+    const { APP_BASE_URL } = env<AppEnv>(c)
+    const redirectTo = '/onboarding'
     const { error: signupError } = await supabase.auth.signUp({
       email,
       password,
+      options: {
+        emailRedirectTo: APP_BASE_URL + redirectTo,
+      },
     })
 
     if (signupError) {
@@ -115,9 +122,14 @@ export const authRoutes = new Hono()
       const supabase = getSupabase(c)
       const { email } = c.req.valid('form')
 
+      const { APP_BASE_URL } = env<AppEnv>(c)
+      const redirectTo = '/dashboard'
       const { error } = await supabase.auth.resend({
         email,
         type: 'signup',
+        options: {
+          emailRedirectTo: APP_BASE_URL + redirectTo,
+        },
       })
 
       if (error) {
@@ -134,6 +146,56 @@ export const authRoutes = new Hono()
       )
     },
   )
+  .patch('/password', zValidator('json', PasswordSchema), async (c) => {
+    const { password } = c.req.valid('json')
+    const supabase = getSupabase(c)
+
+    const { error } = await supabase.auth.updateUser({
+      password,
+    })
+
+    if (error) {
+      throw new HTTPException(500, {
+        message: error.message,
+      })
+    }
+
+    return c.json({ success: true }, 200)
+  })
+  .patch('/email', zValidator('json', EmailSchema), async (c) => {
+    // TODO: once email is integrated, update this to send confirmation email to user instead of updating the email directly
+    // const user = c.get('user')!
+    const { email } = c.req.valid('json')
+
+    // const supabaseAdmin = getAdminSupabase(c)
+    const supabase = getSupabase(c)
+
+    // validate email
+    // if (!z.string().email().safeParse(email).success) {
+    //   throw new HTTPException(400, {
+    //     message: 'Invalid email',
+    //     cause: { form: true },
+    //   })
+    // }
+
+    const { data, error } = await supabase.auth.updateUser({
+      email,
+    })
+
+    console.log('updated user email data API', data)
+
+    // const { error } = await supabaseAdmin.auth.admin.updateUserById(user.id, {
+    //   email,
+    // })
+
+    if (error) {
+      throw new HTTPException(500, {
+        message: error.message,
+      })
+    }
+
+    return c.json({ success: true }, 200)
+  })
   .get('/confirm', async (c) => {
     // callback url for token exchange
     const token_hash = c.req.query('token_hash')!

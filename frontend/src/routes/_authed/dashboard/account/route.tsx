@@ -24,7 +24,7 @@ function RouteComponent() {
     <SidebarProvider>
       <NavSidebar user={account} />
       <SidebarInset>
-        <NavHeader user={account} />
+        <NavHeader displayName={account.name} />
         <main className="flex-1">
           <Outlet />
         </main>

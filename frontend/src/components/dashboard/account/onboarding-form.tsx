@@ -58,8 +58,8 @@ export function OnboardingForm() {
   // Step 1: Account form (name and country)
   const formAccount = useForm({
     defaultValues: {
-      name: user.name,
-      country: user.country,
+      name: user.name || '',
+      country: user.country || '',
     } as z.infer<typeof AccountSchema>,
     validators: { onChange: AccountSchema },
     onSubmit: async ({ value }) => {
@@ -277,7 +277,7 @@ export function OnboardingForm() {
                 >
                   {isSubmitting ? (
                     <span className="flex items-center gap-2">
-                      <Spinner /> Saving
+                      <Spinner /> Saving...
                     </span>
                   ) : user.name !== null && user.country !== null ? (
                     'Update'
@@ -366,7 +366,7 @@ export function OnboardingForm() {
                 >
                   {isSubmitting ? (
                     <span className="flex items-center gap-2">
-                      <Spinner /> Creating Profile
+                      <Spinner /> Creating Profile...
                     </span>
                   ) : (
                     'Complete Setup'
