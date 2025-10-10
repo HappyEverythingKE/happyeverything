@@ -37,11 +37,10 @@ export function RequestPasswordForm({
         )
       } catch (error) {
         setSuccessMessage(null)
-        const message =
-          error instanceof Error ? error.message : 'Failed to send reset email'
+        console.error(error)
         requestPasswordForm.setErrorMap({
           // @ts-expect-error tanstack form expects a field map
-          onSubmit: message,
+          onSubmit: 'An unexpected error occurred',
         })
       }
     },
@@ -90,7 +89,11 @@ export function RequestPasswordForm({
             selector={(state) => [state.errorMap]}
             children={([errorMap]) =>
               errorMap.onSubmit ? (
-                <p className="text-destructive text-xs">{errorMap.onSubmit}</p>
+                <div className="border-destructive/50 rounded-md border bg-red-50 p-3 md:p-4">
+                  <p className="overflow-auto text-clip text-pretty text-sm font-medium text-red-800">
+                    {errorMap.onSubmit}
+                  </p>
+                </div>
               ) : null
             }
           />

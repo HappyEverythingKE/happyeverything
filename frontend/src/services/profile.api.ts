@@ -111,14 +111,14 @@ export const useUpdateProfile = () => {
     }) => patchProfile(currentSlug, newSlug),
     onSuccess: async (res) => {
       if (!res.success) return // let the form handle the error
-
       queryClient.setQueryData(['profiles', res.data.slug], res.data)
       queryClient.setQueryData(['profiles'], (old: Profile[]) =>
-        old.map((profile) =>
-          profile.slug === res.data.slug ? res.data : profile,
-        ),
+        old
+          ? old.map((profile) =>
+              profile.slug === res.data.slug ? res.data : profile,
+            )
+          : old,
       )
-
       await queryClient.invalidateQueries({ queryKey: ['account'] })
     },
   })

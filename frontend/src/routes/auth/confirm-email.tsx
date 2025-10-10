@@ -135,8 +135,8 @@ function RouteComponent() {
                 selector={(state) => [state.errorMap]}
                 children={([errorMap]) =>
                   errorMap.onSubmit ? (
-                    <div className="rounded-md border border-red-100 bg-red-100 p-3 text-center md:p-4">
-                      <p className="text-pretty text-sm font-medium text-red-800">
+                    <div className="border-destructive/50 rounded-md border bg-red-50 p-3 md:p-4">
+                      <p className="overflow-auto text-clip text-pretty text-sm font-medium text-red-800">
                         {errorMap.onSubmit}
                       </p>
                     </div>

@@ -62,14 +62,19 @@ export function ProfileForm({
           )
           onSuccess?.()
         } else {
-          toast.error('An error occurred', { description: res.error })
           profileForm.setErrorMap({
             // @ts-expect-error error is a string but onSubmit expects an object mapping to the fields
-            onSubmit: res.error || 'Unexpected error',
+            onSubmit: res.error || 'An unexpected error occurred',
           })
         }
       } catch (error) {
-        toast.error(`Failed to ${mode} profile.`)
+        profileForm.setErrorMap({
+          // @ts-expect-error error is a string but onSubmit expects an object mapping to the fields
+          onSubmit:
+            error instanceof Error
+              ? error.message
+              : 'An unexpected error occurred',
+        })
         console.error(`Error ${mode}ing profile:`, error)
       }
     },
@@ -139,9 +144,11 @@ export function ProfileForm({
             selector={(state) => [state.errorMap]}
             children={([errorMap]) =>
               errorMap.onSubmit ? (
-                <p className="text-destructive text-center text-sm font-medium">
-                  {errorMap.onSubmit}
-                </p>
+                <div className="border-destructive/50 rounded-md border bg-red-50 p-3 md:p-4">
+                  <p className="overflow-auto text-clip text-pretty text-sm font-medium text-red-800">
+                    {errorMap.onSubmit}
+                  </p>
+                </div>
               ) : null
             }
           />

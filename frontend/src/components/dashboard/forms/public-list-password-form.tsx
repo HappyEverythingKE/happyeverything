@@ -30,8 +30,12 @@ export function PublicListPasswordForm({
         await checkPassword(value.password)
         toast.success('List Unlocked!')
       } catch (error) {
-        toast.error('An error occurred.', {
-          description: error instanceof Error ? error.message : 'Try again',
+        form.setErrorMap({
+          // @ts-expect-error error is a string but onSubmit expects an object mapping to the fields
+          onSubmit:
+            error instanceof Error
+              ? error.message
+              : 'An unexpected error occurred',
         })
       }
     },
@@ -74,9 +78,11 @@ export function PublicListPasswordForm({
             selector={(state) => [state.errorMap]}
             children={([errorMap]) =>
               errorMap.onSubmit ? (
-                <p className="text-destructive text-sm font-medium">
-                  {errorMap.onSubmit}
-                </p>
+                <div className="border-destructive/50 rounded-md border bg-red-50 p-3 md:p-4">
+                  <p className="overflow-auto text-clip text-pretty text-sm font-medium text-red-800">
+                    {errorMap.onSubmit}
+                  </p>
+                </div>
               ) : null
             }
           />
