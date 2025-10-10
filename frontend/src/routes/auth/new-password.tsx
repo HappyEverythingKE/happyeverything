@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { createFileRoute, useNavigate } from '@tanstack/react-router'
+import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
 import { useForm } from '@tanstack/react-form'
 
 import { updatePassword } from '@/services/auth.api'
@@ -26,11 +26,14 @@ import { Label } from '@/components/ui/label'
 import { Spinner } from '@/components/ui/spinner'
 import { FieldInfo } from '@/components/field-info'
 
-export const Route = createFileRoute('/_authed/dashboard/account/new-password')(
-  {
-    component: RouteComponent,
+export const Route = createFileRoute('/auth/new-password')({
+  beforeLoad: async ({ context }) => {
+    if (!context.authState.isAuthenticated) {
+      throw redirect({ to: '/login' })
+    }
   },
-)
+  component: RouteComponent,
+})
 
 const defaultValues = {
   password: '',
@@ -52,12 +55,11 @@ function RouteComponent() {
           return
         }
       } catch (error) {
-        const message =
-          error instanceof Error ? error.message : 'Failed to update password'
         newPasswordForm.setErrorMap({
           // @ts-expect-error onSubmit expects a map
-          onSubmit: message,
+          onSubmit: (error as Error).message,
         })
+        toast.error('An unexpected error occurred')
       }
     },
   })
@@ -119,7 +121,11 @@ function RouteComponent() {
             selector={(state) => [state.errorMap]}
             children={([errorMap]) =>
               errorMap.onSubmit ? (
-                <p className="text-destructive text-xs">{errorMap.onSubmit}</p>
+                <div className="rounded-md border border-red-100 bg-red-100 p-3 text-center md:p-4">
+                  <p className="text-pretty text-sm font-medium text-red-800">
+                    {errorMap.onSubmit}
+                  </p>
+                </div>
               ) : null
             }
           />

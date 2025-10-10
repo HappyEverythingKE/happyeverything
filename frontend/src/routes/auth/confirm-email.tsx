@@ -23,7 +23,7 @@ import { Input } from '@/components/ui/input'
 import { Spinner } from '@/components/ui/spinner'
 import { FieldInfo } from '@/components/field-info'
 
-export const Route = createFileRoute('/auth/auth-confirm')({
+export const Route = createFileRoute('/auth/confirm-email')({
   component: RouteComponent,
 })
 
@@ -33,20 +33,26 @@ const EmailSchema = z.object({
 
 function RouteComponent() {
   const [showResend, setShowResend] = useState<boolean>(false)
+  const [successMessage, setSuccessMessage] = useState<string | null>(null)
 
   const form = useForm({
     defaultValues: { email: '' },
     validators: { onChange: EmailSchema },
     onSubmit: async ({ value }) => {
       try {
+        setSuccessMessage(null)
         await postResendConfirmationEmail(value.email)
-        toast.success('Check your email for a new confirmation link.')
+        setSuccessMessage(
+          'Check your email inbox (or spam folder) for a new confirmation link.',
+        )
         form.reset()
       } catch (error) {
-        console.error(error)
-        toast.error('Failed to resend confirmation email', {
-          description: 'Please try again',
+        setSuccessMessage(null)
+        form.setErrorMap({
+          // @ts-expect-error onSubmit expects a map
+          onSubmit: (error as Error).message,
         })
+        toast.error('An unexpected error occurred')
       }
     },
   })
@@ -124,7 +130,31 @@ function RouteComponent() {
                   </>
                 )}
               />
+
+              <form.Subscribe
+                selector={(state) => [state.errorMap]}
+                children={([errorMap]) =>
+                  errorMap.onSubmit ? (
+                    <div className="rounded-md border border-red-100 bg-red-100 p-3 text-center md:p-4">
+                      <p className="text-pretty text-sm font-medium text-red-800">
+                        {errorMap.onSubmit}
+                      </p>
+                    </div>
+                  ) : null
+                }
+              />
             </form>
+
+            <div className="flex items-center">
+              {successMessage && (
+                <div className="rounded-md border border-green-100 bg-green-100 p-3 text-center md:p-4">
+                  <p className="text-pretty text-sm font-medium text-green-800">
+                    {successMessage ||
+                      'Check your email inbox (or spam folder) for a new confirmation link.'}
+                  </p>
+                </div>
+              )}
+            </div>
           </CardFooter>
         </CollapsibleContent>
       </Collapsible>

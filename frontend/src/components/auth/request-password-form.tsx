@@ -3,7 +3,6 @@ import { useForm } from '@tanstack/react-form'
 
 import { EmailSchema } from '@shared/types'
 import { ArrowLeft } from 'lucide-react'
-import { toast } from 'sonner'
 import { z } from 'zod'
 
 import { supabase } from '@/lib/supabase'
@@ -30,13 +29,12 @@ export function RequestPasswordForm({
     onSubmit: async ({ value }) => {
       setSuccessMessage(null)
       try {
-        const nextPath = '/dashboard/account/new-password'
+        const nextPath = '/auth/new-password'
         const redirectTo = `${window.location.origin}${nextPath}`
         await supabase.auth.resetPasswordForEmail(value.email, { redirectTo })
         setSuccessMessage(
           'If this email is associated with an account, you will receive a password reset link.',
         )
-        toast.success('Password reset email sent')
       } catch (error) {
         setSuccessMessage(null)
         const message =
@@ -62,7 +60,7 @@ export function RequestPasswordForm({
         <div className="flex flex-col items-center gap-2 text-center">
           <h1 className="text-pretty text-2xl md:pb-2">Reset your password</h1>
           <p className="text-balance">
-            Enter your account email and we&apos;ll send you a reset link.
+            Enter your email address and we&apos;ll send you a reset link.
           </p>
         </div>
         <div className="grid gap-4">
@@ -122,8 +120,10 @@ export function RequestPasswordForm({
       </form>
 
       {successMessage && (
-        <div className="mt-6 rounded-md border border-green-100 bg-green-100 p-2 text-center">
-          <p className="text-sm text-green-800">{successMessage}</p>
+        <div className="mt-6 rounded-md border border-green-100 bg-green-100 p-3 text-center md:p-4">
+          <p className="text-pretty text-sm font-medium text-green-800">
+            {successMessage}
+          </p>
         </div>
       )}
 

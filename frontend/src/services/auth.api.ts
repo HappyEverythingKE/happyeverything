@@ -126,8 +126,7 @@ export const postResendConfirmationEmail = async (email: string) => {
     const data = (await res.json()) as SuccessResponse
     return data
   }
-  const data = (await res.json()) as unknown as ErrorResponse
-  throw new Error(data.error || 'Resend confirmation email failed')
+  throw new Error('Failed to send confirmation email')
 }
 
 export const getSession = async () => {

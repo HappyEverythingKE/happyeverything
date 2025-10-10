@@ -37,7 +37,7 @@ export function SignupForm() {
         password: value.password,
       })
       if (res.success) {
-        navigate({ to: '/auth/auth-confirm' })
+        navigate({ to: '/auth/confirm-email' })
       } else {
         form.setErrorMap({
           // @ts-expect-error error is a string but onSubmit expects an object mapping to the fields

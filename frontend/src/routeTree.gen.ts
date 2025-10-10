@@ -19,8 +19,9 @@ import { Route as MarketingImport } from './routes/_marketing'
 import { Route as AuthedImport } from './routes/_authed'
 import { Route as AuthRouteImport } from './routes/auth/route'
 import { Route as MarketingIndexImport } from './routes/_marketing.index'
-import { Route as AuthAuthVerifyImport } from './routes/auth/auth-verify'
-import { Route as AuthAuthConfirmImport } from './routes/auth/auth-confirm'
+import { Route as AuthVerifyImport } from './routes/auth/verify'
+import { Route as AuthNewPasswordImport } from './routes/auth/new-password'
+import { Route as AuthConfirmEmailImport } from './routes/auth/confirm-email'
 import { Route as MarketingContactImport } from './routes/_marketing.contact'
 import { Route as PublicProfileSlugIndexImport } from './routes/_public/$profileSlug/index'
 import { Route as AuthedDashboardIndexImport } from './routes/_authed/dashboard/index'
@@ -29,7 +30,6 @@ import { Route as AuthedDashboardAccountRouteImport } from './routes/_authed/das
 import { Route as AuthedDashboardProfileSlugRouteImport } from './routes/_authed/dashboard/$profileSlug/route'
 import { Route as AuthedDashboardAccountIndexImport } from './routes/_authed/dashboard/account/index'
 import { Route as AuthedDashboardProfileSlugIndexImport } from './routes/_authed/dashboard/$profileSlug/index'
-import { Route as AuthedDashboardAccountNewPasswordImport } from './routes/_authed/dashboard/account/new-password'
 import { Route as AuthedDashboardProfileSlugListSlugImport } from './routes/_authed/dashboard/$profileSlug/$listSlug'
 
 // Create/Update Routes
@@ -79,15 +79,21 @@ const MarketingIndexRoute = MarketingIndexImport.update({
   getParentRoute: () => MarketingRoute,
 } as any)
 
-const AuthAuthVerifyRoute = AuthAuthVerifyImport.update({
-  id: '/auth-verify',
-  path: '/auth-verify',
+const AuthVerifyRoute = AuthVerifyImport.update({
+  id: '/verify',
+  path: '/verify',
   getParentRoute: () => AuthRouteRoute,
 } as any)
 
-const AuthAuthConfirmRoute = AuthAuthConfirmImport.update({
-  id: '/auth-confirm',
-  path: '/auth-confirm',
+const AuthNewPasswordRoute = AuthNewPasswordImport.update({
+  id: '/new-password',
+  path: '/new-password',
+  getParentRoute: () => AuthRouteRoute,
+} as any)
+
+const AuthConfirmEmailRoute = AuthConfirmEmailImport.update({
+  id: '/confirm-email',
+  path: '/confirm-email',
   getParentRoute: () => AuthRouteRoute,
 } as any)
 
@@ -141,13 +147,6 @@ const AuthedDashboardProfileSlugIndexRoute =
     id: '/',
     path: '/',
     getParentRoute: () => AuthedDashboardProfileSlugRouteRoute,
-  } as any)
-
-const AuthedDashboardAccountNewPasswordRoute =
-  AuthedDashboardAccountNewPasswordImport.update({
-    id: '/new-password',
-    path: '/new-password',
-    getParentRoute: () => AuthedDashboardAccountRouteRoute,
   } as any)
 
 const AuthedDashboardProfileSlugListSlugRoute =
@@ -217,18 +216,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MarketingContactImport
       parentRoute: typeof MarketingImport
     }
-    '/auth/auth-confirm': {
-      id: '/auth/auth-confirm'
-      path: '/auth-confirm'
-      fullPath: '/auth/auth-confirm'
-      preLoaderRoute: typeof AuthAuthConfirmImport
+    '/auth/confirm-email': {
+      id: '/auth/confirm-email'
+      path: '/confirm-email'
+      fullPath: '/auth/confirm-email'
+      preLoaderRoute: typeof AuthConfirmEmailImport
       parentRoute: typeof AuthRouteImport
     }
-    '/auth/auth-verify': {
-      id: '/auth/auth-verify'
-      path: '/auth-verify'
-      fullPath: '/auth/auth-verify'
-      preLoaderRoute: typeof AuthAuthVerifyImport
+    '/auth/new-password': {
+      id: '/auth/new-password'
+      path: '/new-password'
+      fullPath: '/auth/new-password'
+      preLoaderRoute: typeof AuthNewPasswordImport
+      parentRoute: typeof AuthRouteImport
+    }
+    '/auth/verify': {
+      id: '/auth/verify'
+      path: '/verify'
+      fullPath: '/auth/verify'
+      preLoaderRoute: typeof AuthVerifyImport
       parentRoute: typeof AuthRouteImport
     }
     '/_marketing/': {
@@ -280,13 +286,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthedDashboardProfileSlugListSlugImport
       parentRoute: typeof AuthedDashboardProfileSlugRouteImport
     }
-    '/_authed/dashboard/account/new-password': {
-      id: '/_authed/dashboard/account/new-password'
-      path: '/new-password'
-      fullPath: '/dashboard/account/new-password'
-      preLoaderRoute: typeof AuthedDashboardAccountNewPasswordImport
-      parentRoute: typeof AuthedDashboardAccountRouteImport
-    }
     '/_authed/dashboard/$profileSlug/': {
       id: '/_authed/dashboard/$profileSlug/'
       path: '/'
@@ -307,13 +306,15 @@ declare module '@tanstack/react-router' {
 // Create and export the route tree
 
 interface AuthRouteRouteChildren {
-  AuthAuthConfirmRoute: typeof AuthAuthConfirmRoute
-  AuthAuthVerifyRoute: typeof AuthAuthVerifyRoute
+  AuthConfirmEmailRoute: typeof AuthConfirmEmailRoute
+  AuthNewPasswordRoute: typeof AuthNewPasswordRoute
+  AuthVerifyRoute: typeof AuthVerifyRoute
 }
 
 const AuthRouteRouteChildren: AuthRouteRouteChildren = {
-  AuthAuthConfirmRoute: AuthAuthConfirmRoute,
-  AuthAuthVerifyRoute: AuthAuthVerifyRoute,
+  AuthConfirmEmailRoute: AuthConfirmEmailRoute,
+  AuthNewPasswordRoute: AuthNewPasswordRoute,
+  AuthVerifyRoute: AuthVerifyRoute,
 }
 
 const AuthRouteRouteWithChildren = AuthRouteRoute._addFileChildren(
@@ -338,14 +339,11 @@ const AuthedDashboardProfileSlugRouteRouteWithChildren =
   )
 
 interface AuthedDashboardAccountRouteRouteChildren {
-  AuthedDashboardAccountNewPasswordRoute: typeof AuthedDashboardAccountNewPasswordRoute
   AuthedDashboardAccountIndexRoute: typeof AuthedDashboardAccountIndexRoute
 }
 
 const AuthedDashboardAccountRouteRouteChildren: AuthedDashboardAccountRouteRouteChildren =
   {
-    AuthedDashboardAccountNewPasswordRoute:
-      AuthedDashboardAccountNewPasswordRoute,
     AuthedDashboardAccountIndexRoute: AuthedDashboardAccountIndexRoute,
   }
 
@@ -405,8 +403,9 @@ export interface FileRoutesByFullPath {
   '/onboarding': typeof OnboardingRoute
   '/signup': typeof SignupRoute
   '/contact': typeof MarketingContactRoute
-  '/auth/auth-confirm': typeof AuthAuthConfirmRoute
-  '/auth/auth-verify': typeof AuthAuthVerifyRoute
+  '/auth/confirm-email': typeof AuthConfirmEmailRoute
+  '/auth/new-password': typeof AuthNewPasswordRoute
+  '/auth/verify': typeof AuthVerifyRoute
   '/': typeof MarketingIndexRoute
   '/dashboard/$profileSlug': typeof AuthedDashboardProfileSlugRouteRouteWithChildren
   '/dashboard/account': typeof AuthedDashboardAccountRouteRouteWithChildren
@@ -414,7 +413,6 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof AuthedDashboardIndexRoute
   '/$profileSlug': typeof PublicProfileSlugIndexRoute
   '/dashboard/$profileSlug/$listSlug': typeof AuthedDashboardProfileSlugListSlugRoute
-  '/dashboard/account/new-password': typeof AuthedDashboardAccountNewPasswordRoute
   '/dashboard/$profileSlug/': typeof AuthedDashboardProfileSlugIndexRoute
   '/dashboard/account/': typeof AuthedDashboardAccountIndexRoute
 }
@@ -426,14 +424,14 @@ export interface FileRoutesByTo {
   '/onboarding': typeof OnboardingRoute
   '/signup': typeof SignupRoute
   '/contact': typeof MarketingContactRoute
-  '/auth/auth-confirm': typeof AuthAuthConfirmRoute
-  '/auth/auth-verify': typeof AuthAuthVerifyRoute
+  '/auth/confirm-email': typeof AuthConfirmEmailRoute
+  '/auth/new-password': typeof AuthNewPasswordRoute
+  '/auth/verify': typeof AuthVerifyRoute
   '/': typeof MarketingIndexRoute
   '/$profileSlug/$listSlug': typeof PublicProfileSlugListSlugRoute
   '/dashboard': typeof AuthedDashboardIndexRoute
   '/$profileSlug': typeof PublicProfileSlugIndexRoute
   '/dashboard/$profileSlug/$listSlug': typeof AuthedDashboardProfileSlugListSlugRoute
-  '/dashboard/account/new-password': typeof AuthedDashboardAccountNewPasswordRoute
   '/dashboard/$profileSlug': typeof AuthedDashboardProfileSlugIndexRoute
   '/dashboard/account': typeof AuthedDashboardAccountIndexRoute
 }
@@ -448,8 +446,9 @@ export interface FileRoutesById {
   '/onboarding': typeof OnboardingRoute
   '/signup': typeof SignupRoute
   '/_marketing/contact': typeof MarketingContactRoute
-  '/auth/auth-confirm': typeof AuthAuthConfirmRoute
-  '/auth/auth-verify': typeof AuthAuthVerifyRoute
+  '/auth/confirm-email': typeof AuthConfirmEmailRoute
+  '/auth/new-password': typeof AuthNewPasswordRoute
+  '/auth/verify': typeof AuthVerifyRoute
   '/_marketing/': typeof MarketingIndexRoute
   '/_authed/dashboard/$profileSlug': typeof AuthedDashboardProfileSlugRouteRouteWithChildren
   '/_authed/dashboard/account': typeof AuthedDashboardAccountRouteRouteWithChildren
@@ -457,7 +456,6 @@ export interface FileRoutesById {
   '/_authed/dashboard/': typeof AuthedDashboardIndexRoute
   '/_public/$profileSlug/': typeof PublicProfileSlugIndexRoute
   '/_authed/dashboard/$profileSlug/$listSlug': typeof AuthedDashboardProfileSlugListSlugRoute
-  '/_authed/dashboard/account/new-password': typeof AuthedDashboardAccountNewPasswordRoute
   '/_authed/dashboard/$profileSlug/': typeof AuthedDashboardProfileSlugIndexRoute
   '/_authed/dashboard/account/': typeof AuthedDashboardAccountIndexRoute
 }
@@ -471,8 +469,9 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/signup'
     | '/contact'
-    | '/auth/auth-confirm'
-    | '/auth/auth-verify'
+    | '/auth/confirm-email'
+    | '/auth/new-password'
+    | '/auth/verify'
     | '/'
     | '/dashboard/$profileSlug'
     | '/dashboard/account'
@@ -480,7 +479,6 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/$profileSlug'
     | '/dashboard/$profileSlug/$listSlug'
-    | '/dashboard/account/new-password'
     | '/dashboard/$profileSlug/'
     | '/dashboard/account/'
   fileRoutesByTo: FileRoutesByTo
@@ -491,14 +489,14 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/signup'
     | '/contact'
-    | '/auth/auth-confirm'
-    | '/auth/auth-verify'
+    | '/auth/confirm-email'
+    | '/auth/new-password'
+    | '/auth/verify'
     | '/'
     | '/$profileSlug/$listSlug'
     | '/dashboard'
     | '/$profileSlug'
     | '/dashboard/$profileSlug/$listSlug'
-    | '/dashboard/account/new-password'
     | '/dashboard/$profileSlug'
     | '/dashboard/account'
   id:
@@ -511,8 +509,9 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/signup'
     | '/_marketing/contact'
-    | '/auth/auth-confirm'
-    | '/auth/auth-verify'
+    | '/auth/confirm-email'
+    | '/auth/new-password'
+    | '/auth/verify'
     | '/_marketing/'
     | '/_authed/dashboard/$profileSlug'
     | '/_authed/dashboard/account'
@@ -520,7 +519,6 @@ export interface FileRouteTypes {
     | '/_authed/dashboard/'
     | '/_public/$profileSlug/'
     | '/_authed/dashboard/$profileSlug/$listSlug'
-    | '/_authed/dashboard/account/new-password'
     | '/_authed/dashboard/$profileSlug/'
     | '/_authed/dashboard/account/'
   fileRoutesById: FileRoutesById
@@ -568,8 +566,9 @@ export const routeTree = rootRoute
     "/auth": {
       "filePath": "auth/route.tsx",
       "children": [
-        "/auth/auth-confirm",
-        "/auth/auth-verify"
+        "/auth/confirm-email",
+        "/auth/new-password",
+        "/auth/verify"
       ]
     },
     "/_authed": {
@@ -607,12 +606,16 @@ export const routeTree = rootRoute
       "filePath": "_marketing.contact.tsx",
       "parent": "/_marketing"
     },
-    "/auth/auth-confirm": {
-      "filePath": "auth/auth-confirm.tsx",
+    "/auth/confirm-email": {
+      "filePath": "auth/confirm-email.tsx",
       "parent": "/auth"
     },
-    "/auth/auth-verify": {
-      "filePath": "auth/auth-verify.tsx",
+    "/auth/new-password": {
+      "filePath": "auth/new-password.tsx",
+      "parent": "/auth"
+    },
+    "/auth/verify": {
+      "filePath": "auth/verify.tsx",
       "parent": "/auth"
     },
     "/_marketing/": {
@@ -631,7 +634,6 @@ export const routeTree = rootRoute
       "filePath": "_authed/dashboard/account/route.tsx",
       "parent": "/_authed",
       "children": [
-        "/_authed/dashboard/account/new-password",
         "/_authed/dashboard/account/"
       ]
     },
@@ -650,10 +652,6 @@ export const routeTree = rootRoute
     "/_authed/dashboard/$profileSlug/$listSlug": {
       "filePath": "_authed/dashboard/$profileSlug/$listSlug.tsx",
       "parent": "/_authed/dashboard/$profileSlug"
-    },
-    "/_authed/dashboard/account/new-password": {
-      "filePath": "_authed/dashboard/account/new-password.tsx",
-      "parent": "/_authed/dashboard/account"
     },
     "/_authed/dashboard/$profileSlug/": {
       "filePath": "_authed/dashboard/$profileSlug/index.tsx",
