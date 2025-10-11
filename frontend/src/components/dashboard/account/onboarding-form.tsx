@@ -281,7 +281,7 @@ export function OnboardingForm() {
                     <span className="flex items-center gap-2">
                       <Spinner /> Saving...
                     </span>
-                  ) : user.name !== null && user.country !== null ? (
+                  ) : user.name && user.country ? (
                     'Update'
                   ) : (
                     'Continue'

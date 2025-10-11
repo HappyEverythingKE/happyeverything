@@ -137,17 +137,17 @@ function RouteComponent() {
         {status === 'loading' && <Spinner>Verifying your email...</Spinner>}
 
         {status === 'error' && (
-          <div className="flex flex-col items-center gap-4 text-sm">
+          <div className="flex flex-col items-center gap-4 text-center text-sm">
             {errorMessage && (
-              <div className="rounded-md border border-red-100 bg-red-100 p-3 text-center md:p-4">
-                <p className="text-pretty text-sm font-medium text-red-800">
+              <div className="border-destructive/50 rounded-md border bg-red-50 p-3 md:p-4">
+                <p className="overflow-auto text-clip text-pretty text-sm font-medium text-red-800">
                   {errorMessage}
                 </p>
               </div>
             )}
             {successMessage && (
-              <div className="rounded-md border border-green-100 bg-green-100 p-3 text-center md:p-4">
-                <p className="text-pretty text-sm font-medium text-green-800">
+              <div className="rounded-md border border-green-800/50 bg-green-50 p-3 md:p-4">
+                <p className="overflow-auto text-clip text-pretty text-sm font-medium text-green-800">
                   {successMessage}
                 </p>
               </div>

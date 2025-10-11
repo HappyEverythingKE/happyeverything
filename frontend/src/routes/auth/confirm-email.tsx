@@ -145,12 +145,11 @@ function RouteComponent() {
               />
             </form>
 
-            <div className="flex items-center">
+            <div className="flex items-center text-center">
               {successMessage && (
-                <div className="rounded-md border border-green-100 bg-green-100 p-3 text-center md:p-4">
-                  <p className="text-pretty text-sm font-medium text-green-800">
-                    {successMessage ||
-                      'Check your email inbox (or spam folder) for a new confirmation link.'}
+                <div className="rounded-md border border-green-800/50 bg-green-50 p-3 md:p-4">
+                  <p className="overflow-auto text-clip text-pretty text-sm font-medium text-green-800">
+                    {successMessage}
                   </p>
                 </div>
               )}

@@ -58,7 +58,7 @@ export function RequestPasswordForm({
       >
         <div className="flex flex-col items-center gap-2 text-center">
           <h1 className="text-pretty text-2xl md:pb-2">Reset your password</h1>
-          <p className="text-balance">
+          <p className="text-pretty">
             Enter your email address and we&apos;ll send you a reset link.
           </p>
         </div>
@@ -91,7 +91,7 @@ export function RequestPasswordForm({
               errorMap.onSubmit ? (
                 <div className="border-destructive/50 rounded-md border bg-red-50 p-3 md:p-4">
                   <p className="overflow-auto text-clip text-pretty text-sm font-medium text-red-800">
-                    {errorMap.onSubmit}
+                    {errorMap.onSubmit || 'kwenfwkj'}
                   </p>
                 </div>
               ) : null
@@ -120,15 +120,15 @@ export function RequestPasswordForm({
             )}
           />
         </div>
-      </form>
 
-      {successMessage && (
-        <div className="mt-6 rounded-md border border-green-100 bg-green-100 p-3 text-center md:p-4">
-          <p className="text-pretty text-sm font-medium text-green-800">
-            {successMessage}
-          </p>
-        </div>
-      )}
+        {successMessage && (
+          <div className="rounded-md border border-green-800/50 bg-green-50 p-3 md:p-4">
+            <p className="overflow-auto text-clip text-pretty text-sm font-medium text-green-800">
+              {successMessage}
+            </p>
+          </div>
+        )}
+      </form>
 
       <div className="mt-6 text-center text-sm">
         <Button
