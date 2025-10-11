@@ -1,5 +1,3 @@
-import { Link } from '@tanstack/react-router'
-
 import {
   Accordion,
   AccordionContent,
@@ -85,7 +83,9 @@ export function FaqSection() {
           <p>Get in touch with us if you need any support.</p>
           <div className="mt-6">
             <Button variant="outline" size="lg">
-              <Link to="/contact">Contact us</Link>
+              <a href="mailto:hello@happyeverything.com" target="_blank">
+                Contact us
+              </a>
             </Button>
           </div>
         </div>

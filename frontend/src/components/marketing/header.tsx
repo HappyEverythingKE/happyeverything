@@ -56,7 +56,7 @@ export function Header() {
 
   return (
     <header className="overflow-hidden">
-      <div className="z-[999] flex w-full items-center py-2 lg:min-h-20 lg:px-[5%] lg:pb-4">
+      <div className="z-[999] mt-1 flex w-full items-center py-2 lg:min-h-20 lg:px-[5%] lg:pb-4">
         <nav className="size-full lg:flex lg:items-end lg:justify-between">
           <div className="md:min-h-18 flex min-h-16 items-center justify-between px-[5%] lg:min-h-full lg:px-0">
             <Link to="/">
@@ -115,22 +115,27 @@ export function Header() {
           >
             <div className="mt-6 flex flex-col items-center gap-4 lg:ml-4 lg:mt-0 lg:flex-row">
               <Button asChild variant="link">
-                <Link
-                  to="/contact"
+                <a
+                  href="mailto:hello@happyeverything.com"
+                  target="_blank"
                   className="py-3 text-center lg:px-4 lg:py-2"
                 >
                   Contact us
-                </Link>
+                </a>
               </Button>
               <Button
                 asChild
                 variant="outline"
                 className={cn(isMobileMenuOpen && 'w-full')}
               >
-                <Link to="/login">Log in</Link>
+                <Link to="/login" onClick={() => setIsMobileMenuOpen(false)}>
+                  Log in
+                </Link>
               </Button>
               <Button asChild className={cn(isMobileMenuOpen && 'w-full')}>
-                <Link to="/signup">Sign up free</Link>
+                <Link to="/signup" onClick={() => setIsMobileMenuOpen(false)}>
+                  Sign up free
+                </Link>
               </Button>
             </div>
           </motion.div>

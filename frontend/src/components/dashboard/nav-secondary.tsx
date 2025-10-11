@@ -16,6 +16,7 @@ export function NavSecondary({
     title: string
     url: string
     icon: LucideIcon
+    external?: boolean
   }[]
 } & React.ComponentPropsWithoutRef<typeof SidebarGroup>) {
   return (
@@ -25,7 +26,7 @@ export function NavSecondary({
           {items.map((item) => (
             <SidebarMenuItem key={item.title}>
               <SidebarMenuButton asChild tooltip={item.title}>
-                <a href={item.url}>
+                <a href={item.url} target={item.external ? '_blank' : '_self'}>
                   <item.icon />
                   <span>{item.title}</span>
                 </a>
