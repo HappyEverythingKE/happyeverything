@@ -29,7 +29,7 @@ export const listRoutes = new Hono()
     const { data, error } = await supabase
       .from('list_types')
       .select('*')
-      .order('name')
+      .order('name', { ascending: true })
 
     if (error) {
       throw new HTTPException(500, {
@@ -37,9 +37,16 @@ export const listRoutes = new Hono()
       })
     }
 
+    // Sort data to put "everything" first, then alphabetically
+    const sortedData = data.sort((a, b) => {
+      if (a.name.toLowerCase() === 'everything') return -1
+      if (b.name.toLowerCase() === 'everything') return 1
+      return a.name.localeCompare(b.name)
+    })
+
     return c.json<SuccessResponse<ListType[]>>({
       success: true,
-      data: data.map((item) => ({
+      data: sortedData.map((item) => ({
         id: item.id,
         name: item.name,
         imageUrl: item.image_url,
