@@ -343,7 +343,7 @@ export function EditListItemForm({
             onClick={handleDeleteItem}
             disabled={isDeleting}
           >
-            {isDeleting ? 'Deleting...' : 'Delete Item'}
+            {isDeleting ? 'Deleting...' : 'Delete item'}
           </Button>
         </div>
       </div>

@@ -324,7 +324,7 @@ export function EditListForm({
             onClick={handleDeleteListClick}
             disabled={isDeleting}
           >
-            {isDeleting ? 'Deleting...' : 'Delete List'}
+            {isDeleting ? 'Deleting...' : 'Delete list'}
           </Button>
         </div>
       </div>
@@ -376,7 +376,7 @@ export function EditListForm({
                   <Spinner /> Deleting...
                 </span>
               ) : (
-                'Delete List'
+                'Delete list'
               )}
             </Button>
           </DialogFooter>

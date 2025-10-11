@@ -18,11 +18,11 @@ import { Route as PublicImport } from './routes/_public'
 import { Route as MarketingImport } from './routes/_marketing'
 import { Route as AuthedImport } from './routes/_authed'
 import { Route as AuthRouteImport } from './routes/auth/route'
-import { Route as MarketingIndexImport } from './routes/_marketing.index'
+import { Route as MarketingIndexImport } from './routes/_marketing/index'
 import { Route as AuthVerifyImport } from './routes/auth/verify'
 import { Route as AuthNewPasswordImport } from './routes/auth/new-password'
 import { Route as AuthConfirmEmailImport } from './routes/auth/confirm-email'
-import { Route as MarketingContactImport } from './routes/_marketing.contact'
+import { Route as MarketingContactImport } from './routes/_marketing/contact'
 import { Route as PublicProfileSlugIndexImport } from './routes/_public/$profileSlug/index'
 import { Route as AuthedDashboardIndexImport } from './routes/_authed/dashboard/index'
 import { Route as PublicProfileSlugListSlugImport } from './routes/_public/$profileSlug/$listSlug'
@@ -603,7 +603,7 @@ export const routeTree = rootRoute
       "filePath": "signup.tsx"
     },
     "/_marketing/contact": {
-      "filePath": "_marketing.contact.tsx",
+      "filePath": "_marketing/contact.tsx",
       "parent": "/_marketing"
     },
     "/auth/confirm-email": {
@@ -619,7 +619,7 @@ export const routeTree = rootRoute
       "parent": "/auth"
     },
     "/_marketing/": {
-      "filePath": "_marketing.index.tsx",
+      "filePath": "_marketing/index.tsx",
       "parent": "/_marketing"
     },
     "/_authed/dashboard/$profileSlug": {

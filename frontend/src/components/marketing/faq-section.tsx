@@ -62,12 +62,10 @@ const questions = [
 
 export function FaqSection() {
   return (
-    <section id="faqs" className="px-[5%] py-16 md:py-24 lg:py-28">
+    <section id="faqs" className="px-[5%] py-16">
       <div className="mx-auto max-w-3xl">
-        <div className="rb-12 md:mb-18 mb-12 text-center lg:mb-20">
-          <h2 className="rb-5 mb-5 text-xl md:mb-6 md:text-2xl">
-            Have questions?
-          </h2>
+        <div className="mb-6 text-center">
+          <h2 className="mb-3 text-2xl md:text-3xl">Have questions?</h2>
           <p>We&apos;ve got answers</p>
         </div>
         <Accordion type="multiple">
@@ -82,11 +80,11 @@ export function FaqSection() {
             </AccordionItem>
           ))}
         </Accordion>
-        <div className="md:mt-18 mx-auto mt-12 max-w-md text-center lg:mt-20">
-          <h4 className="mb-3 text-lg md:mb-4">Need help?</h4>
+        <div className="mx-auto mt-6 max-w-md text-center">
+          <h4 className="mb-2 text-lg">Need help?</h4>
           <p>Get in touch with us if you need any support.</p>
-          <div className="mt-6 md:mt-8">
-            <Button variant="outline">
+          <div className="mt-6">
+            <Button variant="outline" size="lg">
               <Link to="/contact">Contact us</Link>
             </Button>
           </div>

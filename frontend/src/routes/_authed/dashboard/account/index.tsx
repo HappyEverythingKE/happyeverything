@@ -358,7 +358,7 @@ function RouteComponent() {
                   trigger={
                     <Button variant="outline" size="sm">
                       <PlusIcon className="h-4 w-4 md:mr-2" />
-                      Add Profile
+                      Add profile
                     </Button>
                   }
                 />

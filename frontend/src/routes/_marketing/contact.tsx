@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Spinner } from '@/components/ui/spinner'
 import { Textarea } from '@/components/ui/textarea'
 import { FieldInfo } from '@/components/field-info'
 
@@ -73,11 +74,11 @@ function RouteComponent() {
   })
 
   return (
-    <section id="contact" className="px-[5%] py-16 md:py-24 lg:py-28">
+    <section id="contact" className="px-[5%] py-16">
       <div className="container grid grid-cols-1 gap-y-12 md:gap-x-12 lg:grid-flow-row lg:grid-cols-2 lg:gap-x-20">
         <div>
-          <div className="mb-6 md:mb-8">
-            <h1 className="mb-5 text-2xl md:mb-6 md:text-3xl">Contact us</h1>
+          <div className="mb-8">
+            <h1 className="mb-3 text-2xl md:text-3xl">Contact us</h1>
             <p>
               Do you have a question or feedback to share with us? <br />
               Send it in using the form below and we’ll get back to you.
@@ -85,22 +86,20 @@ function RouteComponent() {
           </div>
 
           <form
-            className="grid grid-cols-1 gap-6"
+            className="flex flex-col gap-6"
             onSubmit={(e) => {
               e.preventDefault()
               e.stopPropagation()
               form.handleSubmit()
             }}
           >
-            <div className="grid w-full items-center">
+            <div className="grid gap-2">
               <form.Field
                 name="fullName"
                 children={(field) => {
                   return (
                     <>
-                      <Label htmlFor={field.name} className="mb-2">
-                        Name
-                      </Label>
+                      <Label htmlFor={field.name}>Name</Label>
                       <Input
                         id={field.name}
                         type="text"
@@ -120,15 +119,13 @@ function RouteComponent() {
               />
             </div>
 
-            <div className="grid w-full items-center">
+            <div className="grid gap-2">
               <form.Field
                 name="email"
                 children={(field) => {
                   return (
                     <>
-                      <Label htmlFor={field.name} className="mb-2">
-                        Email
-                      </Label>
+                      <Label htmlFor={field.name}>Email</Label>
                       <Input
                         id={field.name}
                         type="email"
@@ -149,15 +146,13 @@ function RouteComponent() {
               />
             </div>
 
-            <div className="grid w-full items-center">
+            <div className="grid gap-2">
               <form.Field
                 name="message"
                 children={(field) => {
                   return (
                     <>
-                      <Label htmlFor={field.name} className="mb-2">
-                        Message
-                      </Label>
+                      <Label htmlFor={field.name}>Message</Label>
                       <Textarea
                         id={field.name}
                         className="min-h-[11.25rem] overflow-auto"
@@ -177,13 +172,13 @@ function RouteComponent() {
               />
             </div>
 
-            <div className="grid w-full items-center">
+            <div className="grid gap-2">
               <form.Field
                 name="termsChecked"
                 children={(field) => {
                   return (
                     <>
-                      <div className="items-top flex space-x-2">
+                      <div className="flex items-start gap-2">
                         <Checkbox
                           onCheckedChange={(checked) => {
                             return checked
@@ -241,17 +236,21 @@ function RouteComponent() {
             </div>
 
             {/* Form submit */}
-            <div className="flex flex-col space-y-1">
-              <div>
-                <form.Subscribe
-                  selector={(state) => [state.canSubmit, state.isSubmitting]}
-                  children={([canSubmit, isSubmitting]) => (
-                    <Button type="submit" disabled={!canSubmit || isSubmitting}>
-                      {isSubmitting ? 'Submitting...' : 'Submit'}
-                    </Button>
-                  )}
-                />
-              </div>
+            <div className="-mt-4">
+              <form.Subscribe
+                selector={(state) => [state.canSubmit, state.isSubmitting]}
+                children={([canSubmit, isSubmitting]) => (
+                  <Button type="submit" disabled={!canSubmit || isSubmitting}>
+                    {isSubmitting ? (
+                      <span className="flex items-center gap-2">
+                        <Spinner /> Submitting...
+                      </span>
+                    ) : (
+                      'Submit'
+                    )}
+                  </Button>
+                )}
+              />
             </div>
           </form>
         </div>
