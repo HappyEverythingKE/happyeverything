@@ -2,7 +2,13 @@ import type { ListItem } from '@shared/types'
 import { ExternalLink, Heart } from 'lucide-react'
 
 import { cn } from '@/lib/utils'
+import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover'
 import {
   Tooltip,
   TooltipContent,
@@ -64,16 +70,35 @@ export function ItemCard({
 
         {/* Top Pick Badge - shown on public lists */}
         {showTopPickBadge && item.topPick && (
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <div className="bg-blush absolute left-3 top-0 flex h-8 w-8 items-center justify-center rounded-full">
-                <Heart className="h-4 w-4 text-white" />
-              </div>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>A Favourite!</p>
-            </TooltipContent>
-          </Tooltip>
+          <>
+            {/* Desktop Tooltip */}
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className="bg-blush absolute left-3 top-0 hidden h-8 w-8 items-center justify-center rounded-full lg:flex">
+                  <Heart className="h-4 w-4 text-white" />
+                </div>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>A Favourite!</p>
+              </TooltipContent>
+            </Tooltip>
+
+            {/* Mobile Popover */}
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  className="bg-blush group absolute left-2 top-0 h-8 w-8 rounded-full lg:hidden"
+                >
+                  <Heart className="h-4 w-4 text-white" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="bg-tertiary text-tertiary-foreground z-50 w-fit text-balance rounded-md px-3 py-1.5 text-xs">
+                <p className="text-sm">A Favourite!</p>
+              </PopoverContent>
+            </Popover>
+          </>
         )}
 
         {/* Top Pick Button - shown on dashboard */}

@@ -9,6 +9,11 @@ import { cn } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { ItemCard } from '@/components/ui/item-card'
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover'
 import { SheetForm } from '@/components/ui/sheet-form'
 import {
   Tooltip,
@@ -59,57 +64,122 @@ export const ListItemCard = ({
 
   // Gifted Badge Component
   const giftedBadge = item.gifters && item.gifters.length > 0 && (
-    <Tooltip>
-      <TooltipTrigger asChild>
-        <Badge
-          variant="blush"
-          className="bg-blush/40 text-amethyst absolute right-2 top-0 px-3 py-1"
-        >
+    <>
+      {/* Desktop Tooltip */}
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Badge
+            variant="blush"
+            className="bg-blush/40 text-amethyst absolute right-2 top-0 hidden px-3 py-1 lg:block"
+          >
+            {item.gifters
+              ? `${multiGifterDisplay} gifted you`
+              : 'Anonymous gifted you'}
+          </Badge>
+        </TooltipTrigger>
+        <TooltipContent className="font-medium">
           {item.gifters
-            ? `${multiGifterDisplay} gifted you`
-            : 'Anonymous gifted you'}
-        </Badge>
-      </TooltipTrigger>
-      <TooltipContent className="font-medium">
-        {item.gifters
-          ?.map(
-            (gifter) =>
-              `${gifter.gifter_name || 'Someone'} (${gifter.quantity_reserved})`,
-          )
-          .join(', ')}
-      </TooltipContent>
-    </Tooltip>
+            ?.map(
+              (gifter) =>
+                `${gifter.gifter_name || 'Someone'} (${gifter.quantity_reserved})`,
+            )
+            .join(', ')}
+        </TooltipContent>
+      </Tooltip>
+
+      {/* Mobile Popover */}
+      <Popover>
+        <PopoverTrigger asChild>
+          <Badge
+            variant="blush"
+            className="bg-blush/40 text-amethyst absolute right-2 top-0 px-3 py-1 lg:hidden"
+          >
+            {item.gifters
+              ? `${multiGifterDisplay} gifted you`
+              : 'Anonymous gifted you'}
+          </Badge>
+        </PopoverTrigger>
+        <PopoverContent className="bg-tertiary text-tertiary-foreground z-50 w-fit text-balance rounded-md px-3 py-1.5 text-xs">
+          <p className="text-sm font-medium">
+            {item.gifters
+              ?.map(
+                (gifter) =>
+                  `${gifter.gifter_name || 'Someone'} (${gifter.quantity_reserved})`,
+              )
+              .join(', ')}
+          </p>
+        </PopoverContent>
+      </Popover>
+    </>
   )
 
   // Top Pick Button Component
   const topPickButton = (
-    <Tooltip>
-      <TooltipTrigger asChild>
-        <Button
-          size="icon"
-          variant="ghost"
-          onClick={handleTopPickToggle}
-          disabled={isPending}
-          className={cn(
-            'group absolute left-2 top-0 h-8 w-8 rounded-full',
-            item.topPick ? 'bg-blush' : 'hover:bg-blush/20 bg-white/80',
-          )}
-        >
-          <Heart
+    <>
+      {/* Desktop Tooltip */}
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button
+            size="icon"
+            variant="ghost"
+            onClick={handleTopPickToggle}
+            disabled={isPending}
             className={cn(
-              'h-4 w-4',
-              item.topPick ? 'text-white' : 'text-blush group-hover:text-white',
+              'group absolute left-2 top-0 hidden h-8 w-8 rounded-full lg:flex',
+              item.topPick ? 'bg-blush' : 'hover:bg-blush/20 bg-white/80',
             )}
-          />
-          <span className="sr-only">
+          >
+            <Heart
+              className={cn(
+                'h-4 w-4',
+                item.topPick
+                  ? 'text-white'
+                  : 'text-blush group-hover:text-white',
+              )}
+            />
+            <span className="sr-only">
+              {item.topPick ? 'Remove from top picks' : 'Add to top picks'}
+            </span>
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent>
+          {item.topPick ? 'Remove from top picks' : 'Add to top picks'}
+        </TooltipContent>
+      </Tooltip>
+
+      {/* Mobile Popover */}
+      <Popover>
+        <PopoverTrigger asChild>
+          <Button
+            size="icon"
+            variant="ghost"
+            onClick={handleTopPickToggle}
+            disabled={isPending}
+            className={cn(
+              'group absolute left-2 top-0 h-8 w-8 rounded-full lg:hidden',
+              item.topPick ? 'bg-blush' : 'hover:bg-blush/20 bg-white/80',
+            )}
+          >
+            <Heart
+              className={cn(
+                'h-4 w-4',
+                item.topPick
+                  ? 'text-white'
+                  : 'text-blush group-hover:text-white',
+              )}
+            />
+            <span className="sr-only">
+              {item.topPick ? 'Remove from top picks' : 'Add to top picks'}
+            </span>
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="bg-tertiary text-tertiary-foreground z-50 w-fit text-balance rounded-md px-3 py-1.5 text-xs">
+          <p className="text-sm">
             {item.topPick ? 'Remove from top picks' : 'Add to top picks'}
-          </span>
-        </Button>
-      </TooltipTrigger>
-      <TooltipContent>
-        {item.topPick ? 'Remove from top picks' : 'Add to top picks'}
-      </TooltipContent>
-    </Tooltip>
+          </p>
+        </PopoverContent>
+      </Popover>
+    </>
   )
 
   // Footer Component
