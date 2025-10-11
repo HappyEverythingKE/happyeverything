@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useNavigate } from '@tanstack/react-router'
 import { useForm } from '@tanstack/react-form'
 import { useQuery } from '@tanstack/react-query'
@@ -15,8 +16,17 @@ import type { z } from 'zod'
 
 import { Button } from '@/components/ui/button'
 import { Combobox } from '@/components/ui/combobox'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Spinner } from '@/components/ui/spinner'
 import { Textarea } from '@/components/ui/textarea'
 import { FieldInfo } from '@/components/field-info'
 
@@ -33,6 +43,8 @@ export function EditListForm({
   onFormSubmit,
   onFormCancel,
 }: EditListFormProps) {
+  const [showDeleteListDialog, setShowDeleteListDialog] = useState(false)
+  const [deleteListConfirmation, setDeleteListConfirmation] = useState('')
   const navigate = useNavigate()
   // get list types
   const {
@@ -63,6 +75,23 @@ export function EditListForm({
       toast.error('An error occurred.', {
         description: String(error),
       })
+    }
+  }
+
+  const handleDeleteListClick = () => {
+    setShowDeleteListDialog(true)
+    setDeleteListConfirmation('')
+  }
+
+  const handleCancelDeleteList = () => {
+    setShowDeleteListDialog(false)
+    setDeleteListConfirmation('')
+  }
+
+  const handleConfirmDeleteList = () => {
+    if (deleteListConfirmation === 'DELETE') {
+      setShowDeleteListDialog(false)
+      handleDeleteList()
     }
   }
 
@@ -292,13 +321,67 @@ export function EditListForm({
         <div className="mt-2 flex justify-end">
           <Button
             variant="destructive"
-            onClick={handleDeleteList}
+            onClick={handleDeleteListClick}
             disabled={isDeleting}
           >
             {isDeleting ? 'Deleting...' : 'Delete List'}
           </Button>
         </div>
       </div>
+
+      {/* Delete List Confirmation Dialog */}
+      <Dialog
+        open={showDeleteListDialog}
+        onOpenChange={setShowDeleteListDialog}
+      >
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Delete List</DialogTitle>
+            <DialogDescription className="text-pretty">
+              This action cannot be undone. This will permanently delete this
+              list and remove all of its items from our servers.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="delete-confirmation" className="block">
+                To confirm, type <strong>DELETE</strong> in the box below:
+              </Label>
+              <Input
+                id="delete-confirmation"
+                value={deleteListConfirmation}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  setDeleteListConfirmation(e.target.value)
+                }
+                placeholder="Type DELETE to confirm"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleCancelDeleteList}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              variant="destructive"
+              onClick={handleConfirmDeleteList}
+              disabled={deleteListConfirmation !== 'DELETE' || isDeleting}
+            >
+              {isDeleting ? (
+                <span className="flex items-center gap-2">
+                  <Spinner /> Deleting...
+                </span>
+              ) : (
+                'Delete List'
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

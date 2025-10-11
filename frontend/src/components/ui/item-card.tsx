@@ -48,7 +48,7 @@ export function ItemCard({
     >
       {/* Dim overlay when gifted */}
       {item.stillNeeds === 0 && (
-        <div className="pointer-events-none absolute inset-0 z-10 rounded-2xl bg-gradient-to-b from-transparent to-gray-200/70 dark:to-gray-900/70" />
+        <div className="pointer-events-none absolute inset-0 z-10 rounded-md bg-gradient-to-b from-transparent to-gray-200/70 dark:to-gray-900/70" />
       )}
 
       {/* Image / Badge Area */}

@@ -155,7 +155,7 @@ export function SignupForm() {
                 >
                   {isSubmitting ? (
                     <span className="flex items-center gap-2">
-                      <Spinner /> Beep Boop...
+                      <Spinner /> Signing You Up...
                     </span>
                   ) : (
                     'Sign Up'
