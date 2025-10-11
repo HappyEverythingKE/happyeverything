@@ -1,4 +1,5 @@
-import { createFileRoute, Link, redirect } from '@tanstack/react-router'
+import { createFileRoute, Link } from '@tanstack/react-router'
+import { useSuspenseQuery } from '@tanstack/react-query'
 
 import { allProfilesQueryOptions } from '@/services/profile.api'
 import type { Profile } from '@shared/types'
@@ -13,27 +14,14 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
+import ProfileCardSkeleton from '@/components/ui/profile-card-skeleton'
+import { SuspenseQueryBoundary } from '@/components/suspense-query-boundary'
 
 export const Route = createFileRoute('/_authed/dashboard/')({
-  loader: async ({ context }) => {
-    const queryClient = context.queryClient
-
-    const allProfiles = await queryClient.ensureQueryData(
-      allProfilesQueryOptions,
-    )
-
-    if (allProfiles.length === 0) {
-      throw redirect({ to: '/onboarding' })
-    }
-
-    return { allProfiles }
-  },
   component: RouteComponent,
 })
 
 function RouteComponent() {
-  const { allProfiles } = Route.useLoaderData()
-
   return (
     <div className="relative overflow-hidden">
       {/* blurred background */}
@@ -49,59 +37,67 @@ function RouteComponent() {
       </div>
 
       <div className="relative flex min-h-svh items-center justify-center p-6">
-        <Card className="flex w-full max-w-lg overflow-hidden">
-          <CardHeader className="gap-3">
-            <CardTitle className="text-lg">Select a Profile</CardTitle>
-            <CardDescription className="text-pretty text-base">
-              Select a profile below to manage its lists and settings or{' '}
-              <Link
-                to="/onboarding"
-                className="text-primary hover:underline hover:underline-offset-4"
-              >
-                create a new profile.
-              </Link>
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="py-6">
-            {allProfiles.length === 0 ? (
-              <div className="space-y-4 text-center">
-                <p className="text-muted-foreground">No profiles found</p>
-                <Button asChild>
-                  <Link to="/onboarding">Create your first profile</Link>
-                </Button>
-              </div>
-            ) : (
-              <div className="flex flex-wrap justify-center gap-6">
-                {allProfiles.map((profile: Profile) => (
-                  <Link
-                    key={profile.slug}
-                    to="/dashboard/$profileSlug"
-                    params={{ profileSlug: profile.slug }}
-                  >
-                    <Card className="hover:border-primary/50 group h-full w-48 cursor-pointer transition-all hover:shadow-lg">
-                      <CardHeader className="flex flex-col items-center justify-between space-y-2 pb-3">
-                        <CardTitle className="group-hover:text-primary text-xl transition-colors">
-                          {profile.slug}
-                        </CardTitle>
-                        <Badge
-                          variant={
-                            profile.status === 'active'
-                              ? 'default'
-                              : 'secondary'
-                          }
-                          className="text-xs"
-                        >
-                          {startCase(profile.status)}
-                        </Badge>
-                      </CardHeader>
-                    </Card>
-                  </Link>
-                ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
+        <SuspenseQueryBoundary fallback={<ProfileCardSkeleton />}>
+          <ProfileCard />
+        </SuspenseQueryBoundary>
       </div>
     </div>
+  )
+}
+
+function ProfileCard() {
+  const { data: allProfiles } = useSuspenseQuery(allProfilesQueryOptions)
+
+  return (
+    <Card className="flex w-full max-w-xl overflow-hidden">
+      <CardHeader className="gap-3">
+        <CardTitle className="text-lg">Select a Profile</CardTitle>
+        <CardDescription className="text-balance text-base">
+          Select a profile below to manage its lists and settings or{' '}
+          <Link
+            to="/onboarding"
+            className="text-primary hover:underline hover:underline-offset-4"
+          >
+            create a new profile.
+          </Link>
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="w-full py-6">
+        {allProfiles.length === 0 ? (
+          <div className="space-y-4 text-center">
+            <p className="text-muted-foreground">No profiles found</p>
+            <Button asChild>
+              <Link to="/onboarding">Create your first profile</Link>
+            </Button>
+          </div>
+        ) : (
+          <div className="flex flex-wrap justify-center gap-6">
+            {allProfiles.map((profile: Profile) => (
+              <Link
+                key={profile.slug}
+                to="/dashboard/$profileSlug"
+                params={{ profileSlug: profile.slug }}
+              >
+                <Card className="hover:border-primary/50 group h-full w-60 cursor-pointer overflow-hidden transition-all hover:shadow-lg">
+                  <CardHeader className="flex min-w-0 flex-col items-center justify-between space-y-2 pb-3">
+                    <CardTitle className="group-hover:text-primary wrap-anywhere w-full truncate text-center text-xl transition-colors">
+                      {profile.slug}
+                    </CardTitle>
+                    <Badge
+                      variant={
+                        profile.status === 'active' ? 'default' : 'secondary'
+                      }
+                      className="text-xs"
+                    >
+                      {startCase(profile.status)}
+                    </Badge>
+                  </CardHeader>
+                </Card>
+              </Link>
+            ))}
+          </div>
+        )}
+      </CardContent>
+    </Card>
   )
 }

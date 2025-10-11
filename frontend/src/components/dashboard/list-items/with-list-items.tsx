@@ -26,7 +26,11 @@ export const WithListItems = ({
     <>
       <div className="flex flex-col gap-8">
         <div className="flex justify-start">
-          <Button variant="buttonIcon" onClick={() => setIsSheetOpen(true)}>
+          <Button
+            variant="outline"
+            onClick={() => setIsSheetOpen(true)}
+            className="hover:bg-sidebar-accent hover:text-sidebar-muted-foreground hover:border-transparent! w-fit justify-start"
+          >
             <PlusCircle />
             <span>Add a gift item</span>
           </Button>

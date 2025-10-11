@@ -1,33 +1,72 @@
-import { Link } from '@tanstack/react-router'
+import { useState } from 'react'
+import { useNavigate, useRouter } from '@tanstack/react-router'
 import { useForm } from '@tanstack/react-form'
+import { useQueryClient } from '@tanstack/react-query'
 
 import { postLogin } from '@/services/auth.api'
-import { LoginSchema } from '@shared/types'
-import { toast } from 'sonner'
+import { allProfilesQueryOptions } from '@/services/profile.api'
+import { SignupSchema } from '@shared/types'
+import { Eye, EyeClosed } from 'lucide-react'
 import { type z } from 'zod'
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupButton,
+  InputGroupInput,
+} from '@/components/ui/input-group'
 import { Label } from '@/components/ui/label'
+import { Spinner } from '@/components/ui/spinner'
 import { FieldInfo } from '@/components/field-info'
 
 const defaultValues = {
   email: '',
-} as z.infer<typeof LoginSchema>
+  password: '',
+} as z.infer<typeof SignupSchema>
 
-export function LoginForm() {
-  const form = useForm({
+export function LoginForm({
+  setResetPassword,
+}: {
+  setResetPassword: (resetPassword: boolean) => void
+}) {
+  const navigate = useNavigate()
+  const router = useRouter()
+  const queryClient = useQueryClient()
+  const [showPassword, setShowPassword] = useState<boolean>(false)
+
+  const loginForm = useForm({
     defaultValues: defaultValues,
-    validators: { onChange: LoginSchema },
+    validators: { onChange: SignupSchema },
     onSubmit: async ({ value }) => {
-      const res = await postLogin({ email: value.email })
+      const res = await postLogin({
+        email: value.email,
+        password: value.password,
+      })
+
       if (res.success) {
-        toast.success('Check your email for a login link!')
+        await queryClient.invalidateQueries()
+        await router.invalidate()
+
+        // Navigate user based on profile status
+        try {
+          const profiles = await queryClient.ensureQueryData(
+            allProfilesQueryOptions,
+          )
+          if (!profiles || profiles.length === 0) {
+            navigate({ to: '/onboarding' })
+          } else {
+            navigate({ to: '/dashboard' })
+          }
+        } catch {
+          // If profile fetch fails, try navigating to dashboard anyway
+          navigate({ to: '/dashboard' })
+        }
       } else {
-        toast.error('Login failed', { description: res.error })
-        form.setErrorMap({
+        loginForm.setErrorMap({
           // @ts-expect-error error is a string but onSubmit expects an object mapping to the fields
-          onSubmit: res.error || 'Unexpected error',
+          onSubmit: res.error || 'An unexpected error occurred',
         })
       }
     },
@@ -41,16 +80,16 @@ export function LoginForm() {
           onSubmit={(e) => {
             e.preventDefault()
             e.stopPropagation()
-            form.handleSubmit()
+            loginForm.handleSubmit()
           }}
         >
           <div className="flex flex-col items-center gap-2 text-center">
             <h1 className="text-3xl md:pb-2">Welcome back!</h1>
             <p className="text-balance">Log in to manage your wish lists</p>
           </div>
-          <div className="grid gap-6">
+          <div className="grid gap-4">
             <div className="grid gap-2">
-              <form.Field
+              <loginForm.Field
                 name="email"
                 children={(field) => {
                   return (
@@ -65,6 +104,7 @@ export function LoginForm() {
                         aria-invalid={!field.state.meta.isValid}
                         placeholder="me@example.com"
                         autoComplete="username"
+                        required
                       />
                       <FieldInfo field={field} />
                     </>
@@ -73,19 +113,71 @@ export function LoginForm() {
               />
             </div>
 
-            <form.Subscribe
+            <div className="grid gap-2">
+              <loginForm.Field
+                name="password"
+                children={(field) => {
+                  return (
+                    <>
+                      <div className="flex items-center justify-between">
+                        <Label htmlFor={field.name}>Password</Label>
+                        <Button
+                          variant="link"
+                          size="sm"
+                          className="p-0 text-xs underline"
+                          onClick={() => {
+                            setResetPassword(true)
+                          }}
+                        >
+                          Forgot password?
+                        </Button>
+                      </div>
+                      <InputGroup>
+                        <InputGroupInput
+                          id={field.name}
+                          type={showPassword ? 'text' : 'password'}
+                          value={field.state.value}
+                          onBlur={field.handleBlur}
+                          onChange={(e) => field.handleChange(e.target.value)}
+                          aria-invalid={!field.state.meta.isValid}
+                          placeholder="Enter your password"
+                          autoComplete="current-password"
+                        />
+                        <InputGroupAddon align="inline-end">
+                          <InputGroupButton
+                            aria-label="Show"
+                            title="Show password"
+                            size="icon-xs"
+                            onClick={() => {
+                              setShowPassword(!showPassword)
+                            }}
+                          >
+                            {showPassword ? <EyeClosed /> : <Eye />}
+                          </InputGroupButton>
+                        </InputGroupAddon>
+                      </InputGroup>
+                      <FieldInfo field={field} />
+                    </>
+                  )
+                }}
+              />
+            </div>
+
+            <loginForm.Subscribe
               selector={(state) => [state.errorMap]}
               children={([errorMap]) =>
                 errorMap.onSubmit ? (
-                  <p className="text-destructive text-sm font-medium">
-                    {errorMap.onSubmit}
-                  </p>
+                  <div className="border-destructive/50 rounded-md border bg-red-50 p-3 md:p-4">
+                    <p className="overflow-auto text-clip text-pretty text-sm font-medium text-red-800">
+                      {errorMap.onSubmit}
+                    </p>
+                  </div>
                 ) : null
               }
             />
 
             {/* Form submission */}
-            <form.Subscribe
+            <loginForm.Subscribe
               selector={(state) => [
                 state.canSubmit,
                 state.isSubmitting,
@@ -95,30 +187,20 @@ export function LoginForm() {
                 <Button
                   type="submit"
                   disabled={!canSubmit || isPristine || isSubmitting}
-                  className="w-full"
+                  className="mt-2 w-full"
                 >
-                  {isSubmitting ? 'Working...' : 'Log In'}
+                  {isSubmitting ? (
+                    <span className="flex items-center gap-2">
+                      <Spinner /> Beep Boop...
+                    </span>
+                  ) : (
+                    'Log In'
+                  )}
                 </Button>
               )}
             />
           </div>
         </form>
-
-        <div className="mt-6 flex flex-col gap-6">
-          <div className="text-center">
-            Don&apos;t have an account yet?{' '}
-            <Button asChild variant="link" className="p-0">
-              <Link to="/signup">Sign Up</Link>
-            </Button>
-          </div>
-
-          <div>
-            <p className="text-center text-xs text-gray-500">
-              By creating an account, you agree to Happy Everything’s Terms of
-              Service and Privacy Policy.
-            </p>
-          </div>
-        </div>
       </div>
     </>
   )

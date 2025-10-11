@@ -2,10 +2,10 @@ import * as Sentry from '@sentry/node'
 
 Sentry.init({
   dsn: process.env.SENTRY_DSN,
+  environment: process.env.NODE_ENV,
   integrations: [
     Sentry.consoleLoggingIntegration({ levels: ['warn', 'error'] }),
   ],
-
   // Send structured logs to Sentry
   enableLogs: true,
   // Tracing

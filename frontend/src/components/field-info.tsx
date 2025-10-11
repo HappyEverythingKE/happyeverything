@@ -2,12 +2,14 @@ import { type AnyFieldApi } from '@tanstack/react-form'
 
 export function FieldInfo({ field }: { field: AnyFieldApi }) {
   return (
-    <>
-      {field.state.meta.isTouched && field.state.meta.errors.length ? (
-        <p className="text-destructive mt-1 text-xs">
-          {field.state.meta.errors.map((err) => err.message).join(',')}
-        </p>
-      ) : null}
-    </>
+    <div className="mt-1">
+      {field.state.meta.isTouched && field.state.meta.errors.length
+        ? field.state.meta.errors.map((err, idx) => (
+            <p className="text-destructive text-xs" key={idx}>
+              {err.message}
+            </p>
+          ))
+        : null}
+    </div>
   )
 }

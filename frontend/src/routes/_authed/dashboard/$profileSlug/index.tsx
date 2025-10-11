@@ -1,8 +1,9 @@
 import { useEffect } from 'react'
 import { createFileRoute } from '@tanstack/react-router'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useSuspenseQuery } from '@tanstack/react-query'
 
 import { listsByProfileQueryOptions } from '@/services/list.api'
+import { fetchProfileQueryOptions } from '@/services/profile.api'
 import { toast } from 'sonner'
 import { z } from 'zod'
 
@@ -20,7 +21,11 @@ export const Route = createFileRoute('/_authed/dashboard/$profileSlug/')({
 })
 
 function RouteComponent() {
-  const { selectedProfile } = Route.useRouteContext()
+  const { profileSlug } = Route.useParams()
+  const { data: selectedProfile } = useSuspenseQuery(
+    fetchProfileQueryOptions(profileSlug),
+  )
+
   const { error } = Route.useSearch()
 
   const {

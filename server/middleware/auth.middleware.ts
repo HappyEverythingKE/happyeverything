@@ -44,6 +44,13 @@ export const supabaseMiddleware = (): MiddlewareHandler => {
       throw new Error('SUPABASE_SERVICE_ROLE_KEY missing!')
     }
 
+    // Store cookies to be set after the request
+    const cookiesToSet: Array<{
+      name: string
+      value: string
+      options?: Record<string, unknown>
+    }> = []
+
     // authenticated Supabase client (uses cookies, respects RLS)
     const supabase = createServerClient(SUPABASE_URL, SUPABASE_PUBLIC_KEY, {
       cookies: {
@@ -54,12 +61,17 @@ export const supabaseMiddleware = (): MiddlewareHandler => {
           }))
         },
         setAll: (cookies) => {
+          // Store cookies to be set later instead of setting them immediately
           cookies.forEach(({ name, value, ...options }) => {
-            setCookie(c, name, value, {
-              ...options,
-              httpOnly: true,
-              secure: true,
-              sameSite: 'Lax',
+            cookiesToSet.push({
+              name,
+              value,
+              options: {
+                ...options,
+                httpOnly: true,
+                secure: true,
+                sameSite: 'Lax',
+              },
             })
           })
         },
@@ -76,6 +88,11 @@ export const supabaseMiddleware = (): MiddlewareHandler => {
     c.set('supabaseAdmin', supabaseAdmin)
 
     await next()
+
+    // Set all cookies after the response has been processed
+    cookiesToSet.forEach(({ name, value, options }) => {
+      setCookie(c, name, value, options)
+    })
   }
 }
 

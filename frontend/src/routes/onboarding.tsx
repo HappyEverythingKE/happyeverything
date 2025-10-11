@@ -1,12 +1,21 @@
 import { createFileRoute, redirect } from '@tanstack/react-router'
 
-import { ProfileSlugForm } from '@/components/dashboard/account/profile-slug-form'
+import { userQueryOptions } from '@/services/auth.api'
+import { allProfilesQueryOptions } from '@/services/profile.api'
+
+import OnboardingSkeleton from '@/components/ui/onboarding-skeleton'
+import { OnboardingForm } from '@/components/dashboard/account/onboarding-form'
+import { SuspenseQueryBoundary } from '@/components/suspense-query-boundary'
 
 export const Route = createFileRoute('/onboarding')({
   beforeLoad: async ({ context }) => {
     if (!context.authState.isAuthenticated) {
       throw redirect({ to: '/login' })
     }
+  },
+  loader: ({ context }) => {
+    context.queryClient.ensureQueryData(userQueryOptions)
+    context.queryClient.ensureQueryData(allProfilesQueryOptions)
   },
   component: RouteComponent,
 })
@@ -28,7 +37,9 @@ function RouteComponent() {
 
       {/* card */}
       <div className="relative flex min-h-svh items-center justify-center p-6">
-        <ProfileSlugForm />
+        <SuspenseQueryBoundary fallback={<OnboardingSkeleton />}>
+          <OnboardingForm />
+        </SuspenseQueryBoundary>
       </div>
     </div>
   )

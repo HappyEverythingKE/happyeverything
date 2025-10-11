@@ -10,12 +10,13 @@ import * as Sentry from '@sentry/node'
 
 import type { ErrorResponse } from '../shared/types'
 import { supabaseMiddleware } from './middleware/auth.middleware'
+import { accountRoutes } from './routes/account'
 import { authRoutes } from './routes/auth'
-import { giftReservationRoutes } from './routes/gift-reservation-routes'
 import { listItemRoutes } from './routes/lists/list-item-routes'
 import { listRoutes } from './routes/lists/list-routes'
 import { profileRoutes } from './routes/profile'
-import { publicRoutes } from './routes/public'
+import { giftReservationRoutes } from './routes/public/gift-reservation-routes'
+import { publicRoutes } from './routes/public/public-routes'
 import type { UserContext } from './user-context'
 
 const app = new Hono<UserContext>()
@@ -46,6 +47,7 @@ const apiRoutes = app
   })
   // routes
   .route('/auth', authRoutes)
+  .route('/account', accountRoutes)
   .route('/profile', profileRoutes)
   .route('/lists', listRoutes)
   .route('/lists', listItemRoutes)

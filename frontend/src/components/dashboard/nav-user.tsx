@@ -1,11 +1,11 @@
 'use client'
 
-import { useNavigate, useRouter } from '@tanstack/react-router'
+import { Link, useNavigate, useRouter } from '@tanstack/react-router'
 import { useQueryClient } from '@tanstack/react-query'
 
 import { getLogout } from '@/services/auth.api'
 import type { CurrentUser, Profile } from '@shared/types'
-import { BadgeCheck, Bell, ChevronsUpDown, LogOut } from 'lucide-react'
+import { BadgeCheck, ChevronsUpDown, LogOut } from 'lucide-react'
 
 import { supabase } from '@/lib/supabase'
 import { prettifyInitials } from '@/lib/utils'
@@ -94,12 +94,13 @@ export function NavUser({
             <DropdownMenuGroup>
               <ProfileSwitcher profiles={profiles} currentSlug={currentSlug} />
               <DropdownMenuItem>
-                <BadgeCheck />
-                Account
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Bell />
-                Notifications
+                <Link
+                  to="/dashboard/account"
+                  className="flex items-center gap-2"
+                >
+                  <BadgeCheck />
+                  Account
+                </Link>
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
