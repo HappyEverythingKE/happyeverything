@@ -60,8 +60,8 @@ export function EditListItemForm({
       imageUrl: listItem.imageUrl ?? '',
       size: listItem.size ?? '',
       colour: listItem.colour ?? '',
-      productUrl: listItem.productUrl ?? '',
-      shopName: listItem.shopName ?? '',
+      shop: listItem.shop ?? '',
+      notes: listItem.notes ?? '',
     } as z.infer<typeof ListItemCreateSchema>,
     validators: { onChange: ListItemCreateSchema },
     onSubmit: async ({ value }) => {
@@ -157,6 +157,32 @@ export function EditListItemForm({
 
           <div className="space-y-3">
             <form.Field
+              name="shop"
+              children={(field) => {
+                return (
+                  <>
+                    <Label htmlFor={field.name}>Where to buy</Label>
+                    <Input
+                      id={field.name}
+                      name={field.name}
+                      value={field.state.value}
+                      onBlur={field.handleBlur}
+                      onChange={(e) => field.handleChange(e.target.value)}
+                      placeholder="Paste the product URL or shop name (e.g. Carrefour)"
+                    />
+                    <p className="-mt-1 text-xs text-gray-500">
+                      Add a website URL or shop name to help others find it
+                      easily.
+                    </p>
+                    <FieldInfo field={field} />
+                  </>
+                )
+              }}
+            />
+          </div>
+
+          <div className="space-y-3">
+            <form.Field
               name="imageUrl"
               children={(field) => {
                 return (
@@ -236,58 +262,25 @@ export function EditListItemForm({
             />
           </div>
 
-          <div className="space-y-3 border-t pt-6">
-            <p className="text-base font-semibold leading-none">Where to buy</p>
-            <p className="-mt-1 text-xs text-gray-500">
-              Add a website link or shop name to help others find it easily.
-            </p>
-          </div>
-
           <div className="space-y-3">
             <form.Field
-              name="productUrl"
+              name="notes"
               children={(field) => {
                 return (
                   <>
-                    <Label htmlFor={field.name}>Product link</Label>
+                    <Label htmlFor={field.name}>Notes</Label>
                     <Input
                       id={field.name}
                       name={field.name}
                       value={field.state.value}
                       onBlur={field.handleBlur}
                       onChange={(e) => field.handleChange(e.target.value)}
-                      placeholder="Paste a URL (e.g. https://www.shop.com/item)"
-                    />
-                    <p className="-mt-1 text-xs text-gray-500">
-                      Tip: If the item is available online, you can paste the
-                      link here. If not, you can leave this blank.
-                    </p>
-                    <FieldInfo field={field} />
-                  </>
-                )
-              }}
-            />
-          </div>
-
-          <div className="space-y-3">
-            <form.Field
-              name="shopName"
-              children={(field) => {
-                return (
-                  <>
-                    <Label htmlFor={field.name}>Shop name</Label>
-                    <Input
-                      id={field.name}
-                      name={field.name}
-                      value={field.state.value}
-                      onBlur={field.handleBlur}
-                      onChange={(e) => field.handleChange(e.target.value)}
-                      placeholder="Carrefour"
+                      placeholder="Add helpful notes here"
                       aria-invalid={!field.state.meta.isValid}
-                      maxLength={50}
+                      maxLength={250}
                     />
                     <p className="-mt-1 ml-1 text-xs text-gray-500">
-                      {field.state.value?.length ?? 0}/50 characters
+                      {field.state.value?.length ?? 0}/250 characters
                     </p>
                     <FieldInfo field={field} />
                   </>

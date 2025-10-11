@@ -43,65 +43,60 @@ export function PublicListPasswordForm({
 
   return (
     <form
-      className="flex flex-col items-center justify-center gap-4"
+      className="flex flex-col gap-2"
       onSubmit={(e) => {
         e.preventDefault()
         e.stopPropagation()
         form.handleSubmit()
       }}
     >
-      <div className="grid grid-cols-1 place-items-center gap-4 md:grid-cols-[2fr_0.55fr] md:gap-0">
-        <div className="space-y-3">
-          <form.Field
-            name="password"
-            children={(field) => {
-              return (
-                <>
-                  <Input
-                    type="password"
-                    id={field.name}
-                    name={field.name}
-                    value={field.state.value}
-                    onBlur={field.handleBlur}
-                    onChange={(e) => field.handleChange(e.target.value)}
-                    aria-invalid={!field.state.meta.isValid}
-                    placeholder="Enter password"
-                  />
-                  <FieldInfo field={field} />
-                </>
-              )
-            }}
-          />
+      <form.Field
+        name="password"
+        children={(field) => {
+          return (
+            <>
+              <div className="flex w-full flex-col gap-2 md:flex-row">
+                <Input
+                  type="password"
+                  id={field.name}
+                  name={field.name}
+                  value={field.state.value}
+                  onBlur={field.handleBlur}
+                  onChange={(e) => field.handleChange(e.target.value)}
+                  aria-invalid={!field.state.meta.isValid}
+                  placeholder="Enter password"
+                />
+                <form.Subscribe
+                  selector={(state) => [state.canSubmit, state.isSubmitting]}
+                  children={([canSubmit, isSubmitting]) => (
+                    <Button
+                      type="submit"
+                      disabled={!canSubmit || isSubmitting || isPending}
+                    >
+                      {isPending ? 'Working...' : 'Unlock List'}
+                    </Button>
+                  )}
+                />
+              </div>
+              <FieldInfo field={field} />
+            </>
+          )
+        }}
+      />
 
-          {/* Error alerts */}
-          <form.Subscribe
-            selector={(state) => [state.errorMap]}
-            children={([errorMap]) =>
-              errorMap.onSubmit ? (
-                <div className="border-destructive/50 rounded-md border bg-red-50 p-3 md:p-4">
-                  <p className="overflow-auto text-clip text-pretty text-sm font-medium text-red-800">
-                    {errorMap.onSubmit}
-                  </p>
-                </div>
-              ) : null
-            }
-          />
-        </div>
-        {/* Form submission */}
-        <div>
-          <form.Subscribe
-            selector={(state) => [state.canSubmit, state.isSubmitting]}
-            children={([canSubmit, isSubmitting]) => (
-              <Button
-                type="submit"
-                disabled={!canSubmit || isSubmitting || isPending}
-              >
-                {isPending ? 'Working...' : 'Unlock List'}
-              </Button>
-            )}
-          />
-        </div>
-      </div>
+      {/* Error alerts */}
+      <form.Subscribe
+        selector={(state) => [state.errorMap]}
+        children={([errorMap]) =>
+          errorMap.onSubmit ? (
+            <div className="border-destructive/50 rounded-md border bg-red-50 p-3 md:p-4">
+              <p className="overflow-auto text-clip text-pretty text-sm font-medium text-red-800">
+                {errorMap.onSubmit}
+              </p>
+            </div>
+          ) : null
+        }
+      />
     </form>
   )
 }

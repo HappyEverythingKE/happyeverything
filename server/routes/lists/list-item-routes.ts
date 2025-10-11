@@ -57,7 +57,7 @@ export const listItemRoutes = new Hono()
       const listId = await resolveListIdFromSlug(c, profileId, listSlug)
 
       const supabase = getSupabase(c)
-      const { name, quantity, size, colour, imageUrl, productUrl, shopName } =
+      const { name, quantity, size, colour, imageUrl, shop, notes } =
         c.req.valid('form')
 
       const { data, error: insertError } = await supabase
@@ -69,11 +69,11 @@ export const listItemRoutes = new Hono()
           size,
           colour,
           image_url: imageUrl,
-          product_url: productUrl,
-          shop_name: shopName,
+          shop,
+          notes,
         })
         .select(
-          'public_id, name, quantity, size, colour, image_url, product_url, shop_name, top_pick, created_at, updated_at',
+          'public_id, name, quantity, size, colour, image_url, shop, notes, top_pick, created_at, updated_at',
         )
         .single()
 
@@ -102,7 +102,7 @@ export const listItemRoutes = new Hono()
 
       const supabase = getSupabase(c)
 
-      const { name, quantity, size, colour, imageUrl, productUrl, shopName } =
+      const { name, quantity, size, colour, imageUrl, shop, notes } =
         c.req.valid('form')
 
       const { data, error: updateError } = await supabase
@@ -113,14 +113,14 @@ export const listItemRoutes = new Hono()
           size: size || null,
           colour: colour || null,
           image_url: imageUrl || null,
-          product_url: productUrl || null,
-          shop_name: shopName || null,
+          shop: shop || null,
+          notes: notes || null,
           updated_at: new Date().toISOString(),
         })
         .eq('id', itemId)
         .eq('list_id', listId)
         .select(
-          'public_id, name, quantity, size, colour, image_url, product_url, shop_name, top_pick, created_at, updated_at',
+          'public_id, name, quantity, size, colour, image_url, shop, notes, top_pick, created_at, updated_at',
         )
         .single()
 
@@ -181,7 +181,7 @@ export const listItemRoutes = new Hono()
         .eq('id', itemId)
         .eq('list_id', listId)
         .select(
-          'public_id, name, quantity, size, colour, image_url, product_url, shop_name, top_pick, created_at, updated_at',
+          'public_id, name, quantity, size, colour, image_url, shop, notes, top_pick, created_at, updated_at',
         )
         .single()
 

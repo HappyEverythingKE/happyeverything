@@ -28,6 +28,16 @@ export function ItemCard({
   footer,
   className,
 }: ItemCardProps) {
+  const isProductUrl = (() => {
+    if (!item.shop) return false
+    try {
+      new URL(item.shop)
+      return true
+    } catch {
+      return false
+    }
+  })()
+
   return (
     <Card
       key={item.publicId}
@@ -71,7 +81,7 @@ export function ItemCard({
       </div>
 
       {/* Card Content */}
-      <div className="flex flex-1 flex-col justify-between">
+      <div className="flex flex-1 flex-col justify-start">
         {/* Product Title */}
         <h2 className="text-foreground mb-4 border-y py-2 font-semibold">
           {item.name}
@@ -103,21 +113,12 @@ export function ItemCard({
             </dd>
           </div>
 
-          <div>
+          <div className="col-span-2">
             <dt className="text-muted-foreground">Shop</dt>
-            <dd
-              className={cn('font-medium', !item.shopName && 'text-gray-500')}
-            >
-              {item.shopName || '—'}
-            </dd>
-          </div>
-
-          <div>
-            <dt className="text-muted-foreground">Product link</dt>
-            {item.productUrl ? (
+            {isProductUrl ? (
               <dd>
                 <a
-                  href={item.productUrl}
+                  href={item.shop}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="hover:text-primary hover:underline-offset-3 inline-flex items-center gap-1 font-medium underline"
@@ -126,8 +127,15 @@ export function ItemCard({
                 </a>
               </dd>
             ) : (
-              <dd className="text-gray-500">—</dd>
+              <dd className={cn('font-medium', !item.shop && 'text-gray-500')}>
+                {item.shop || '—'}
+              </dd>
             )}
+          </div>
+
+          <div className="col-span-2">
+            <dt className="text-muted-foreground">Notes</dt>
+            <dd className="text-sm">{item.notes || '—'}</dd>
           </div>
         </dl>
       </div>

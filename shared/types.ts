@@ -95,8 +95,8 @@ export type ListItem = {
   size?: string
   colour?: string
   imageUrl?: string
-  productUrl?: string
-  shopName?: string
+  shop?: string
+  notes?: string
   reservedCount: number
   stillNeeds: number
   gifters?: {
@@ -213,17 +213,32 @@ export const ListItemCreateSchema = z.object({
     })
     .transform((value) => (value === '' ? undefined : value))
     .optional(),
-  productUrl: z
+  shop: z
     .string()
     .transform((value) => value.trim())
-    .refine((value) => value === '' || /^https?:\/\/.+/.test(value), {
-      message: 'Please enter a valid URL starting with http:// or https://',
-    })
+    .refine(
+      (value) => {
+        if (value === '') return true // Allow empty values
+
+        // Check if it's a URL
+        try {
+          new URL(value)
+          return true
+        } catch {
+          // Not a URL, check if it's a valid shop name (under 50 chars)
+          return value.length <= 50
+        }
+      },
+      {
+        message:
+          'Please enter either a valid URL or a shop name (max 50 characters)',
+      },
+    )
     .transform((value) => (value === '' ? undefined : value))
     .optional(),
-  shopName: z
+  notes: z
     .string()
-    .max(50, 'Shop name must be less than 50 characters.')
+    .max(250, 'Notes must be less than 250 characters.')
     .optional(),
 })
 
