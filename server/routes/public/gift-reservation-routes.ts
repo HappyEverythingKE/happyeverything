@@ -37,13 +37,34 @@ export const giftReservationRoutes = new Hono().post(
 
     const result = data[0]
 
+    // Fetch the complete updated item from the public view to ensure consistency
+    const { data: updatedItem, error: fetchError } = await supabaseAdmin
+      .from('public_list_items_with_counts')
+      .select('*')
+      .eq('public_id', itemPublicId)
+      .single()
+
+    if (fetchError) {
+      // Fallback to RPC result if view fetch fails
+      return c.json<SuccessResponse<ReserveGiftResponse>>({
+        success: true,
+        data: {
+          item: {
+            publicId: result.item_public_id,
+            quantityReserved: quantityReserved,
+            stillNeeds: result.still_needs,
+          },
+        },
+      })
+    }
+
     return c.json<SuccessResponse<ReserveGiftResponse>>({
       success: true,
       data: {
         item: {
-          publicId: result.item_public_id,
+          publicId: updatedItem.public_id,
           quantityReserved: quantityReserved,
-          stillNeeds: result.still_needs,
+          stillNeeds: updatedItem.still_needs,
         },
       },
     })

@@ -76,16 +76,17 @@ export const useReserveGift = (profileSlug: string, listSlug: string) => {
       )
 
       // --- Invalidate to reconcile with the server in background ---
-      await Promise.all([
+      // Use a small delay to allow database views to catch up
+      setTimeout(() => {
         queryClient.invalidateQueries({
           queryKey: ['unlockedList', profileSlug, listSlug],
           refetchType: 'active',
-        }),
+        })
         queryClient.invalidateQueries({
           queryKey: ['publicListMeta', profileSlug, listSlug],
           refetchType: 'active',
-        }),
-      ])
+        })
+      }, 100)
     },
   })
 }
