@@ -60,7 +60,7 @@ export const listItemRoutes = new Hono()
       const { name, quantity, size, colour, imageUrl, shop, notes } =
         c.req.valid('form')
 
-      const { data, error: insertError } = await supabase
+      const { data: insertedData, error: insertError } = await supabase
         .from('list_items')
         .insert({
           list_id: listId,
@@ -72,14 +72,27 @@ export const listItemRoutes = new Hono()
           shop,
           notes,
         })
-        .select(
-          'public_id, name, quantity, size, colour, image_url, shop, notes, top_pick, created_at, updated_at',
-        )
+        .select('public_id')
         .single()
 
       if (insertError) {
         throw new HTTPException(500, {
           message: insertError.message,
+          cause: { form: true },
+        })
+      }
+
+      // Fetch the newly created item from the same view used by GET to ensure consistent data structure
+      const { data, error: fetchError } = await supabase
+        .from('list_items_with_counts_and_gifters')
+        .select('*')
+        .eq('public_id', insertedData.public_id)
+        .eq('list_id', listId)
+        .single()
+
+      if (fetchError) {
+        throw new HTTPException(500, {
+          message: fetchError.message,
           cause: { form: true },
         })
       }
@@ -105,7 +118,7 @@ export const listItemRoutes = new Hono()
       const { name, quantity, size, colour, imageUrl, shop, notes } =
         c.req.valid('form')
 
-      const { data, error: updateError } = await supabase
+      const { error: updateError } = await supabase
         .from('list_items')
         .update({
           name,
@@ -119,14 +132,24 @@ export const listItemRoutes = new Hono()
         })
         .eq('id', itemId)
         .eq('list_id', listId)
-        .select(
-          'public_id, name, quantity, size, colour, image_url, shop, notes, top_pick, created_at, updated_at',
-        )
-        .single()
 
       if (updateError) {
         throw new HTTPException(500, {
           message: updateError.message,
+          cause: { form: true },
+        })
+      }
+
+      const { data, error: fetchError } = await supabase
+        .from('list_items_with_counts_and_gifters')
+        .select('*')
+        .eq('public_id', itemPublicId)
+        .eq('list_id', listId)
+        .single()
+
+      if (fetchError) {
+        throw new HTTPException(500, {
+          message: fetchError.message,
           cause: { form: true },
         })
       }
@@ -175,19 +198,28 @@ export const listItemRoutes = new Hono()
         }
       }
 
-      const { data, error: updateError } = await supabase
+      const { error: updateError } = await supabase
         .from('list_items')
         .update({ top_pick: topPick, updated_at: new Date().toISOString() })
         .eq('id', itemId)
         .eq('list_id', listId)
-        .select(
-          'public_id, name, quantity, size, colour, image_url, shop, notes, top_pick, created_at, updated_at',
-        )
-        .single()
 
       if (updateError) {
         throw new HTTPException(500, {
           message: updateError.message,
+        })
+      }
+
+      const { data, error: fetchError } = await supabase
+        .from('list_items_with_counts_and_gifters')
+        .select('*')
+        .eq('public_id', itemPublicId)
+        .eq('list_id', listId)
+        .single()
+
+      if (fetchError) {
+        throw new HTTPException(500, {
+          message: fetchError.message,
         })
       }
 
