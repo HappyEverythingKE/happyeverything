@@ -77,7 +77,7 @@ const FeatureSection = ({ sections }: { sections: SectionProps[] }) => (
 
 export function BenefitSection() {
   return (
-    <section id="benefits" className="px-[5%] py-16">
+    <section id="benefits" className="px-[5%] pb-16 md:py-16">
       <div className="md:mb-18 mb-12">
         <div className="mx-auto max-w-3xl text-center">
           <h2 className="mb-6 text-pretty text-2xl md:text-3xl">

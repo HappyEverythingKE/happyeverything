@@ -68,7 +68,7 @@ export function HeroSection() {
           <h1 className="mb-5 text-4xl md:mb-6 md:text-5xl">
             No more guesswork.
             <br />
-            <span className="font-italic">Just gifts you&apos;ll love.</span>
+            Just gifts you&apos;ll <span className="font-italic">love.</span>
           </h1>
           <p className="md:text-lg">
             Celebrate birthdays, weddings and everything in between. Whether

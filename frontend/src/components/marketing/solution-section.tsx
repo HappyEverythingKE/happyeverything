@@ -34,7 +34,7 @@ const sections = [
 
 export function SolutionSection() {
   return (
-    <section id="solution-section" className="px-[5%] py-16">
+    <section id="solution-section" className="px-[5%] pb-16 md:py-16">
       <div className="md:mb-18 mb-12 text-center">
         <div className="mx-auto w-full max-w-3xl">
           <h2 className="text-balance text-2xl md:text-3xl">
