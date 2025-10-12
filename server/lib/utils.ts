@@ -23,6 +23,7 @@ export const formatDate = (dateString: string): string => {
 
 export const mapToListType = (list: any): List => {
   return {
+    id: list.id,
     name: list.name,
     slug: list.slug,
     description: list.description,
@@ -42,7 +43,7 @@ export const mapToListType = (list: any): List => {
 
 export const mapToListItemType = (item: any): ListItem => {
   return {
-    publicId: item.public_id,
+    id: item.id,
     name: item.name,
     quantity: item.quantity,
     topPick: item.top_pick,
@@ -61,6 +62,7 @@ export const mapToListItemType = (item: any): ListItem => {
 
 export const mapToPublicListType = (list: any): Omit<List, 'password'> => {
   return {
+    id: list.id,
     name: list.name,
     slug: list.slug,
     description: list.description,

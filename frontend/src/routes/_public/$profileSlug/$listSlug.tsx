@@ -7,6 +7,7 @@ import {
 } from '@/services/public.api'
 import type { ListWithItems } from '@shared/types'
 
+import { useRealtimeListSync } from '@/hooks/use-realtime-list-sync'
 import { Button } from '@/components/ui/button'
 import { FullPageSkeleton } from '@/components/ui/full-page-skeleton'
 import { PublicListPasswordForm } from '@/components/dashboard/forms/public-list-password-form'
@@ -86,6 +87,9 @@ function RouteComponent() {
 
   // at this point we either have a public list OR an unlocked private list
   const list = unlockedList ?? (data as { list: ListWithItems }).list
+
+  // subscribe to realtime updates for the list
+  useRealtimeListSync(profileSlug, listSlug, list.id)
 
   const listInfo = {
     name: list.name,

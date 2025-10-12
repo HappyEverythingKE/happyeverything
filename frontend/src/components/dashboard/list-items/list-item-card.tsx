@@ -38,7 +38,7 @@ export const ListItemCard = ({
   const handleCancel = () => setIsSheetOpen(false)
 
   const { mutateAsync: updateListItemPriority, isPending } =
-    useUpdateListItemPriority(profileSlug, listSlug, item.publicId)
+    useUpdateListItemPriority(profileSlug, listSlug, item.id)
 
   const handleTopPickToggle = async () => {
     try {

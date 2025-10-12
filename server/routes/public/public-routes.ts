@@ -211,7 +211,7 @@ async function getPublicList(c: Context, profileId: string, listSlug: string) {
     .from('lists')
     .select(
       `
-        name, slug, description, private, password, status, created_at, updated_at,
+        id, name, slug, description, private, password, status, created_at, updated_at,
         list_types!inner(id, name, image_url, is_custom)
       `,
     )

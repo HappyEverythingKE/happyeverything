@@ -13,10 +13,10 @@ import type {
 import { client } from '@/lib/api'
 
 export const reserveGift = async (
-  itemPublicId: string,
+  itemId: string,
   reservationData: Partial<GiftReservation>,
 ) => {
-  const res = await (client.public.reservations as any)[itemPublicId].$post({
+  const res = await (client.public.reservations as any)[itemId].$post({
     form: reservationData,
   })
 
@@ -34,17 +34,17 @@ export const useReserveGift = (profileSlug: string, listSlug: string) => {
 
   return useMutation({
     mutationFn: ({
-      itemPublicId,
+      itemId,
       reservationData,
     }: {
-      itemPublicId: string
+      itemId: string
       reservationData: Partial<GiftReservation>
-    }) => reserveGift(itemPublicId, reservationData),
+    }) => reserveGift(itemId, reservationData),
 
     onSuccess: async (res) => {
       if (!res.success) return
 
-      const { publicId, stillNeeds } = res.data.item
+      const { itemId, stillNeeds } = res.data.item
 
       // --- Optimistically update cached list data ---
       const updateList = (oldData?: {
@@ -59,7 +59,7 @@ export const useReserveGift = (profileSlug: string, listSlug: string) => {
           list: {
             ...oldData.list,
             items: oldData.list.items.map((item: ListItem) =>
-              item.publicId === publicId ? { ...item, stillNeeds } : item,
+              item.id === itemId ? { ...item, stillNeeds } : item,
             ),
           },
         }
@@ -76,17 +76,16 @@ export const useReserveGift = (profileSlug: string, listSlug: string) => {
       )
 
       // --- Invalidate to reconcile with the server in background ---
-      // Use a small delay to allow database views to catch up
-      setTimeout(() => {
+      await Promise.all([
         queryClient.invalidateQueries({
           queryKey: ['unlockedList', profileSlug, listSlug],
           refetchType: 'active',
-        })
+        }),
         queryClient.invalidateQueries({
           queryKey: ['publicListMeta', profileSlug, listSlug],
           refetchType: 'active',
-        })
-      }, 100)
+        }),
+      ])
     },
   })
 }

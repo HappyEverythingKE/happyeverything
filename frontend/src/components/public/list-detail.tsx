@@ -55,7 +55,7 @@ export function ListDetail({
 
           return (
             <ItemCard
-              key={item.publicId}
+              key={item.id}
               item={item}
               placeholderImage={placeholderImage}
               showTopPickBadge={true}
@@ -78,7 +78,7 @@ export function ListDetail({
             profileSlug={profileSlug}
             listSlug={list.slug}
             itemReservationInfo={{
-              itemPublicId: selectedItem.publicId,
+              itemId: selectedItem.id,
               itemQuantity: selectedItem.quantity,
               stillNeeds: selectedItem.stillNeeds || selectedItem.quantity,
             }}

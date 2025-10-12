@@ -11,7 +11,6 @@ import {
   type ListItem,
   type SuccessResponse,
 } from '../../../shared/types'
-import { resolveListItemIdFromPublicId } from '../../lib/public-id-lookup'
 import {
   resolveListIdFromSlug,
   resolveProfileIdFromSlug,
@@ -33,6 +32,7 @@ export const listItemRoutes = new Hono()
       .from('list_items_with_counts_and_gifters')
       .select('*')
       .eq('list_id', listId)
+      .order('still_needs', { ascending: false })
       .order('top_pick', { ascending: false })
       .order('created_at', { ascending: false })
 
@@ -72,7 +72,7 @@ export const listItemRoutes = new Hono()
           shop,
           notes,
         })
-        .select('public_id')
+        .select('id')
         .single()
 
       if (insertError) {
@@ -86,7 +86,7 @@ export const listItemRoutes = new Hono()
       const { data, error: fetchError } = await supabase
         .from('list_items_with_counts_and_gifters')
         .select('*')
-        .eq('public_id', insertedData.public_id)
+        .eq('id', insertedData.id)
         .eq('list_id', listId)
         .single()
 
@@ -104,14 +104,13 @@ export const listItemRoutes = new Hono()
     },
   )
   .patch(
-    '/:profileSlug/:listSlug/items/:itemPublicId',
+    '/:profileSlug/:listSlug/items/:itemId',
     zValidator('form', ListItemCreateSchema),
     async (c) => {
-      const { profileSlug, listSlug, itemPublicId } = c.req.param()
+      const { profileSlug, listSlug, itemId } = c.req.param()
 
       const profileId = await resolveProfileIdFromSlug(c, profileSlug)
       const listId = await resolveListIdFromSlug(c, profileId, listSlug)
-      const itemId = await resolveListItemIdFromPublicId(c, itemPublicId)
 
       const supabase = getSupabase(c)
 
@@ -143,7 +142,7 @@ export const listItemRoutes = new Hono()
       const { data, error: fetchError } = await supabase
         .from('list_items_with_counts_and_gifters')
         .select('*')
-        .eq('public_id', itemPublicId)
+        .eq('id', itemId)
         .eq('list_id', listId)
         .single()
 
@@ -161,17 +160,16 @@ export const listItemRoutes = new Hono()
     },
   )
   .patch(
-    '/:profileSlug/:listSlug/items/:itemPublicId/priority',
+    '/:profileSlug/:listSlug/items/:itemId/priority',
     zValidator('form', TopPickSchema),
     async (c) => {
-      const { profileSlug, listSlug, itemPublicId } = c.req.param()
+      const { profileSlug, listSlug, itemId } = c.req.param()
       const { topPick } = c.req.valid('form')
 
       const supabase = getSupabase(c)
 
       const profileId = await resolveProfileIdFromSlug(c, profileSlug)
       const listId = await resolveListIdFromSlug(c, profileId, listSlug)
-      const itemId = await resolveListItemIdFromPublicId(c, itemPublicId)
 
       // check if adding another top pick would exceed the limit
       if (topPick === true) {
@@ -213,7 +211,7 @@ export const listItemRoutes = new Hono()
       const { data, error: fetchError } = await supabase
         .from('list_items_with_counts_and_gifters')
         .select('*')
-        .eq('public_id', itemPublicId)
+        .eq('id', itemId)
         .eq('list_id', listId)
         .single()
 
@@ -229,12 +227,11 @@ export const listItemRoutes = new Hono()
       })
     },
   )
-  .delete('/:profileSlug/:listSlug/items/:itemPublicId', async (c) => {
-    const { profileSlug, listSlug, itemPublicId } = c.req.param()
+  .delete('/:profileSlug/:listSlug/items/:itemId', async (c) => {
+    const { profileSlug, listSlug, itemId } = c.req.param()
 
     const profileId = await resolveProfileIdFromSlug(c, profileSlug)
     const listId = await resolveListIdFromSlug(c, profileId, listSlug)
-    const itemId = await resolveListItemIdFromPublicId(c, itemPublicId)
 
     const supabase = getSupabase(c)
 

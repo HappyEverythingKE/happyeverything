@@ -76,6 +76,7 @@ export type ListType = {
 export type TopPickType = z.infer<typeof TopPickSchema>
 
 export type List = {
+  id: string
   name: string
   slug: string
   listType: ListType
@@ -88,7 +89,7 @@ export type List = {
 }
 
 export type ListItem = {
-  publicId: string
+  id: string
   name: string
   quantity: number
   topPick: boolean
@@ -125,7 +126,7 @@ export type GiftReservation = {
 
 export type ReserveGiftResponse = {
   item: {
-    publicId: string
+    itemId: string
     quantityReserved: number
     stillNeeds: number
   }

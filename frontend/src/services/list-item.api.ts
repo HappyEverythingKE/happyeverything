@@ -73,7 +73,7 @@ export const useCreateListItem = (profileSlug: string, listSlug: string) => {
 
       // update detail
       queryClient.setQueryData<ListItem>(
-        ['profiles', profileSlug, 'lists', listSlug, 'items', newItem.publicId],
+        ['profiles', profileSlug, 'lists', listSlug, 'items', newItem.id],
         newItem,
       )
 
@@ -88,11 +88,11 @@ export const useCreateListItem = (profileSlug: string, listSlug: string) => {
 export const updateListItem = async (
   profileSlug: string,
   listSlug: string,
-  itemPublicId: string,
+  itemId: string,
   listItemData: Partial<ListItem>,
 ) => {
   const res = await (client.lists as any)[profileSlug][listSlug].items[
-    itemPublicId
+    itemId
   ].$patch({
     form: listItemData,
   })
@@ -109,20 +109,20 @@ export const updateListItem = async (
 export const useUpdateListItem = (
   profileSlug: string,
   listSlug: string,
-  itemPublicId: string,
+  itemId: string,
 ) => {
   const queryClient = useQueryClient()
 
   return useMutation({
     mutationFn: (listItemData: Partial<ListItem>) =>
-      updateListItem(profileSlug, listSlug, itemPublicId, listItemData),
+      updateListItem(profileSlug, listSlug, itemId, listItemData),
     onSuccess: (res) => {
       if (!res.success) return // let the form handle the error
 
       const updatedItem = res.data
       // update detail
       queryClient.setQueryData<ListItem>(
-        ['profiles', profileSlug, 'lists', listSlug, 'items', itemPublicId],
+        ['profiles', profileSlug, 'lists', listSlug, 'items', itemId],
         updatedItem,
       )
 
@@ -131,9 +131,7 @@ export const useUpdateListItem = (
         ['profiles', profileSlug, 'lists', listSlug, 'items'],
         (old) =>
           old
-            ? old.map((item) =>
-                item.publicId === itemPublicId ? updatedItem : item,
-              )
+            ? old.map((item) => (item.id === itemId ? updatedItem : item))
             : old,
       )
     },
@@ -143,11 +141,11 @@ export const useUpdateListItem = (
 export const updateListItemPriority = async (
   profileSlug: string,
   listSlug: string,
-  itemPublicId: string,
+  itemId: string,
   topPick: boolean,
 ) => {
   const res = await (client.lists as any)[profileSlug][listSlug].items[
-    itemPublicId
+    itemId
   ].priority.$patch({
     form: { topPick: Boolean(topPick) },
   })
@@ -164,19 +162,19 @@ export const updateListItemPriority = async (
 export const useUpdateListItemPriority = (
   profileSlug: string,
   listSlug: string,
-  itemPublicId: string,
+  itemId: string,
 ) => {
   const queryClient = useQueryClient()
 
   return useMutation({
     mutationFn: (topPick: boolean) =>
-      updateListItemPriority(profileSlug, listSlug, itemPublicId, topPick),
+      updateListItemPriority(profileSlug, listSlug, itemId, topPick),
     onSuccess: (res) => {
       const updatedItem = res.data
 
       // update detail
       queryClient.setQueryData<ListItem>(
-        ['profiles', profileSlug, 'lists', listSlug, 'items', itemPublicId],
+        ['profiles', profileSlug, 'lists', listSlug, 'items', itemId],
         updatedItem,
       )
 
@@ -186,9 +184,7 @@ export const useUpdateListItemPriority = (
         (old) =>
           old
             ? old
-                .map((item) =>
-                  item.publicId === itemPublicId ? updatedItem : item,
-                )
+                .map((item) => (item.id === itemId ? updatedItem : item))
                 .sort((a, b) => {
                   // topPicks first
                   if (a.topPick !== b.topPick) {
@@ -209,10 +205,10 @@ export const useUpdateListItemPriority = (
 export const deleteListItem = async (
   profileSlug: string,
   listSlug: string,
-  itemPublicId: string,
+  itemId: string,
 ) => {
   const res = await (client.lists as any)[profileSlug][listSlug].items[
-    itemPublicId
+    itemId
   ].$delete({})
 
   if (!res.ok) {
@@ -224,28 +220,21 @@ export const deleteListItem = async (
 export const useDeleteListItem = (
   profileSlug: string,
   listSlug: string,
-  itemPublicId: string,
+  itemId: string,
 ) => {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: () => deleteListItem(profileSlug, listSlug, itemPublicId),
+    mutationFn: () => deleteListItem(profileSlug, listSlug, itemId),
     onSuccess: () => {
       // remove from detail cache
       queryClient.removeQueries({
-        queryKey: [
-          'profiles',
-          profileSlug,
-          'lists',
-          listSlug,
-          'items',
-          itemPublicId,
-        ],
+        queryKey: ['profiles', profileSlug, 'lists', listSlug, 'items', itemId],
       })
       // patch the collection
       queryClient.setQueryData<ListItem[]>(
         ['profiles', profileSlug, 'lists', listSlug, 'items'],
-        (old) => old?.filter((item) => item.publicId !== itemPublicId),
+        (old) => old?.filter((item) => item.id !== itemId),
       )
     },
   })

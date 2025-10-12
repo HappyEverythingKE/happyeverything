@@ -39,7 +39,7 @@ export const WithListItems = ({
         <div className="mx-auto grid w-full max-w-7xl grid-cols-1 gap-6 lg:grid-cols-2 xl:grid-cols-3">
           {listItems.map((item) => (
             <ListItemCard
-              key={item.publicId}
+              key={item.id}
               profileSlug={profileSlug}
               listSlug={listSlug}
               item={item}

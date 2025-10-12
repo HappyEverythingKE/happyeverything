@@ -7,6 +7,7 @@ import { fetchListQueryOptions } from '@/services/list.api'
 import { DotIcon, Settings, Share2 } from 'lucide-react'
 import { toast } from 'sonner'
 
+import { useRealtimeListSync } from '@/hooks/use-realtime-list-sync'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
@@ -55,6 +56,9 @@ function RouteComponent() {
     ...fetchListQueryOptions(profileSlug, initialList.slug),
     initialData: initialList, // Use loader data as initial data
   })
+
+  // subscribe to realtime updates for the list
+  useRealtimeListSync(profileSlug, list.slug, list.id)
 
   // handle case where list gets deleted while user is on the page
   useEffect(() => {

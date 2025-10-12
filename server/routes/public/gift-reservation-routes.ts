@@ -11,10 +11,10 @@ import {
 import { getAdminSupabase } from '../../middleware/auth.middleware'
 
 export const giftReservationRoutes = new Hono().post(
-  '/:itemPublicId',
+  '/:itemId',
   zValidator('form', GiftReservationCreateSchema),
   async (c) => {
-    const { itemPublicId } = c.req.param()
+    const { itemId } = c.req.param()
     const { gifterName, quantityReserved } = c.req.valid('form')
 
     const supabaseAdmin = getAdminSupabase(c)
@@ -23,7 +23,7 @@ export const giftReservationRoutes = new Hono().post(
     const { data, error } = await supabaseAdmin.rpc(
       'reserve_gift_transaction',
       {
-        p_item_public_id: itemPublicId,
+        p_item_id: itemId,
         p_quantity_reserved: quantityReserved,
         p_gifter_name: gifterName ?? null,
       },
@@ -37,34 +37,13 @@ export const giftReservationRoutes = new Hono().post(
 
     const result = data[0]
 
-    // Fetch the complete updated item from the public view to ensure consistency
-    const { data: updatedItem, error: fetchError } = await supabaseAdmin
-      .from('public_list_items_with_counts')
-      .select('*')
-      .eq('public_id', itemPublicId)
-      .single()
-
-    if (fetchError) {
-      // Fallback to RPC result if view fetch fails
-      return c.json<SuccessResponse<ReserveGiftResponse>>({
-        success: true,
-        data: {
-          item: {
-            publicId: result.item_public_id,
-            quantityReserved: quantityReserved,
-            stillNeeds: result.still_needs,
-          },
-        },
-      })
-    }
-
     return c.json<SuccessResponse<ReserveGiftResponse>>({
       success: true,
       data: {
         item: {
-          publicId: updatedItem.public_id,
+          itemId: result.item_id,
           quantityReserved: quantityReserved,
-          stillNeeds: updatedItem.still_needs,
+          stillNeeds: result.still_needs,
         },
       },
     })

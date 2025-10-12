@@ -46,7 +46,7 @@ export function ItemCard({
 
   return (
     <Card
-      key={item.publicId}
+      key={item.id}
       className={cn(
         'relative flex h-full w-full flex-col overflow-hidden rounded-md border-stone-200 bg-white p-6 transition-shadow hover:shadow-md',
         className,
@@ -54,7 +54,7 @@ export function ItemCard({
     >
       {/* Dim overlay when gifted */}
       {item.stillNeeds === 0 && (
-        <div className="pointer-events-none absolute inset-0 z-10 rounded-md bg-gradient-to-b from-transparent to-gray-200/70 dark:to-gray-900/70" />
+        <div className="pointer-events-none absolute inset-0 z-10 rounded-md bg-gradient-to-b from-gray-100/10 to-gray-300/70 dark:to-gray-900/70" />
       )}
 
       {/* Image / Badge Area */}

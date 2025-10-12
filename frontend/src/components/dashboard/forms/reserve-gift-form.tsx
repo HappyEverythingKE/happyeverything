@@ -14,7 +14,7 @@ interface ReserveGiftFormProps {
   listSlug: string
   profileSlug: string
   itemReservationInfo: {
-    itemPublicId: string
+    itemId: string
     itemQuantity: number
     stillNeeds: number
   }
@@ -60,7 +60,7 @@ export function ReserveGiftForm({
     validators: { onChange: confirmReservationSchema },
     onSubmit: async ({ value }) => {
       const res = await reserveGift({
-        itemPublicId: itemReservationInfo.itemPublicId,
+        itemId: itemReservationInfo.itemId,
         reservationData: value,
       })
       if (res.success) {

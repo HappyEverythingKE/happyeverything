@@ -31,11 +31,11 @@ export function EditListItemForm({
   const { mutateAsync: updateListItem, isPending } = useUpdateListItem(
     profileSlug,
     listSlug,
-    listItem.publicId,
+    listItem.id,
   )
   // delete list item
   const { mutateAsync: deleteListItem, isPending: isDeleting } =
-    useDeleteListItem(profileSlug, listSlug, listItem.publicId)
+    useDeleteListItem(profileSlug, listSlug, listItem.id)
 
   const handleDeleteItem = async () => {
     try {
