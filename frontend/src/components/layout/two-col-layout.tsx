@@ -6,7 +6,7 @@ export const TwoColLayout = ({ children }: PropsWithChildren) => {
   return (
     <>
       <main className="grid min-h-svh grid-cols-1 md:grid-cols-2">
-        <div className="flex flex-col">
+        <div className="mt-4 flex flex-col">
           <LogoHeader />
           <div className="flex w-full flex-1 items-center justify-center p-6 md:p-10">
             {children}

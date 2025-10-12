@@ -56,7 +56,7 @@ export function ProfileListsGrid({ profileSlug, lists }: WithPublicListsProps) {
                   to="/$profileSlug/$listSlug"
                   params={{ profileSlug, listSlug: list.slug }}
                 >
-                  View List
+                  View list
                 </Link>
               </Button>
             </CardFooter>

@@ -68,7 +68,7 @@ const FeatureSection = ({ sections }: { sections: SectionProps[] }) => (
             alt={section.image.alt}
           />
         </div>
-        <h3 className="text-md mb-3 md:mb-4">{section.heading}</h3>
+        <h3 className="mb-3 text-lg md:mb-4">{section.heading}</h3>
         <p>{section.description}</p>
       </div>
     ))}
@@ -77,18 +77,17 @@ const FeatureSection = ({ sections }: { sections: SectionProps[] }) => (
 
 export function BenefitSection() {
   return (
-    <section id="benefits" className="px-[5%] py-16 md:py-24 lg:py-28">
-      <div className="md:mb-18 mb-12 lg:mb-20">
+    <section id="benefits" className="px-[5%] py-16">
+      <div className="md:mb-18 mb-12">
         <div className="mx-auto max-w-3xl text-center">
-          <h2 className="mb-5 text-xl md:mb-6 md:text-2xl">
+          <h2 className="mb-6 text-pretty text-2xl md:text-3xl">
             Why settle for guesswork? <br />
             Get the gifts you <span className="font-italic">actually</span> want
           </h2>
-          <p className="text-balance">
+          <p className="text-pretty">
             Happy Everything makes it simple for your loved ones to know exactly
-            what you want, so every gift feels personal and appreciated.
-            <br />
-            No confusion. No duplicates. Just joyful, thoughtful giving.
+            what you want, so every gift feels personal and appreciated. No
+            confusion. No duplicates. Just joyful, thoughtful giving.
           </p>
         </div>
       </div>
@@ -106,7 +105,7 @@ export function BenefitSection() {
         <FeatureSection sections={rightSections} />
       </div>
       <div className="md:mt-18 mt-12 flex flex-wrap items-center justify-center gap-4 lg:mt-20">
-        <Button asChild>
+        <Button asChild size="lg">
           <Link to="/signup">Create your first wish list</Link>
         </Button>
       </div>

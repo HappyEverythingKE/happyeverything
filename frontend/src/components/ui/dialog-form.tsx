@@ -27,11 +27,9 @@ function DialogForm({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="h-[80vh] overflow-hidden p-0">
         <DialogHeader className="border-sidebar-border flex-shrink-0 border-b p-4 pb-3 sm:p-6 sm:pb-4">
-          <DialogTitle className="text-base font-semibold sm:text-lg">
-            {title}
-          </DialogTitle>
+          <DialogTitle className="text-xl font-semibold">{title}</DialogTitle>
           {description && (
-            <DialogDescription className="whitespace-pre-line text-sm">
+            <DialogDescription className="whitespace-pre-line text-base">
               {description}
             </DialogDescription>
           )}

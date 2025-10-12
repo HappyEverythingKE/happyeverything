@@ -61,7 +61,7 @@ export function WithLists({ profileSlug, lists }: WithListsProps) {
                       to="/dashboard/$profileSlug/$listSlug"
                       params={{ profileSlug, listSlug: list.slug }}
                     >
-                      View List
+                      View list
                     </Link>
                   </Button>
                 </CardContent>

@@ -65,18 +65,18 @@ export function HeroSection() {
     <section id="home-hero" className="relative">
       <div className="px-[5%] pt-16 md:pt-24 lg:pt-28">
         <div className="mx-auto w-full max-w-3xl text-center">
-          <h1 className="mb-5 text-2xl md:mb-6 md:text-4xl">
+          <h1 className="mb-5 text-4xl md:mb-6 md:text-5xl">
             No more guesswork.
             <br />
             <span className="font-italic">Just gifts you&apos;ll love.</span>
           </h1>
-          <p className="md:text-md">
+          <p className="md:text-lg">
             Celebrate birthdays, weddings and everything in between. Whether
             you’re the one receiving or giving, experience gifting made joyful,
             simple, and stress-free.
           </p>
-          <div className="mt-6 flex items-center justify-center gap-x-4 md:mt-8">
-            <Button asChild>
+          <div className="mt-6 flex items-center justify-center md:mt-8">
+            <Button asChild size="lg">
               <Link to="/signup">Create your wish list - it&apos;s free!</Link>
             </Button>
           </div>

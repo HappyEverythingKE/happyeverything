@@ -34,10 +34,10 @@ const sections = [
 
 export function SolutionSection() {
   return (
-    <section id="solution-section" className="px-[5%] py-16 md:py-24 lg:py-28">
-      <div className="rb-12 md:mb-18 mb-12 text-center lg:mb-20">
+    <section id="solution-section" className="px-[5%] py-16">
+      <div className="md:mb-18 mb-12 text-center">
         <div className="mx-auto w-full max-w-3xl">
-          <h2 className="text-balance text-xl md:text-2xl">
+          <h2 className="text-balance text-2xl md:text-3xl">
             Gifting made <span className="font-italic">simple</span> in 3 easy
             steps
           </h2>
@@ -46,7 +46,7 @@ export function SolutionSection() {
       <div className="grid grid-cols-1 items-start justify-center gap-y-12 md:grid-cols-3 md:gap-x-8 md:gap-y-16 lg:gap-x-12">
         {sections.map((section, index) => (
           <div key={index} className="flex flex-col items-center text-center">
-            <div className="relative mb-5 md:mb-6">
+            <div className="relative mb-6">
               <img
                 src={section.image.src}
                 alt={section.image.alt}
@@ -56,7 +56,7 @@ export function SolutionSection() {
               />
               <div className="bg-tangerine absolute right-[20%] top-[20%] size-[80%] blur-md"></div>
             </div>
-            <h3 className="text-md mb-5 md:mb-6">{section.heading}</h3>
+            <h3 className="mb-3 text-lg">{section.heading}</h3>
             <p className="whitespace-pre-line text-balance">
               {section.description}
             </p>

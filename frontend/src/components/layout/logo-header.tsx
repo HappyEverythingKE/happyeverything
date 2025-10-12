@@ -6,7 +6,7 @@ import PrimaryLogo from '@/assets/logos/logo-primary.svg'
 export const LogoHeader = () => {
   return (
     <div className="flex flex-col">
-      <nav className="w-full items-center justify-center px-[10%] py-2">
+      <nav className="w-full items-center justify-center px-[5%] py-2">
         <Link to="/">
           <img
             src={MobileLogo}

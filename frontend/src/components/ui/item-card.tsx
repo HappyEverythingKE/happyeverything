@@ -2,7 +2,13 @@ import type { ListItem } from '@shared/types'
 import { ExternalLink, Heart } from 'lucide-react'
 
 import { cn } from '@/lib/utils'
+import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover'
 import {
   Tooltip,
   TooltipContent,
@@ -28,6 +34,16 @@ export function ItemCard({
   footer,
   className,
 }: ItemCardProps) {
+  const isProductUrl = (() => {
+    if (!item.shop) return false
+    try {
+      new URL(item.shop)
+      return true
+    } catch {
+      return false
+    }
+  })()
+
   return (
     <Card
       key={item.publicId}
@@ -38,7 +54,7 @@ export function ItemCard({
     >
       {/* Dim overlay when gifted */}
       {item.stillNeeds === 0 && (
-        <div className="pointer-events-none absolute inset-0 z-10 rounded-2xl bg-gradient-to-b from-transparent to-gray-200/70 dark:to-gray-900/70" />
+        <div className="pointer-events-none absolute inset-0 z-10 rounded-md bg-gradient-to-b from-transparent to-gray-200/70 dark:to-gray-900/70" />
       )}
 
       {/* Image / Badge Area */}
@@ -54,16 +70,35 @@ export function ItemCard({
 
         {/* Top Pick Badge - shown on public lists */}
         {showTopPickBadge && item.topPick && (
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <div className="bg-blush absolute left-3 top-0 flex h-8 w-8 items-center justify-center rounded-full">
-                <Heart className="h-4 w-4 text-white" />
-              </div>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>A Favourite!</p>
-            </TooltipContent>
-          </Tooltip>
+          <>
+            {/* Desktop Tooltip */}
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className="bg-blush absolute left-3 top-0 hidden h-8 w-8 items-center justify-center rounded-full lg:flex">
+                  <Heart className="h-4 w-4 text-white" />
+                </div>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>A Favourite!</p>
+              </TooltipContent>
+            </Tooltip>
+
+            {/* Mobile Popover */}
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  className="bg-blush group absolute left-2 top-0 h-8 w-8 rounded-full lg:hidden"
+                >
+                  <Heart className="h-4 w-4 text-white" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="bg-tertiary text-tertiary-foreground z-50 w-fit text-balance rounded-md px-3 py-1.5 text-xs">
+                <p className="text-sm">A Favourite!</p>
+              </PopoverContent>
+            </Popover>
+          </>
         )}
 
         {/* Top Pick Button - shown on dashboard */}
@@ -71,7 +106,7 @@ export function ItemCard({
       </div>
 
       {/* Card Content */}
-      <div className="flex flex-1 flex-col justify-between">
+      <div className="flex flex-1 flex-col justify-start">
         {/* Product Title */}
         <h2 className="text-foreground mb-4 border-y py-2 font-semibold">
           {item.name}
@@ -103,21 +138,12 @@ export function ItemCard({
             </dd>
           </div>
 
-          <div>
+          <div className="col-span-2">
             <dt className="text-muted-foreground">Shop</dt>
-            <dd
-              className={cn('font-medium', !item.shopName && 'text-gray-500')}
-            >
-              {item.shopName || '—'}
-            </dd>
-          </div>
-
-          <div>
-            <dt className="text-muted-foreground">Product link</dt>
-            {item.productUrl ? (
+            {isProductUrl ? (
               <dd>
                 <a
-                  href={item.productUrl}
+                  href={item.shop}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="hover:text-primary hover:underline-offset-3 inline-flex items-center gap-1 font-medium underline"
@@ -126,8 +152,15 @@ export function ItemCard({
                 </a>
               </dd>
             ) : (
-              <dd className="text-gray-500">—</dd>
+              <dd className={cn('font-medium', !item.shop && 'text-gray-500')}>
+                {item.shop || '—'}
+              </dd>
             )}
+          </div>
+
+          <div className="col-span-2">
+            <dt className="text-muted-foreground">Notes</dt>
+            <dd className="text-sm">{item.notes || '—'}</dd>
           </div>
         </dl>
       </div>

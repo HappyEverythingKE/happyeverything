@@ -31,7 +31,7 @@ function SheetForm({
         <SheetContent>
           <div className="flex h-full flex-col">
             <SheetHeader className="border-sidebar-border border-b p-6">
-              <SheetTitle className="text-lg font-semibold">{title}</SheetTitle>
+              <SheetTitle className="text-xl font-semibold">{title}</SheetTitle>
               {description && (
                 <SheetDescription>{description}</SheetDescription>
               )}

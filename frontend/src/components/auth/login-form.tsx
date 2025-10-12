@@ -191,7 +191,7 @@ export function LoginForm({
                 >
                   {isSubmitting ? (
                     <span className="flex items-center gap-2">
-                      <Spinner /> Beep Boop...
+                      <Spinner /> Welcome Back...
                     </span>
                   ) : (
                     'Log In'

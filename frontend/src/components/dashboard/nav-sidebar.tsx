@@ -37,8 +37,9 @@ const navData = {
   navSecondary: [
     {
       title: 'Support',
-      url: '#',
+      url: 'mailto:hello@happyeverything.com',
       icon: LifeBuoy,
+      external: true,
     },
   ],
 }

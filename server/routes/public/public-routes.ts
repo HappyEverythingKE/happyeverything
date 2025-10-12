@@ -228,6 +228,7 @@ async function getPublicList(c: Context, profileId: string, listSlug: string) {
     .from('public_list_items_with_counts')
     .select('*')
     .eq('list_id', listId)
+    .order('still_needs', { ascending: false })
     .order('top_pick', { ascending: false })
     .order('created_at', { ascending: false })
 

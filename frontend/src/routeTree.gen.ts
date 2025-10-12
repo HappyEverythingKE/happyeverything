@@ -18,11 +18,10 @@ import { Route as PublicImport } from './routes/_public'
 import { Route as MarketingImport } from './routes/_marketing'
 import { Route as AuthedImport } from './routes/_authed'
 import { Route as AuthRouteImport } from './routes/auth/route'
-import { Route as MarketingIndexImport } from './routes/_marketing.index'
+import { Route as MarketingIndexImport } from './routes/_marketing/index'
 import { Route as AuthVerifyImport } from './routes/auth/verify'
 import { Route as AuthNewPasswordImport } from './routes/auth/new-password'
 import { Route as AuthConfirmEmailImport } from './routes/auth/confirm-email'
-import { Route as MarketingContactImport } from './routes/_marketing.contact'
 import { Route as PublicProfileSlugIndexImport } from './routes/_public/$profileSlug/index'
 import { Route as AuthedDashboardIndexImport } from './routes/_authed/dashboard/index'
 import { Route as PublicProfileSlugListSlugImport } from './routes/_public/$profileSlug/$listSlug'
@@ -95,12 +94,6 @@ const AuthConfirmEmailRoute = AuthConfirmEmailImport.update({
   id: '/confirm-email',
   path: '/confirm-email',
   getParentRoute: () => AuthRouteRoute,
-} as any)
-
-const MarketingContactRoute = MarketingContactImport.update({
-  id: '/contact',
-  path: '/contact',
-  getParentRoute: () => MarketingRoute,
 } as any)
 
 const PublicProfileSlugIndexRoute = PublicProfileSlugIndexImport.update({
@@ -208,13 +201,6 @@ declare module '@tanstack/react-router' {
       fullPath: '/signup'
       preLoaderRoute: typeof SignupImport
       parentRoute: typeof rootRoute
-    }
-    '/_marketing/contact': {
-      id: '/_marketing/contact'
-      path: '/contact'
-      fullPath: '/contact'
-      preLoaderRoute: typeof MarketingContactImport
-      parentRoute: typeof MarketingImport
     }
     '/auth/confirm-email': {
       id: '/auth/confirm-email'
@@ -370,12 +356,10 @@ const AuthedRouteWithChildren =
   AuthedRoute._addFileChildren(AuthedRouteChildren)
 
 interface MarketingRouteChildren {
-  MarketingContactRoute: typeof MarketingContactRoute
   MarketingIndexRoute: typeof MarketingIndexRoute
 }
 
 const MarketingRouteChildren: MarketingRouteChildren = {
-  MarketingContactRoute: MarketingContactRoute,
   MarketingIndexRoute: MarketingIndexRoute,
 }
 
@@ -402,7 +386,6 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/onboarding': typeof OnboardingRoute
   '/signup': typeof SignupRoute
-  '/contact': typeof MarketingContactRoute
   '/auth/confirm-email': typeof AuthConfirmEmailRoute
   '/auth/new-password': typeof AuthNewPasswordRoute
   '/auth/verify': typeof AuthVerifyRoute
@@ -423,7 +406,6 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/onboarding': typeof OnboardingRoute
   '/signup': typeof SignupRoute
-  '/contact': typeof MarketingContactRoute
   '/auth/confirm-email': typeof AuthConfirmEmailRoute
   '/auth/new-password': typeof AuthNewPasswordRoute
   '/auth/verify': typeof AuthVerifyRoute
@@ -445,7 +427,6 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/onboarding': typeof OnboardingRoute
   '/signup': typeof SignupRoute
-  '/_marketing/contact': typeof MarketingContactRoute
   '/auth/confirm-email': typeof AuthConfirmEmailRoute
   '/auth/new-password': typeof AuthNewPasswordRoute
   '/auth/verify': typeof AuthVerifyRoute
@@ -468,7 +449,6 @@ export interface FileRouteTypes {
     | '/login'
     | '/onboarding'
     | '/signup'
-    | '/contact'
     | '/auth/confirm-email'
     | '/auth/new-password'
     | '/auth/verify'
@@ -488,7 +468,6 @@ export interface FileRouteTypes {
     | '/login'
     | '/onboarding'
     | '/signup'
-    | '/contact'
     | '/auth/confirm-email'
     | '/auth/new-password'
     | '/auth/verify'
@@ -508,7 +487,6 @@ export interface FileRouteTypes {
     | '/login'
     | '/onboarding'
     | '/signup'
-    | '/_marketing/contact'
     | '/auth/confirm-email'
     | '/auth/new-password'
     | '/auth/verify'
@@ -582,7 +560,6 @@ export const routeTree = rootRoute
     "/_marketing": {
       "filePath": "_marketing.tsx",
       "children": [
-        "/_marketing/contact",
         "/_marketing/"
       ]
     },
@@ -602,10 +579,6 @@ export const routeTree = rootRoute
     "/signup": {
       "filePath": "signup.tsx"
     },
-    "/_marketing/contact": {
-      "filePath": "_marketing.contact.tsx",
-      "parent": "/_marketing"
-    },
     "/auth/confirm-email": {
       "filePath": "auth/confirm-email.tsx",
       "parent": "/auth"
@@ -619,7 +592,7 @@ export const routeTree = rootRoute
       "parent": "/auth"
     },
     "/_marketing/": {
-      "filePath": "_marketing.index.tsx",
+      "filePath": "_marketing/index.tsx",
       "parent": "/_marketing"
     },
     "/_authed/dashboard/$profileSlug": {

@@ -10,7 +10,11 @@ const columnLinks = [
   {
     title: 'Get in touch',
     links: [
-      { title: 'Contact Us', url: '/contact', external: false },
+      {
+        title: 'Contact Us',
+        url: 'mailto:hello@happyeverything.com',
+        external: true,
+      },
       { title: 'Instagram', url: '#', icon: InstagramIcon, external: true },
       { title: 'Facebook', url: '#', icon: FacebookIcon, external: true },
     ],
@@ -42,7 +46,7 @@ export function Footer() {
               next celebration.
             </p>
             <div className="mt-6 flex flex-wrap gap-4 md:mt-8">
-              <Button asChild variant="secondary">
+              <Button asChild variant="secondary" size="lg">
                 <Link to="/signup">Create your free wish list</Link>
               </Button>
             </div>
