@@ -35,7 +35,7 @@ export const mapToListType = (list: any): List => {
     listType: {
       id: list.list_types.id,
       name: list.list_types.name,
-      imageUrl: list.list_types.image_url,
+      imageId: list.list_types.image_id,
       isCustom: list.list_types.is_custom,
     },
   }
@@ -49,7 +49,7 @@ export const mapToListItemType = (item: any): ListItem => {
     topPick: item.top_pick,
     size: item.size,
     colour: item.colour,
-    imageUrl: item.image_url,
+    imageId: item.image_id,
     shop: item.shop,
     notes: item.notes,
     reservedCount: item.reserved_count,
@@ -73,7 +73,7 @@ export const mapToPublicListType = (list: any): Omit<List, 'password'> => {
     listType: {
       id: list.list_types.id,
       name: list.list_types.name,
-      imageUrl: list.list_types.image_url,
+      imageId: list.list_types.image_id,
       isCustom: list.list_types.is_custom,
     },
   }

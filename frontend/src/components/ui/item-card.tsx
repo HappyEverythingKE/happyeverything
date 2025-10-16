@@ -2,6 +2,7 @@ import type { ListItem } from '@shared/types'
 import { ExternalLink, Heart } from 'lucide-react'
 
 import { cn } from '@/lib/utils'
+import { useImageVariant } from '@/hooks/use-image-variant'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import {
@@ -44,6 +45,11 @@ export function ItemCard({
     }
   })()
 
+  const imageUrl = useImageVariant({
+    imageId: item.imageId,
+    context: 'list-item',
+  })
+
   return (
     <Card
       key={item.id}
@@ -60,7 +66,7 @@ export function ItemCard({
       {/* Image / Badge Area */}
       <div className="h-38 relative flex items-center justify-center overflow-hidden">
         <img
-          src={item.imageUrl || placeholderImage}
+          src={imageUrl || placeholderImage}
           alt={item.name}
           className="h-full w-full object-contain"
         />

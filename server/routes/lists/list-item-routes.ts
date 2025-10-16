@@ -57,7 +57,7 @@ export const listItemRoutes = new Hono()
       const listId = await resolveListIdFromSlug(c, profileId, listSlug)
 
       const supabase = getSupabase(c)
-      const { name, quantity, size, colour, imageUrl, shop, notes } =
+      const { name, quantity, size, colour, imageId, shop, notes } =
         c.req.valid('form')
 
       const { data: insertedData, error: insertError } = await supabase
@@ -68,7 +68,7 @@ export const listItemRoutes = new Hono()
           quantity,
           size,
           colour,
-          image_url: imageUrl,
+          image_id: imageId,
           shop,
           notes,
         })
@@ -114,19 +114,22 @@ export const listItemRoutes = new Hono()
 
       const supabase = getSupabase(c)
 
-      const { name, quantity, size, colour, imageUrl, shop, notes } =
+      const { name, quantity, size, colour, imageId, shop, notes } =
         c.req.valid('form')
+
+      const normalize = (v: unknown) =>
+        typeof v === 'string' && v.trim() !== '' && v !== 'undefined' ? v : null
 
       const { error: updateError } = await supabase
         .from('list_items')
         .update({
           name,
           quantity,
-          size: size || null,
-          colour: colour || null,
-          image_url: imageUrl || null,
-          shop: shop || null,
-          notes: notes || null,
+          size: normalize(size),
+          colour: normalize(colour),
+          image_id: normalize(imageId),
+          shop: normalize(shop),
+          notes: normalize(notes),
           updated_at: new Date().toISOString(),
         })
         .eq('id', itemId)
@@ -235,6 +238,19 @@ export const listItemRoutes = new Hono()
 
     const supabase = getSupabase(c)
 
+    // Get image_id first
+    const { data: item, error: fetchImageIdError } = await supabase
+      .from('list_items')
+      .select('image_id')
+      .eq('id', itemId)
+      .eq('list_id', listId)
+      .single()
+
+    if (fetchImageIdError) {
+      throw new HTTPException(500, { message: fetchImageIdError.message })
+    }
+
+    // Delete from Supabase
     const { error: deleteError } = await supabase
       .from('list_items')
       .delete()
@@ -242,9 +258,21 @@ export const listItemRoutes = new Hono()
       .eq('list_id', listId)
 
     if (deleteError) {
-      throw new HTTPException(500, {
-        message: deleteError.message,
-      })
+      throw new HTTPException(500, { message: deleteError.message })
+    }
+
+    // Delete from Cloudflare if image exists
+    if (item?.image_id) {
+      const { CF_ACCOUNT_ID, CF_IMAGES_API_TOKEN } = env<AppEnv>(c)
+      await fetch(
+        `https://api.cloudflare.com/client/v4/accounts/${CF_ACCOUNT_ID}/images/v1/${item.image_id}`,
+        {
+          method: 'DELETE',
+          headers: {
+            Authorization: `Bearer ${CF_IMAGES_API_TOKEN}`,
+          },
+        },
+      ).catch((err) => console.error('Cloudflare cleanup failed:', err))
     }
 
     return c.body(null, 204)

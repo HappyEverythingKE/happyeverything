@@ -1,5 +1,6 @@
 import { useForm } from '@tanstack/react-form'
 
+import { useUploadImageToCloudflare } from '@/services/cloudflare-upload.api'
 import { useCreateListItem } from '@/services/list-item.api'
 import { ListItemCreateSchema } from '@shared/types'
 import { toast } from 'sonner'
@@ -20,7 +21,7 @@ interface NewListItemFormProps {
 const defaultValues = {
   name: '',
   quantity: 1,
-  imageUrl: '',
+  imageId: '',
   size: '',
   colour: '',
   shop: '',
@@ -37,6 +38,9 @@ export function NewListItemForm({
     profileSlug,
     listSlug,
   )
+
+  const { mutateAsync: uploadImage, isPending: isUploadingImage } =
+    useUploadImageToCloudflare()
 
   const form = useForm({
     defaultValues: defaultValues,
@@ -155,30 +159,35 @@ export function NewListItemForm({
           </div>
 
           <div className="space-y-3">
-            <form.Field
-              name="imageUrl"
-              children={(field) => {
-                return (
-                  <>
-                    <Label htmlFor={field.name}>Add an image URL</Label>
-                    <Input
-                      id={field.name}
-                      name={field.name}
-                      value={field.state.value}
-                      onBlur={field.handleBlur}
-                      onChange={(e) => field.handleChange(e.target.value)}
-                      placeholder="Paste a link to an image of the gift"
-                    />
-                    <p className="-mt-1 ml-1 text-xs text-gray-500">
-                      Tip: On desktop, find an image of your gift. Right-click
-                      the image and choose “Copy Image Address.” On mobile,
-                      long-press the image to copy the link.
-                    </p>
-                    <FieldInfo field={field} />
-                  </>
-                )
+            <Label htmlFor="itemImage">Upload an image</Label>
+            <Input
+              id="itemImage"
+              type="file"
+              accept="image/*"
+              disabled={isUploadingImage}
+              onChange={async (e) => {
+                const file = e.target.files?.[0]
+                if (!file) return
+                try {
+                  const imageId = await uploadImage(file)
+                  form.setFieldValue('imageId', imageId)
+                  toast.success('Image uploaded successfully!')
+                } catch (err) {
+                  toast.error('Image upload failed.')
+                  console.error(err)
+                }
               }}
             />
+
+            {isUploadingImage ? (
+              <p className="-mt-1 ml-1 text-xs text-amber-600">
+                Uploading image...
+              </p>
+            ) : (
+              <p className="-mt-1 ml-1 text-xs text-gray-500">
+                Upload a photo of your gift (JPG or PNG).
+              </p>
+            )}
           </div>
 
           <div className="space-y-3">

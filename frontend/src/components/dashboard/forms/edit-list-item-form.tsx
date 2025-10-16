@@ -1,14 +1,22 @@
+import { useEffect, useState } from 'react'
 import { useNavigate } from '@tanstack/react-router'
 import { useForm } from '@tanstack/react-form'
 
+import {
+  useDeleteImageFromCloudflare,
+  useUploadImageToCloudflare,
+} from '@/services/cloudflare-upload.api'
 import { useDeleteListItem, useUpdateListItem } from '@/services/list-item.api'
 import { ListItemCreateSchema, type ListItem } from '@shared/types'
+import { TrashIcon } from 'lucide-react'
 import { toast } from 'sonner'
 import type { z } from 'zod'
 
+import { useImageVariant } from '@/hooks/use-image-variant'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Spinner } from '@/components/ui/spinner'
 import { FieldInfo } from '@/components/field-info'
 
 interface EditListItemFormProps {
@@ -27,12 +35,23 @@ export function EditListItemForm({
   onFormCancel,
 }: EditListItemFormProps) {
   const navigate = useNavigate()
+  const [imageUrl, setImageUrl] = useState<string | null>(null)
+
+  // upload image to cloudflare
+  const { mutateAsync: uploadImage, isPending: isUploadingImage } =
+    useUploadImageToCloudflare()
+
   // update list item
   const { mutateAsync: updateListItem, isPending } = useUpdateListItem(
     profileSlug,
     listSlug,
     listItem.id,
   )
+
+  // delete image from cloudflare
+  const { mutateAsync: deleteImage, isPending: isDeletingImage } =
+    useDeleteImageFromCloudflare()
+
   // delete list item
   const { mutateAsync: deleteListItem, isPending: isDeleting } =
     useDeleteListItem(profileSlug, listSlug, listItem.id)
@@ -53,11 +72,57 @@ export function EditListItemForm({
     }
   }
 
+  const handleDeleteImage = async () => {
+    if (!listItem.imageId) return
+
+    try {
+      await deleteImage(listItem.imageId)
+      await updateListItem({
+        ...listItem,
+        imageId: undefined,
+      })
+      form.setFieldValue('imageId', undefined)
+      toast.success('Image deleted successfully.')
+    } catch (error) {
+      toast.error('An error occurred.', { description: String(error) })
+    }
+  }
+
+  const handleUploadImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    try {
+      const file = e.target.files?.[0]
+      if (!file) return
+      const imageId = await uploadImage(file)
+      form.setFieldValue('imageId', imageId)
+      setImageUrl(
+        useImageVariant({
+          imageId,
+          context: 'thumbnail',
+        }),
+      )
+      toast.success('Image uploaded successfully!')
+    } catch (error) {
+      toast.error('Image upload failed.')
+      console.error(error)
+    }
+  }
+
+  useEffect(() => {
+    if (listItem.imageId) {
+      setImageUrl(
+        useImageVariant({
+          imageId: listItem.imageId,
+          context: 'thumbnail',
+        }),
+      )
+    }
+  }, [listItem.imageId, setImageUrl])
+
   const form = useForm({
     defaultValues: {
       name: listItem.name,
       quantity: listItem.quantity,
-      imageUrl: listItem.imageUrl ?? '',
+      imageId: listItem.imageId ?? '',
       size: listItem.size ?? '',
       colour: listItem.colour ?? '',
       shop: listItem.shop ?? '',
@@ -182,30 +247,43 @@ export function EditListItemForm({
           </div>
 
           <div className="space-y-3">
-            <form.Field
-              name="imageUrl"
-              children={(field) => {
-                return (
-                  <>
-                    <Label htmlFor={field.name}>Add an image URL</Label>
-                    <Input
-                      id={field.name}
-                      name={field.name}
-                      value={field.state.value}
-                      onBlur={field.handleBlur}
-                      onChange={(e) => field.handleChange(e.target.value)}
-                      placeholder="Paste a link to an image of the gift"
-                    />
-                    <p className="-mt-1 ml-1 text-xs text-gray-500">
-                      Tip: On desktop, find an image of your gift. Right-click
-                      the image and choose “Copy Image Address.” On mobile,
-                      long-press the image to copy the link.
-                    </p>
-                    <FieldInfo field={field} />
-                  </>
-                )
-              }}
+            {imageUrl && (
+              <div className="relative max-w-fit">
+                <img
+                  src={imageUrl}
+                  alt="Item thumbnail"
+                  className="h-12 w-12 rounded-sm object-contain md:h-16 md:w-16"
+                />
+                <div className="absolute -right-10 -top-6">
+                  <Button
+                    size="icon"
+                    variant="destructive"
+                    onClick={handleDeleteImage}
+                    disabled={isDeletingImage}
+                  >
+                    {isDeletingImage ? <Spinner /> : <TrashIcon />}
+                  </Button>
+                </div>
+              </div>
+            )}
+            <Label htmlFor="itemImage">Update item image</Label>
+            <Input
+              id="itemImage"
+              type="file"
+              accept="image/*"
+              disabled={isUploadingImage}
+              onChange={handleUploadImage}
             />
+
+            {isUploadingImage ? (
+              <p className="-mt-1 ml-1 text-xs text-amber-600">
+                Uploading image...
+              </p>
+            ) : (
+              <p className="-mt-1 ml-1 text-xs text-gray-500">
+                Upload a photo of your gift (JPG or PNG).
+              </p>
+            )}
           </div>
 
           <div className="space-y-3">
