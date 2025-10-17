@@ -1,14 +1,21 @@
+import { useState } from 'react'
 import { useForm } from '@tanstack/react-form'
 
-import { useUploadImageToCloudflare } from '@/services/cloudflare-upload.api'
+import {
+  useDeleteImageFromCloudflare,
+  useUploadImageToCloudflare,
+} from '@/services/cloudflare-upload.api'
 import { useCreateListItem } from '@/services/list-item.api'
 import { ListItemCreateSchema } from '@shared/types'
+import { TrashIcon } from 'lucide-react'
 import { toast } from 'sonner'
 import type { z } from 'zod'
 
+import { useImageVariant } from '@/hooks/use-image-variant'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Spinner } from '@/components/ui/spinner'
 import { FieldInfo } from '@/components/field-info'
 
 interface NewListItemFormProps {
@@ -34,13 +41,62 @@ export function NewListItemForm({
   onFormSubmit,
   onFormCancel,
 }: NewListItemFormProps) {
+  const [imageUrl, setImageUrl] = useState<string | null>(null)
+
+  // create list item
   const { mutateAsync: createListItem, isPending } = useCreateListItem(
     profileSlug,
     listSlug,
   )
 
+  // upload image to cloudflare
   const { mutateAsync: uploadImage, isPending: isUploadingImage } =
     useUploadImageToCloudflare()
+
+  // delete image from cloudflare
+  const { mutateAsync: deleteImage, isPending: isDeletingImage } =
+    useDeleteImageFromCloudflare()
+
+  const handleUploadImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    try {
+      const file = e.target.files?.[0]
+      if (!file) return
+      const imageId = await uploadImage(file)
+      form.setFieldValue('imageId', imageId)
+      setImageUrl(
+        useImageVariant({
+          imageId,
+          context: 'thumbnail',
+        }),
+      )
+      toast.success('Image uploaded successfully!')
+    } catch (error) {
+      toast.error('Image upload failed.')
+      console.error(error)
+    }
+  }
+
+  const handleDeleteImage = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault()
+    e.stopPropagation()
+    const imageId = form.getFieldValue('imageId')
+
+    if (!imageId) return
+
+    try {
+      await deleteImage(imageId)
+      // clear the image id, input field and image thumbnail
+      form.setFieldValue('imageId', undefined)
+      const fileInput = document.getElementById('itemImage') as HTMLInputElement
+      if (fileInput) {
+        fileInput.value = ''
+      }
+      setImageUrl(null)
+      toast.success('Image deleted successfully.')
+    } catch (error) {
+      toast.error('An error occurred.', { description: String(error) })
+    }
+  }
 
   const form = useForm({
     defaultValues: defaultValues,
@@ -159,34 +215,49 @@ export function NewListItemForm({
           </div>
 
           <div className="space-y-3">
-            <Label htmlFor="itemImage">Upload an image</Label>
-            <Input
-              id="itemImage"
-              type="file"
-              accept="image/*"
-              disabled={isUploadingImage}
-              onChange={async (e) => {
-                const file = e.target.files?.[0]
-                if (!file) return
-                try {
-                  const imageId = await uploadImage(file)
-                  form.setFieldValue('imageId', imageId)
-                  toast.success('Image uploaded successfully!')
-                } catch (err) {
-                  toast.error('Image upload failed.')
-                  console.error(err)
-                }
-              }}
-            />
-
-            {isUploadingImage ? (
-              <p className="-mt-1 ml-1 text-xs text-amber-600">
-                Uploading image...
-              </p>
+            <Label htmlFor="itemImage">Add item image</Label>
+            {imageUrl ? (
+              <div className="relative max-w-fit">
+                <img
+                  src={imageUrl}
+                  alt="Item thumbnail"
+                  className="h-12 w-12 rounded-sm object-contain md:h-16 md:w-16"
+                />
+                <div className="absolute -bottom-2 -right-10">
+                  <Button
+                    variant="destructive"
+                    onClick={handleDeleteImage}
+                    disabled={isDeletingImage}
+                    className="size-6"
+                  >
+                    {isDeletingImage ? (
+                      <Spinner className="size-3.5" />
+                    ) : (
+                      <TrashIcon className="size-3.5" />
+                    )}
+                  </Button>
+                </div>
+              </div>
             ) : (
-              <p className="-mt-1 ml-1 text-xs text-gray-500">
-                Upload a photo of your gift (JPG or PNG).
-              </p>
+              <>
+                <Input
+                  id="itemImage"
+                  type="file"
+                  accept="image/*"
+                  disabled={isUploadingImage}
+                  onChange={handleUploadImage}
+                />
+
+                {isUploadingImage ? (
+                  <p className="-mt-1 ml-1 text-xs text-amber-600">
+                    Uploading image...
+                  </p>
+                ) : (
+                  <p className="-mt-1 ml-1 text-xs text-gray-500">
+                    Upload a photo of your gift (JPG or PNG).
+                  </p>
+                )}
+              </>
             )}
           </div>
 

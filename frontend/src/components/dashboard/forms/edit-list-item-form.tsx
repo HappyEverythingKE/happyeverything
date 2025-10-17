@@ -59,6 +59,9 @@ export function EditListItemForm({
   const handleDeleteItem = async () => {
     try {
       await deleteListItem()
+      if (listItem.imageId) {
+        deleteImage(listItem.imageId)
+      }
       toast.success('Gift Item Deleted.')
       navigate({
         to: '/dashboard/$profileSlug/$listSlug',
@@ -69,22 +72,6 @@ export function EditListItemForm({
       toast.error('An error occurred.', {
         description: String(error),
       })
-    }
-  }
-
-  const handleDeleteImage = async () => {
-    if (!listItem.imageId) return
-
-    try {
-      await deleteImage(listItem.imageId)
-      await updateListItem({
-        ...listItem,
-        imageId: undefined,
-      })
-      form.setFieldValue('imageId', undefined)
-      toast.success('Image deleted successfully.')
-    } catch (error) {
-      toast.error('An error occurred.', { description: String(error) })
     }
   }
 
@@ -104,6 +91,28 @@ export function EditListItemForm({
     } catch (error) {
       toast.error('Image upload failed.')
       console.error(error)
+    }
+  }
+
+  const handleDeleteImage = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault()
+    e.stopPropagation()
+    const imageId = form.getFieldValue('imageId')
+
+    if (!imageId) return
+
+    try {
+      await deleteImage(imageId)
+      // clear the image id, input field and image thumbnail
+      form.setFieldValue('imageId', undefined)
+      const fileInput = document.getElementById('itemImage') as HTMLInputElement
+      if (fileInput) {
+        fileInput.value = ''
+      }
+      setImageUrl(null)
+      toast.success('Image deleted successfully.')
+    } catch (error) {
+      toast.error('An error occurred.', { description: String(error) })
     }
   }
 
@@ -247,42 +256,49 @@ export function EditListItemForm({
           </div>
 
           <div className="space-y-3">
-            {imageUrl && (
+            <Label htmlFor="itemImage">Update item image</Label>
+            {imageUrl ? (
               <div className="relative max-w-fit">
                 <img
                   src={imageUrl}
                   alt="Item thumbnail"
                   className="h-12 w-12 rounded-sm object-contain md:h-16 md:w-16"
                 />
-                <div className="absolute -right-10 -top-6">
+                <div className="absolute -bottom-2 -right-10">
                   <Button
-                    size="icon"
                     variant="destructive"
                     onClick={handleDeleteImage}
                     disabled={isDeletingImage}
+                    className="size-6"
                   >
-                    {isDeletingImage ? <Spinner /> : <TrashIcon />}
+                    {isDeletingImage ? (
+                      <Spinner className="size-3.5" />
+                    ) : (
+                      <TrashIcon className="size-3.5" />
+                    )}
                   </Button>
                 </div>
               </div>
-            )}
-            <Label htmlFor="itemImage">Update item image</Label>
-            <Input
-              id="itemImage"
-              type="file"
-              accept="image/*"
-              disabled={isUploadingImage}
-              onChange={handleUploadImage}
-            />
-
-            {isUploadingImage ? (
-              <p className="-mt-1 ml-1 text-xs text-amber-600">
-                Uploading image...
-              </p>
             ) : (
-              <p className="-mt-1 ml-1 text-xs text-gray-500">
-                Upload a photo of your gift (JPG or PNG).
-              </p>
+              <>
+                <Input
+                  id="itemImage"
+                  type="file"
+                  accept="image/*"
+                  disabled={isUploadingImage}
+                  onChange={handleUploadImage}
+                />
+
+                {isUploadingImage ? (
+                  <p className="-mt-1 ml-1 text-xs text-amber-600">
+                    Uploading image...
+                  </p>
+                ) : (
+                  <p className="-mt-1 ml-1 text-xs text-gray-500">
+                    Upload a photo of your gift (JPG or PNG).
+                  </p>
+                )}
+              </>
             )}
           </div>
 

@@ -60,15 +60,18 @@ export const listItemRoutes = new Hono()
       const { name, quantity, size, colour, imageId, shop, notes } =
         c.req.valid('form')
 
+      const normalize = (v: unknown) =>
+        typeof v === 'string' && v.trim() !== '' && v !== 'undefined' ? v : null
+
       const { data: insertedData, error: insertError } = await supabase
         .from('list_items')
         .insert({
           list_id: listId,
+          image_id: normalize(imageId),
           name,
           quantity,
           size,
           colour,
-          image_id: imageId,
           shop,
           notes,
         })
@@ -125,11 +128,11 @@ export const listItemRoutes = new Hono()
         .update({
           name,
           quantity,
-          size: normalize(size),
-          colour: normalize(colour),
-          image_id: normalize(imageId),
-          shop: normalize(shop),
-          notes: normalize(notes),
+          size,
+          colour,
+          image_id: normalize(imageId), // allow replace or remove
+          shop,
+          notes,
           updated_at: new Date().toISOString(),
         })
         .eq('id', itemId)
@@ -238,19 +241,6 @@ export const listItemRoutes = new Hono()
 
     const supabase = getSupabase(c)
 
-    // Get image_id first
-    const { data: item, error: fetchImageIdError } = await supabase
-      .from('list_items')
-      .select('image_id')
-      .eq('id', itemId)
-      .eq('list_id', listId)
-      .single()
-
-    if (fetchImageIdError) {
-      throw new HTTPException(500, { message: fetchImageIdError.message })
-    }
-
-    // Delete from Supabase
     const { error: deleteError } = await supabase
       .from('list_items')
       .delete()
@@ -259,20 +249,6 @@ export const listItemRoutes = new Hono()
 
     if (deleteError) {
       throw new HTTPException(500, { message: deleteError.message })
-    }
-
-    // Delete from Cloudflare if image exists
-    if (item?.image_id) {
-      const { CF_ACCOUNT_ID, CF_IMAGES_API_TOKEN } = env<AppEnv>(c)
-      await fetch(
-        `https://api.cloudflare.com/client/v4/accounts/${CF_ACCOUNT_ID}/images/v1/${item.image_id}`,
-        {
-          method: 'DELETE',
-          headers: {
-            Authorization: `Bearer ${CF_IMAGES_API_TOKEN}`,
-          },
-        },
-      ).catch((err) => console.error('Cloudflare cleanup failed:', err))
     }
 
     return c.body(null, 204)
