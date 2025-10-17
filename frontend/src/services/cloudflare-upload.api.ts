@@ -7,15 +7,24 @@ import type {
 } from '@shared/types'
 
 import { client } from '@/lib/api'
+import { hashFile } from '@/lib/utils'
 
 /**
  * Get a direct upload URL from server (Cloudflare Images Direct Upload)
  */
-export const getDirectUploadUrl = async (): Promise<DirectUploadData> => {
-  const res = await client.images['direct-upload-url'].$post({})
+export const getDirectUploadUrl = async (
+  file: File,
+): Promise<DirectUploadData | { existingImageId: string }> => {
+  const hash = await hashFile(file)
+
+  const res = await client.images['direct-upload-url'].$post({
+    json: { hash },
+  })
 
   if (res.ok) {
-    const { data } = (await res.json()) as SuccessResponse<DirectUploadData>
+    const { data } = (await res.json()) as
+      | SuccessResponse<DirectUploadData>
+      | SuccessResponse<{ existingImageId: string }>
     return data
   }
 
@@ -24,11 +33,18 @@ export const getDirectUploadUrl = async (): Promise<DirectUploadData> => {
 }
 
 /**
- * Upload file to Cloudflare and return the image ID
+ * Upload file to Cloudflare if it’s new, or return existing image ID
  */
 export const uploadImageToCloudflare = async (file: File): Promise<string> => {
-  const { uploadURL, imageId } = await getDirectUploadUrl()
+  const result = await getDirectUploadUrl(file)
 
+  // If the file already exists, just return the existing ID
+  if ('existingImageId' in result) {
+    return result.existingImageId
+  }
+
+  // Otherwise, perform the upload
+  const { uploadURL, imageId } = result
   const formData = new FormData()
   formData.append('file', file)
 
@@ -42,7 +58,6 @@ export const uploadImageToCloudflare = async (file: File): Promise<string> => {
     throw new Error(`Upload failed: ${err}`)
   }
 
-  // return image ID to save to the database
   return imageId
 }
 
