@@ -22,6 +22,8 @@ import { Route as MarketingIndexImport } from './routes/_marketing/index'
 import { Route as AuthVerifyImport } from './routes/auth/verify'
 import { Route as AuthNewPasswordImport } from './routes/auth/new-password'
 import { Route as AuthConfirmEmailImport } from './routes/auth/confirm-email'
+import { Route as MarketingTermsOfServiceImport } from './routes/_marketing/terms-of-service'
+import { Route as MarketingPrivacyPolicyImport } from './routes/_marketing/privacy-policy'
 import { Route as PublicProfileSlugIndexImport } from './routes/_public/$profileSlug/index'
 import { Route as AuthedDashboardIndexImport } from './routes/_authed/dashboard/index'
 import { Route as PublicProfileSlugListSlugImport } from './routes/_public/$profileSlug/$listSlug'
@@ -94,6 +96,18 @@ const AuthConfirmEmailRoute = AuthConfirmEmailImport.update({
   id: '/confirm-email',
   path: '/confirm-email',
   getParentRoute: () => AuthRouteRoute,
+} as any)
+
+const MarketingTermsOfServiceRoute = MarketingTermsOfServiceImport.update({
+  id: '/terms-of-service',
+  path: '/terms-of-service',
+  getParentRoute: () => MarketingRoute,
+} as any)
+
+const MarketingPrivacyPolicyRoute = MarketingPrivacyPolicyImport.update({
+  id: '/privacy-policy',
+  path: '/privacy-policy',
+  getParentRoute: () => MarketingRoute,
 } as any)
 
 const PublicProfileSlugIndexRoute = PublicProfileSlugIndexImport.update({
@@ -201,6 +215,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/signup'
       preLoaderRoute: typeof SignupImport
       parentRoute: typeof rootRoute
+    }
+    '/_marketing/privacy-policy': {
+      id: '/_marketing/privacy-policy'
+      path: '/privacy-policy'
+      fullPath: '/privacy-policy'
+      preLoaderRoute: typeof MarketingPrivacyPolicyImport
+      parentRoute: typeof MarketingImport
+    }
+    '/_marketing/terms-of-service': {
+      id: '/_marketing/terms-of-service'
+      path: '/terms-of-service'
+      fullPath: '/terms-of-service'
+      preLoaderRoute: typeof MarketingTermsOfServiceImport
+      parentRoute: typeof MarketingImport
     }
     '/auth/confirm-email': {
       id: '/auth/confirm-email'
@@ -356,10 +384,14 @@ const AuthedRouteWithChildren =
   AuthedRoute._addFileChildren(AuthedRouteChildren)
 
 interface MarketingRouteChildren {
+  MarketingPrivacyPolicyRoute: typeof MarketingPrivacyPolicyRoute
+  MarketingTermsOfServiceRoute: typeof MarketingTermsOfServiceRoute
   MarketingIndexRoute: typeof MarketingIndexRoute
 }
 
 const MarketingRouteChildren: MarketingRouteChildren = {
+  MarketingPrivacyPolicyRoute: MarketingPrivacyPolicyRoute,
+  MarketingTermsOfServiceRoute: MarketingTermsOfServiceRoute,
   MarketingIndexRoute: MarketingIndexRoute,
 }
 
@@ -386,6 +418,8 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/onboarding': typeof OnboardingRoute
   '/signup': typeof SignupRoute
+  '/privacy-policy': typeof MarketingPrivacyPolicyRoute
+  '/terms-of-service': typeof MarketingTermsOfServiceRoute
   '/auth/confirm-email': typeof AuthConfirmEmailRoute
   '/auth/new-password': typeof AuthNewPasswordRoute
   '/auth/verify': typeof AuthVerifyRoute
@@ -406,6 +440,8 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/onboarding': typeof OnboardingRoute
   '/signup': typeof SignupRoute
+  '/privacy-policy': typeof MarketingPrivacyPolicyRoute
+  '/terms-of-service': typeof MarketingTermsOfServiceRoute
   '/auth/confirm-email': typeof AuthConfirmEmailRoute
   '/auth/new-password': typeof AuthNewPasswordRoute
   '/auth/verify': typeof AuthVerifyRoute
@@ -427,6 +463,8 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/onboarding': typeof OnboardingRoute
   '/signup': typeof SignupRoute
+  '/_marketing/privacy-policy': typeof MarketingPrivacyPolicyRoute
+  '/_marketing/terms-of-service': typeof MarketingTermsOfServiceRoute
   '/auth/confirm-email': typeof AuthConfirmEmailRoute
   '/auth/new-password': typeof AuthNewPasswordRoute
   '/auth/verify': typeof AuthVerifyRoute
@@ -449,6 +487,8 @@ export interface FileRouteTypes {
     | '/login'
     | '/onboarding'
     | '/signup'
+    | '/privacy-policy'
+    | '/terms-of-service'
     | '/auth/confirm-email'
     | '/auth/new-password'
     | '/auth/verify'
@@ -468,6 +508,8 @@ export interface FileRouteTypes {
     | '/login'
     | '/onboarding'
     | '/signup'
+    | '/privacy-policy'
+    | '/terms-of-service'
     | '/auth/confirm-email'
     | '/auth/new-password'
     | '/auth/verify'
@@ -487,6 +529,8 @@ export interface FileRouteTypes {
     | '/login'
     | '/onboarding'
     | '/signup'
+    | '/_marketing/privacy-policy'
+    | '/_marketing/terms-of-service'
     | '/auth/confirm-email'
     | '/auth/new-password'
     | '/auth/verify'
@@ -560,6 +604,8 @@ export const routeTree = rootRoute
     "/_marketing": {
       "filePath": "_marketing.tsx",
       "children": [
+        "/_marketing/privacy-policy",
+        "/_marketing/terms-of-service",
         "/_marketing/"
       ]
     },
@@ -578,6 +624,14 @@ export const routeTree = rootRoute
     },
     "/signup": {
       "filePath": "signup.tsx"
+    },
+    "/_marketing/privacy-policy": {
+      "filePath": "_marketing/privacy-policy.tsx",
+      "parent": "/_marketing"
+    },
+    "/_marketing/terms-of-service": {
+      "filePath": "_marketing/terms-of-service.tsx",
+      "parent": "/_marketing"
     },
     "/auth/confirm-email": {
       "filePath": "auth/confirm-email.tsx",

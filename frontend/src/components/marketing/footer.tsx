@@ -1,7 +1,9 @@
 import { Link } from '@tanstack/react-router'
 
-import FacebookIcon from '@/assets/icons/facebook-icon.svg'
 import InstagramIcon from '@/assets/icons/instagram-icon.svg'
+import ThreadsIcon from '@/assets/icons/threads-icon-cream.svg'
+import TikTokIcon from '@/assets/icons/tiktok-icon-cream.svg'
+import XIcon from '@/assets/icons/xtwitter-icon-cream.svg'
 import FooterLogo from '@/assets/logos/logo-footer.svg'
 
 import { Button } from '@/components/ui/button'
@@ -15,15 +17,37 @@ const columnLinks = [
         url: 'mailto:hello@happyeverything.com',
         external: true,
       },
-      { title: 'Instagram', url: '#', icon: InstagramIcon, external: true },
-      { title: 'Facebook', url: '#', icon: FacebookIcon, external: true },
+      {
+        title: 'Instagram',
+        url: 'https://www.instagram.com/therealhappyeverything',
+        icon: InstagramIcon,
+        external: true,
+      },
+      {
+        title: 'Threads',
+        url: 'https://www.threads.com/@therealhappyeverything',
+        icon: ThreadsIcon,
+        external: true,
+      },
+      {
+        title: 'TikTok',
+        url: 'https://www.tiktok.com/@therealhappyeverything',
+        icon: TikTokIcon,
+        external: true,
+      },
+      {
+        title: 'X (Twitter)',
+        url: 'https://x.com/happyeveryco',
+        icon: XIcon,
+        external: true,
+      },
     ],
   },
   {
     title: 'Company',
     links: [
-      { title: 'Privacy Policy', url: '#', external: false },
-      { title: 'Terms of Service', url: '#', external: false },
+      { title: 'Privacy Policy', url: '/privacy-policy', external: false },
+      { title: 'Terms of Service', url: '/terms-of-service', external: false },
       { title: 'Cookie Settings', url: '#', external: false },
     ],
   },
@@ -68,7 +92,11 @@ export function Footer() {
                       >
                         {link.icon && (
                           <span>
-                            <img src={link.icon} alt=""></img>
+                            <img
+                              src={link.icon}
+                              alt=""
+                              className="size-5"
+                            ></img>
                           </span>
                         )}
                         <span>{link.title}</span>

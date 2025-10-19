@@ -1,8 +1,13 @@
 import { Link } from '@tanstack/react-router'
 
-import HeroImage from '@/assets/images/woman-with-giftbox.png'
+import Image4 from '@/assets/app-previews/activity-preview.png'
+import Image3 from '@/assets/app-previews/item-card-preview.png'
+import Image1 from '@/assets/app-previews/list-type-preview.png'
+import Image2 from '@/assets/app-previews/share-preview.png'
 
+import { marketingImages } from '@/lib/marketing-images'
 import { Button } from '@/components/ui/button'
+import { ShimmerImage } from '@/components/ui/shimmer-image'
 
 type ImageProps = {
   src: string
@@ -18,7 +23,7 @@ type SectionProps = {
 const leftSections = [
   {
     image: {
-      src: 'https://d22po4pjz3o32e.cloudfront.net/relume-icon.svg',
+      src: Image1,
       alt: 'Customizable wish lists',
     },
     heading: 'Customizable wish lists',
@@ -27,7 +32,7 @@ const leftSections = [
   },
   {
     image: {
-      src: 'https://d22po4pjz3o32e.cloudfront.net/relume-icon.svg',
+      src: Image2,
       alt: 'Share on your terms',
     },
     heading: 'Share on your terms',
@@ -39,21 +44,21 @@ const leftSections = [
 const rightSections = [
   {
     image: {
-      src: 'https://d22po4pjz3o32e.cloudfront.net/relume-icon.svg',
-      alt: 'Real-time gift tracking',
-    },
-    heading: 'Real-time gift tracking',
-    description:
-      'Get notified when someone crosses-off an item from your list and avoid duplicate gifts.',
-  },
-  {
-    image: {
-      src: 'https://d22po4pjz3o32e.cloudfront.net/relume-icon.svg',
+      src: Image3,
       alt: 'Free to use',
     },
     heading: '100% Free to use',
     description:
       'No fees, no subscriptions. Just an easy, hassle-free way to create and share your wish lists.',
+  },
+  {
+    image: {
+      src: Image4,
+      alt: 'Real-time gift tracking',
+    },
+    heading: 'Real-time gift tracking',
+    description:
+      'Get notified when someone crosses-off an item from your list and avoid duplicate gifts.',
   },
 ]
 
@@ -61,14 +66,17 @@ const FeatureSection = ({ sections }: { sections: SectionProps[] }) => (
   <div className="grid w-full grid-cols-1 gap-x-20 gap-y-12 md:gap-y-16">
     {sections.map((section, index) => (
       <div key={index} className="flex flex-col items-center text-center">
-        <div className="mb-5 md:mb-6">
+        <div className="relative mb-5 aspect-video w-full md:mb-6">
           <img
             src={section.image.src}
-            className="size-12"
+            className="absolute inset-0 h-full w-full object-contain"
+            width={200}
+            height={200}
+            loading="lazy"
             alt={section.image.alt}
           />
         </div>
-        <h3 className="mb-3 text-lg md:mb-4">{section.heading}</h3>
+        <h3 className="mb-1 text-lg">{section.heading}</h3>
         <p>{section.description}</p>
       </div>
     ))}
@@ -94,12 +102,12 @@ export function BenefitSection() {
       <div className="grid place-items-center gap-x-8 gap-y-12 sm:grid-cols-2 md:gap-y-16 lg:grid-cols-[1fr_1.5fr_1fr] lg:gap-x-12">
         <FeatureSection sections={leftSections} />
         <div className="relative order-last w-full sm:col-span-2 lg:order-none lg:col-span-1">
-          <img
-            src={HeroImage}
-            alt="Woman with gift box"
+          <ShimmerImage
             className="h-auto w-full rounded-2xl object-cover"
-            width="1024"
-            height="1024"
+            src={marketingImages.girlWithDoll}
+            alt="Girl with doll"
+            width={768}
+            height={768}
           />
         </div>
         <FeatureSection sections={rightSections} />

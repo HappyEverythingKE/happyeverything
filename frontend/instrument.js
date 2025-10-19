@@ -15,12 +15,6 @@ Sentry.init({
     //  performance
     //  session-replay
     Sentry.replayIntegration(),
-    //  session-replay
-    //  user-feedback
-    Sentry.feedbackIntegration({
-      // Additional SDK configuration goes in here, for example:
-      colorScheme: 'system',
-    }),
     //  console logging
     Sentry.consoleLoggingIntegration({ levels: ['warn', 'error'] }),
   ],

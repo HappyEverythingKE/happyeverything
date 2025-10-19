@@ -10,6 +10,7 @@ import { z } from 'zod'
 import { FullPageSkeleton } from '@/components/ui/full-page-skeleton'
 import { WithLists } from '@/components/dashboard/index/with-lists'
 import { WithoutLists } from '@/components/dashboard/index/without-lists'
+import { ErrorComponent } from '@/components/error-component'
 
 const searchSchema = z.object({
   error: z.string().optional(),
@@ -46,7 +47,7 @@ function RouteComponent() {
   const hasLists = lists && lists.length > 0
 
   if (isError) {
-    return <div>Error loading lists</div>
+    return <ErrorComponent error={new Error('Error loading lists')} />
   }
 
   if (isLoading) {
