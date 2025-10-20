@@ -6,7 +6,11 @@ import {
   useUploadImageToCloudflare,
 } from '@/services/cloudflare-upload.api'
 import { useCreateListItem } from '@/services/list-item.api'
-import { ListItemCreateSchema } from '@shared/types'
+import {
+  ListItemCreateSchema,
+  MAX_FILE_SIZE_BYTES,
+  MAX_FILE_SIZE_MB,
+} from '@shared/types'
 import { TrashIcon } from 'lucide-react'
 import { toast } from 'sonner'
 import type { z } from 'zod'
@@ -62,6 +66,23 @@ export function NewListItemForm({
     try {
       const file = e.target.files?.[0]
       if (!file) return
+
+      // Validate file size
+      if (file.size > MAX_FILE_SIZE_BYTES) {
+        toast.error(
+          `Image is too large. Maximum size is ${MAX_FILE_SIZE_MB}MB.`,
+        )
+        e.target.value = '' // reset input so user can re-select
+        return
+      }
+
+      // Validate file type again (for extra safety)
+      if (!file.type.startsWith('image/')) {
+        toast.error('Please select a valid image file (JPG or PNG).')
+        e.target.value = ''
+        return
+      }
+
       const imageId = await uploadImage(file)
       form.setFieldValue('imageId', imageId)
       setImageUrl(
