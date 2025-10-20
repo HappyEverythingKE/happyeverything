@@ -2,10 +2,15 @@ import { Hono } from 'hono'
 import { env } from 'hono/adapter'
 import { HTTPException } from 'hono/http-exception'
 
-import { getSupabase } from '@/middleware/auth.middleware'
 import { zValidator } from '@hono/zod-validator'
-import { AppEnv, DirectUploadData, SuccessResponse } from '@shared/types'
 import { z } from 'zod'
+
+import type {
+  AppEnv,
+  DirectUploadData,
+  SuccessResponse,
+} from '../../shared/types'
+import { getSupabase } from '../middleware/auth.middleware'
 
 export const imageRoutes = new Hono()
   .post(
