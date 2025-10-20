@@ -6,8 +6,8 @@ interface ShimmerImageProps extends React.ImgHTMLAttributes<HTMLImageElement> {
   className?: string
   rounded?: boolean
   alt: string
-  width: number
-  height: number
+  width?: number
+  height?: number
   imgClassName?: string
   lazy?: boolean
 }
@@ -30,6 +30,7 @@ export function ShimmerImage({
         rounded ? 'rounded-2xl' : ''
       } ${className}`}
     >
+      {/* <div className="from-dusk/10 via-dusk/20 to-dusk/10 absolute inset-0 animate-pulse bg-gradient-to-r" /> */}
       {!loaded && (
         <div className="from-dusk/10 via-dusk/20 to-dusk/10 absolute inset-0 animate-pulse bg-gradient-to-r" />
       )}

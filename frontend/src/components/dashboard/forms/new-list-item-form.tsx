@@ -15,6 +15,7 @@ import { useImageVariant } from '@/hooks/use-image-variant'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { ShimmerImage } from '@/components/ui/shimmer-image'
 import { Spinner } from '@/components/ui/spinner'
 import { FieldInfo } from '@/components/field-info'
 
@@ -218,12 +219,15 @@ export function NewListItemForm({
             <Label htmlFor="itemImage">Add item image</Label>
             {imageUrl ? (
               <div className="relative max-w-fit">
-                <img
+                <ShimmerImage
+                  className="h-12 w-12 md:h-16 md:w-16"
                   src={imageUrl}
                   alt="Item thumbnail"
-                  className="h-12 w-12 rounded-sm object-contain md:h-16 md:w-16"
+                  width={48}
+                  height={48}
+                  imgClassName="rounded-sm object-contain"
                 />
-                <div className="absolute -bottom-2 -right-10">
+                <div className="absolute -right-10 top-0">
                   <Button
                     variant="destructive"
                     onClick={handleDeleteImage}

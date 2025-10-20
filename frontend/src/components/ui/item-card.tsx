@@ -10,6 +10,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover'
+import { ShimmerImage } from '@/components/ui/shimmer-image'
 import {
   Tooltip,
   TooltipContent,
@@ -64,11 +65,13 @@ export function ItemCard({
       )}
 
       {/* Image / Badge Area */}
-      <div className="h-38 relative flex items-center justify-center overflow-hidden">
-        <img
+      <div className="relative flex items-center justify-center overflow-hidden">
+        <ShimmerImage
+          className="h-38 w-full"
           src={imageUrl || placeholderImage}
           alt={item.name}
-          className="h-full w-full object-contain"
+          lazy={true}
+          imgClassName="object-contain"
         />
 
         {/* Gifted Badge */}
