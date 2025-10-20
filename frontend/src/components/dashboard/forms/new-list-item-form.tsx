@@ -1,13 +1,26 @@
+import { useState } from 'react'
 import { useForm } from '@tanstack/react-form'
 
+import {
+  useDeleteImageFromCloudflare,
+  useUploadImageToCloudflare,
+} from '@/services/cloudflare-upload.api'
 import { useCreateListItem } from '@/services/list-item.api'
-import { ListItemCreateSchema } from '@shared/types'
+import {
+  ListItemCreateSchema,
+  MAX_FILE_SIZE_BYTES,
+  MAX_FILE_SIZE_MB,
+} from '@shared/types'
+import { TrashIcon } from 'lucide-react'
 import { toast } from 'sonner'
 import type { z } from 'zod'
 
+import { getImageVariantUrl } from '@/lib/get-image-variant-url'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { ShimmerImage } from '@/components/ui/shimmer-image'
+import { Spinner } from '@/components/ui/spinner'
 import { FieldInfo } from '@/components/field-info'
 
 interface NewListItemFormProps {
@@ -20,7 +33,7 @@ interface NewListItemFormProps {
 const defaultValues = {
   name: '',
   quantity: 1,
-  imageUrl: '',
+  imageId: '',
   size: '',
   colour: '',
   shop: '',
@@ -33,10 +46,79 @@ export function NewListItemForm({
   onFormSubmit,
   onFormCancel,
 }: NewListItemFormProps) {
+  const [imageUrl, setImageUrl] = useState<string | null>(null)
+
+  // create list item
   const { mutateAsync: createListItem, isPending } = useCreateListItem(
     profileSlug,
     listSlug,
   )
+
+  // upload image to cloudflare
+  const { mutateAsync: uploadImage, isPending: isUploadingImage } =
+    useUploadImageToCloudflare()
+
+  // delete image from cloudflare
+  const { mutateAsync: deleteImage, isPending: isDeletingImage } =
+    useDeleteImageFromCloudflare()
+
+  const handleUploadImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    try {
+      const file = e.target.files?.[0]
+      if (!file) return
+
+      // Validate file size
+      if (file.size > MAX_FILE_SIZE_BYTES) {
+        toast.error(
+          `Image is too large. Maximum size is ${MAX_FILE_SIZE_MB}MB.`,
+        )
+        e.target.value = '' // reset input so user can re-select
+        return
+      }
+
+      // Validate file type again (for extra safety)
+      if (!file.type.startsWith('image/')) {
+        toast.error('Please select a valid image file (JPG or PNG).')
+        e.target.value = ''
+        return
+      }
+
+      const imageId = await uploadImage(file)
+      form.setFieldValue('imageId', imageId)
+      setImageUrl(
+        getImageVariantUrl({
+          imageId,
+          context: 'thumbnail',
+        }),
+      )
+      toast.success('Image uploaded successfully!')
+    } catch (error) {
+      toast.error('Image upload failed.')
+      console.error(error)
+    }
+  }
+
+  const handleDeleteImage = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault()
+    e.stopPropagation()
+    const imageId = form.getFieldValue('imageId')
+
+    if (!imageId) return
+
+    try {
+      await deleteImage(imageId)
+      // clear the image id, input field and image thumbnail
+      form.setFieldValue('imageId', undefined)
+      const fileInput = document.getElementById('itemImage') as HTMLInputElement
+      if (fileInput) {
+        fileInput.value = ''
+      }
+      setImageUrl(null)
+      toast.success('Image deleted successfully.')
+    } catch (error) {
+      toast.error('An error occurred.', { description: String(error) })
+    }
+  }
 
   const form = useForm({
     defaultValues: defaultValues,
@@ -155,30 +237,53 @@ export function NewListItemForm({
           </div>
 
           <div className="space-y-3">
-            <form.Field
-              name="imageUrl"
-              children={(field) => {
-                return (
-                  <>
-                    <Label htmlFor={field.name}>Add an image URL</Label>
-                    <Input
-                      id={field.name}
-                      name={field.name}
-                      value={field.state.value}
-                      onBlur={field.handleBlur}
-                      onChange={(e) => field.handleChange(e.target.value)}
-                      placeholder="Paste a link to an image of the gift"
-                    />
-                    <p className="-mt-1 ml-1 text-xs text-gray-500">
-                      Tip: On desktop, find an image of your gift. Right-click
-                      the image and choose “Copy Image Address.” On mobile,
-                      long-press the image to copy the link.
-                    </p>
-                    <FieldInfo field={field} />
-                  </>
-                )
-              }}
-            />
+            <Label htmlFor="itemImage">Add item image</Label>
+            {imageUrl ? (
+              <div className="relative max-w-fit">
+                <ShimmerImage
+                  className="h-12 w-12 md:h-16 md:w-16"
+                  src={imageUrl}
+                  alt="Item thumbnail"
+                  width={48}
+                  height={48}
+                  imgClassName="rounded-sm object-contain"
+                />
+                <div className="absolute -right-10 top-0">
+                  <Button
+                    variant="destructive"
+                    onClick={handleDeleteImage}
+                    disabled={isDeletingImage}
+                    className="size-6"
+                  >
+                    {isDeletingImage ? (
+                      <Spinner className="size-3.5" />
+                    ) : (
+                      <TrashIcon className="size-3.5" />
+                    )}
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <>
+                <Input
+                  id="itemImage"
+                  type="file"
+                  accept="image/*"
+                  disabled={isUploadingImage}
+                  onChange={handleUploadImage}
+                />
+
+                {isUploadingImage ? (
+                  <p className="-mt-1 ml-1 text-xs text-amber-600">
+                    Uploading image...
+                  </p>
+                ) : (
+                  <p className="-mt-1 ml-1 text-xs text-gray-500">
+                    Upload a photo of your gift (JPG or PNG).
+                  </p>
+                )}
+              </>
+            )}
           </div>
 
           <div className="space-y-3">

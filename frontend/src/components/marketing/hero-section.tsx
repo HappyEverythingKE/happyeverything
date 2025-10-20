@@ -1,43 +1,59 @@
 import { Link } from '@tanstack/react-router'
 
-import imageEdges from '@/assets/images/couple-with-flowers.png'
-import imageLeftTwo from '@/assets/images/couple-with-giftbox.png'
-import imageLeftThree from '@/assets/images/father-and-daughter.png'
-import imageRightOne from '@/assets/images/mother-and-son.png'
-import imageRightTwo from '@/assets/images/pregnant-woman-flowers.png'
-import imageCenter from '@/assets/images/women-holding-flowers.png'
 import { motion, useScroll, useTransform } from 'motion/react'
 import { useMediaQuery } from 'usehooks-ts'
 
+import { marketingImages } from '@/lib/marketing-images'
 import { Button } from '@/components/ui/button'
+import { ShimmerImage } from '@/components/ui/shimmer-image'
 
 const images = [
   {
-    src: imageEdges,
+    src: marketingImages.coupleGifting,
+    alt: 'Couple exchanging a gift',
+    width: 1020,
+    height: 1530,
   },
   {
-    src: imageLeftTwo,
+    src: marketingImages.friendsWithGiftbox,
+    alt: 'Friends with a large giftbox',
+    width: 1020,
+    height: 1530,
   },
   {
-    src: imageLeftThree,
+    src: marketingImages.boyWithPuppy,
+    alt: 'Boy holding a puppy',
+    width: 1020,
+    height: 1530,
   },
   {
-    src: imageCenter,
+    src: marketingImages.boyWithToyCar,
+    alt: 'Boy with a toy car gift',
+    width: 1020,
+    height: 1530,
   },
   {
-    src: imageRightOne,
+    src: marketingImages.siblingsGift,
+    alt: 'Siblings with a giftbox',
+    width: 1020,
+    height: 1530,
   },
   {
-    src: imageRightTwo,
+    src: marketingImages.grandmaGift,
+    alt: 'Grandma with a gift',
+    width: 1020,
+    height: 1530,
   },
   {
-    src: imageEdges,
+    src: marketingImages.coupleGifting,
+    alt: 'Couple exchanging a gift',
+    width: 1020,
+    height: 1530,
   },
 ]
 
 export function HeroSection() {
   const isMobile = useMediaQuery('(max-width: 767px)')
-
   const { scrollYProgress } = useScroll()
 
   const createTransform = (mobileValues: string[], desktopValues: string[]) =>
@@ -50,13 +66,11 @@ export function HeroSection() {
   const leftImageGroup = {
     x: createTransform(['0vw', '-25vw'], ['0vw', '-32vw']),
   }
-
   const centerImageContainer = {
     x: createTransform(['0vw', '-25vw'], ['0vw', '-32vw']),
     width: createTransform(['50vw', '100vw'], ['36vw', '100vw']),
     height: createTransform(['60vh', '100vh'], ['80vh', '100vh']),
   }
-
   const rightImageGroup = {
     x: createTransform(['0vw', '25vw'], ['0vw', '32vw']),
   }
@@ -90,44 +104,40 @@ export function HeroSection() {
             style={leftImageGroup}
           >
             <div className="relative hidden md:block md:w-[25vw] lg:w-[20vw]">
-              <img
-                className="aspect-[2/3] w-full rounded-2xl object-cover"
-                {...images[0]}
-                alt="Couple exchanges flowers"
-                width="1020"
-                height="1020"
+              <ShimmerImage
+                className="aspect-[2/3] w-full"
+                src={images[0].src}
+                alt={images[0].alt}
+                width={images[0].width}
+                height={images[0].height}
               />
             </div>
 
             <div className="relative grid w-[40vw] grid-cols-1 grid-rows-[auto_auto] gap-4 self-center md:w-[18vw]">
-              <div className="relative">
-                <img
-                  className="aspect-square w-full rounded-2xl object-cover"
-                  {...images[1]}
-                  alt="Couple exchanges giftbox"
-                  width="1020"
-                  height="1020"
-                />
-              </div>
-              <div className="relative">
-                <img
-                  className="aspect-[3/4] w-full rounded-2xl object-cover"
-                  {...images[2]}
-                  alt="Father and daughter celebrate"
-                  width="1020"
-                  height="1020"
-                />
-              </div>
+              <ShimmerImage
+                className="aspect-square w-full"
+                src={images[1].src}
+                alt={images[1].alt}
+                width={images[1].width}
+                height={images[1].height}
+              />
+              <ShimmerImage
+                className="aspect-[3/4] w-full"
+                src={images[2].src}
+                alt={images[2].alt}
+                width={images[2].width}
+                height={images[2].height}
+              />
             </div>
           </motion.div>
 
           <motion.div className="relative" style={centerImageContainer}>
-            <img
-              className="size-full rounded-2xl object-cover"
-              {...images[3]}
-              alt="Friends exchange flowers"
-              width="1020"
-              height="1020"
+            <ShimmerImage
+              className="size-full"
+              src={images[3].src}
+              alt={images[3].alt}
+              width={images[3].width}
+              height={images[3].height}
             />
           </motion.div>
 
@@ -136,33 +146,29 @@ export function HeroSection() {
             style={rightImageGroup}
           >
             <div className="relative grid w-[40vw] grid-cols-1 grid-rows-[auto_auto] gap-4 self-center md:w-[18vw]">
-              <div className="relative w-[40vw] sm:w-auto">
-                <img
-                  className="aspect-[3/4] w-full rounded-2xl object-cover"
-                  {...images[4]}
-                  alt="Mother and son celebrate"
-                  width="1020"
-                  height="1020"
-                />
-              </div>
-              <div className="relative w-[40vw] sm:w-auto">
-                <img
-                  className="aspect-square w-full rounded-2xl object-cover"
-                  {...images[5]}
-                  alt="Pregnant woman receives flowers"
-                  width="1020"
-                  height="1020"
-                />
-              </div>
+              <ShimmerImage
+                className="aspect-[3/4] w-full"
+                src={images[4].src}
+                alt={images[4].alt}
+                width={images[4].width}
+                height={images[4].height}
+              />
+              <ShimmerImage
+                className="aspect-square w-full"
+                src={images[5].src}
+                alt={images[5].alt}
+                width={images[5].width}
+                height={images[5].height}
+              />
             </div>
 
             <div className="relative hidden md:block md:w-[25vw] lg:w-[20vw]">
-              <img
-                className="aspect-[2/3] w-full rounded-2xl object-cover"
-                {...images[6]}
-                alt="Couple exchanges flowers"
-                width="1020"
-                height="1020"
+              <ShimmerImage
+                className="aspect-[2/3] w-full"
+                src={images[6].src}
+                alt={images[6].alt}
+                width={images[6].width}
+                height={images[6].height}
               />
             </div>
           </motion.div>

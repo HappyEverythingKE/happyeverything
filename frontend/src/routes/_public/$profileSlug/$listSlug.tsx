@@ -95,6 +95,7 @@ function RouteComponent() {
     name: list.name,
     description: list.description || '',
     createdAt: list.createdAt,
+    bannerImageId: list.listType.imageId,
   }
 
   return (

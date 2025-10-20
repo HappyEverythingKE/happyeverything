@@ -1,12 +1,18 @@
 import { Link } from '@tanstack/react-router'
 
-import HeroImage from '@/assets/images/woman-with-giftbox.png'
-
+import { marketingImages } from '@/lib/marketing-images'
 import { Button } from '@/components/ui/button'
+import {
+  Card,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
+import { ShimmerImage } from '@/components/ui/shimmer-image'
 
 type ImageProps = {
   src: string
-  alt?: string
+  alt: string
 }
 
 type SectionProps = {
@@ -15,10 +21,17 @@ type SectionProps = {
   description: string
 }
 
-const leftSections = [
+const images = {
+  prevOne: marketingImages.listTypePreview,
+  prevTwo: marketingImages.sharePreview,
+  prevThree: marketingImages.activityPreview,
+  prevFour: marketingImages.itemCardPreview,
+}
+
+const topSections = [
   {
     image: {
-      src: 'https://d22po4pjz3o32e.cloudfront.net/relume-icon.svg',
+      src: images.prevOne,
       alt: 'Customizable wish lists',
     },
     heading: 'Customizable wish lists',
@@ -27,7 +40,7 @@ const leftSections = [
   },
   {
     image: {
-      src: 'https://d22po4pjz3o32e.cloudfront.net/relume-icon.svg',
+      src: images.prevTwo,
       alt: 'Share on your terms',
     },
     heading: 'Share on your terms',
@@ -36,10 +49,10 @@ const leftSections = [
   },
 ]
 
-const rightSections = [
+const bottomSections = [
   {
     image: {
-      src: 'https://d22po4pjz3o32e.cloudfront.net/relume-icon.svg',
+      src: images.prevThree,
       alt: 'Real-time gift tracking',
     },
     heading: 'Real-time gift tracking',
@@ -48,7 +61,7 @@ const rightSections = [
   },
   {
     image: {
-      src: 'https://d22po4pjz3o32e.cloudfront.net/relume-icon.svg',
+      src: images.prevFour,
       alt: 'Free to use',
     },
     heading: '100% Free to use',
@@ -58,19 +71,32 @@ const rightSections = [
 ]
 
 const FeatureSection = ({ sections }: { sections: SectionProps[] }) => (
-  <div className="grid w-full grid-cols-1 gap-x-20 gap-y-12 md:gap-y-16">
+  <div className="grid w-full grid-flow-col grid-cols-1 grid-rows-2 gap-x-12 gap-y-12">
     {sections.map((section, index) => (
-      <div key={index} className="flex flex-col items-center text-center">
-        <div className="mb-5 md:mb-6">
-          <img
+      <Card
+        key={index}
+        className="to-blush/20 h-full bg-gradient-to-b from-transparent p-6 text-center lg:gap-10 lg:p-10"
+      >
+        <CardHeader className="gap-2">
+          <CardTitle className="text-xl">
+            <h3>{section.heading}</h3>
+          </CardTitle>
+          <CardDescription className="text-md mx-auto text-balance text-center lg:max-w-lg">
+            {section.description}
+          </CardDescription>
+        </CardHeader>
+        <div className="relative mx-auto mb-2 w-[90%]">
+          <ShimmerImage
             src={section.image.src}
-            className="size-12"
             alt={section.image.alt}
+            width={800}
+            height={500}
+            className="absolute inset-0 aspect-video"
+            imgClassName="object-contain"
+            lazy={true}
           />
         </div>
-        <h3 className="mb-3 text-lg md:mb-4">{section.heading}</h3>
-        <p>{section.description}</p>
-      </div>
+      </Card>
     ))}
   </div>
 )
@@ -90,24 +116,15 @@ export function BenefitSection() {
             confusion. No duplicates. Just joyful, thoughtful giving.
           </p>
         </div>
-      </div>
-      <div className="grid place-items-center gap-x-8 gap-y-12 sm:grid-cols-2 md:gap-y-16 lg:grid-cols-[1fr_1.5fr_1fr] lg:gap-x-12">
-        <FeatureSection sections={leftSections} />
-        <div className="relative order-last w-full sm:col-span-2 lg:order-none lg:col-span-1">
-          <img
-            src={HeroImage}
-            alt="Woman with gift box"
-            className="h-auto w-full rounded-2xl object-cover"
-            width="1024"
-            height="1024"
-          />
+        <div className="mt-8 flex items-center justify-center">
+          <Button asChild size="lg">
+            <Link to="/signup">Create your first wish list</Link>
+          </Button>
         </div>
-        <FeatureSection sections={rightSections} />
       </div>
-      <div className="md:mt-18 mt-12 flex flex-wrap items-center justify-center gap-4 lg:mt-20">
-        <Button asChild size="lg">
-          <Link to="/signup">Create your first wish list</Link>
-        </Button>
+      <div className="grid grid-cols-1 place-items-center gap-x-8 gap-y-12 md:grid-cols-2 md:gap-y-16 lg:gap-x-12">
+        <FeatureSection sections={topSections} />
+        <FeatureSection sections={bottomSections} />
       </div>
     </section>
   )

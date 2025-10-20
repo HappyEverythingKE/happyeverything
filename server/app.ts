@@ -12,6 +12,7 @@ import type { ErrorResponse } from '../shared/types'
 import { supabaseMiddleware } from './middleware/auth.middleware'
 import { accountRoutes } from './routes/account'
 import { authRoutes } from './routes/auth'
+import { imageRoutes } from './routes/image-routes'
 import { listItemRoutes } from './routes/lists/list-item-routes'
 import { listRoutes } from './routes/lists/list-routes'
 import { profileRoutes } from './routes/profile'
@@ -53,6 +54,7 @@ const apiRoutes = app
   .route('/lists', listItemRoutes)
   .route('/public', publicRoutes)
   .route('/public/reservations', giftReservationRoutes)
+  .route('/images', imageRoutes)
 // .route('/lists', listAccessRoutes)
 
 app.onError((err, c) => {

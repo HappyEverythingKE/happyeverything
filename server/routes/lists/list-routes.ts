@@ -49,7 +49,7 @@ export const listRoutes = new Hono()
       data: sortedData.map((item) => ({
         id: item.id,
         name: item.name,
-        imageUrl: item.image_url,
+        imageId: item.image_id,
         isCustom: item.is_custom,
       })),
     })
@@ -84,7 +84,7 @@ export const listRoutes = new Hono()
     const { data: allLists, error: listsError } = await supabase
       .from('lists')
       .select(
-        'id, name, slug, description, private, password, status, created_at, updated_at, list_types!inner(id, name, image_url, is_custom)',
+        'id, name, slug, description, private, password, status, created_at, updated_at, list_types!inner(id, name, image_id, is_custom)',
       )
       .eq('profile_id', profileId)
       .order('created_at', { ascending: false })
@@ -161,7 +161,7 @@ export const listRoutes = new Hono()
         list_type_id: listTypeId,
       })
       .select(
-        'id, name, slug, description, private, password, status, created_at, list_types!inner(id, name, image_url, is_custom)',
+        'id, name, slug, description, private, password, status, created_at, list_types!inner(id, name, image_id, is_custom)',
       )
       .single()
 
@@ -190,7 +190,7 @@ export const listRoutes = new Hono()
     const { data: list, error } = await supabase
       .from('lists')
       .select(
-        'id, name, slug, description, private, password, status, created_at, updated_at, list_types!inner(id, name, image_url, is_custom)',
+        'id, name, slug, description, private, password, status, created_at, updated_at, list_types!inner(id, name, image_id, is_custom)',
       )
       .eq('id', listId)
       .eq('profile_id', profileId)
@@ -260,7 +260,7 @@ export const listRoutes = new Hono()
         .eq('id', listId)
         .eq('profile_id', profileId)
         .select(
-          'id, name, slug, description, private, password, status, created_at, updated_at, list_types!inner(id, name, image_url, is_custom)',
+          'id, name, slug, description, private, password, status, created_at, updated_at, list_types!inner(id, name, image_id, is_custom)',
         )
         .single()
 
@@ -298,7 +298,7 @@ export const listRoutes = new Hono()
       .eq('id', listId)
       .eq('profile_id', profileId)
       .select(
-        'id, name, slug, description, private, password, status, created_at, updated_at, list_types!inner(id, name, image_url, is_custom)',
+        'id, name, slug, description, private, password, status, created_at, updated_at, list_types!inner(id, name, image_id, is_custom)',
       )
       .single()
 
@@ -344,7 +344,7 @@ export const listRoutes = new Hono()
         .eq('id', listId)
         .eq('profile_id', profileId)
         .select(
-          'id, name, slug, description, private, password, status, created_at, updated_at, list_types!inner(id, name, image_url, is_custom)',
+          'id, name, slug, description, private, password, status, created_at, updated_at, list_types!inner(id, name, image_id, is_custom)',
         )
         .single()
 

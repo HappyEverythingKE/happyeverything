@@ -2,6 +2,8 @@ import { z } from 'zod'
 
 export type AppEnv = {
   APP_BASE_URL: string
+  CF_ACCOUNT_ID: string
+  CF_IMAGES_API_TOKEN: string
   SUPABASE_URL: string
   SUPABASE_PUBLIC_KEY: string
   SUPABASE_SERVICE_ROLE_KEY: string
@@ -10,6 +12,11 @@ export type AppEnv = {
   MAX_LISTS_PER_PROFILE: number
   MAX_ITEMS_PER_LIST: number
   MAX_TOP_PICKS_PER_LIST: number
+}
+
+export type DirectUploadData = {
+  uploadURL: string
+  imageId: string
 }
 
 export type SuccessResponse<T = void> = {
@@ -31,6 +38,9 @@ export type ListStatusType = z.infer<typeof ListStatusType>
 
 export const ListItemStatusType = z.enum(['active', 'gifted'])
 export type ListItemStatusType = z.infer<typeof ListItemStatusType>
+
+export const MAX_FILE_SIZE_MB = 3 // 3MB
+export const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024
 
 export type AuthContext = {
   isAuthenticated: boolean
@@ -69,7 +79,7 @@ export type PublicListOwner = {
 export type ListType = {
   id: string
   name: string
-  imageUrl: string | null
+  imageId?: string
   isCustom: boolean
 }
 
@@ -95,7 +105,7 @@ export type ListItem = {
   topPick: boolean
   size?: string
   colour?: string
-  imageUrl?: string
+  imageId?: string
   shop?: string
   notes?: string
   reservedCount: number
@@ -206,14 +216,7 @@ export const ListItemCreateSchema = z.object({
     .string()
     .max(50, 'Colour must be less than 50 characters.')
     .optional(),
-  imageUrl: z
-    .string()
-    .transform((value) => value.trim())
-    .refine((value) => value === '' || /^https?:\/\/.+/.test(value), {
-      message: 'Please enter a valid URL starting with http:// or https://',
-    })
-    .transform((value) => (value === '' ? undefined : value))
-    .optional(),
+  imageId: z.string().optional(),
   shop: z
     .string()
     .transform((value) => value.trim())

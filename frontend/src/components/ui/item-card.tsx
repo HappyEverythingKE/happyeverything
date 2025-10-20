@@ -1,6 +1,7 @@
 import type { ListItem } from '@shared/types'
 import { ExternalLink, Heart } from 'lucide-react'
 
+import { getImageVariantUrl } from '@/lib/get-image-variant-url'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
@@ -9,6 +10,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover'
+import { ShimmerImage } from '@/components/ui/shimmer-image'
 import {
   Tooltip,
   TooltipContent,
@@ -44,11 +46,16 @@ export function ItemCard({
     }
   })()
 
+  const imageUrl = getImageVariantUrl({
+    imageId: item.imageId,
+    context: 'list-item',
+  })
+
   return (
     <Card
       key={item.id}
       className={cn(
-        'relative flex h-full w-full flex-col overflow-hidden rounded-md border-stone-200 bg-white p-6 transition-shadow hover:shadow-md',
+        'min-w-sm relative flex h-full w-full flex-col overflow-hidden rounded-md border-stone-200 bg-white p-6 transition-shadow hover:shadow-md md:min-w-full',
         className,
       )}
     >
@@ -58,11 +65,13 @@ export function ItemCard({
       )}
 
       {/* Image / Badge Area */}
-      <div className="h-38 relative flex items-center justify-center overflow-hidden">
-        <img
-          src={item.imageUrl || placeholderImage}
+      <div className="relative flex items-center justify-center overflow-hidden">
+        <ShimmerImage
+          className="h-38 w-full"
+          src={imageUrl || placeholderImage}
           alt={item.name}
-          className="h-full w-full object-contain"
+          lazy={true}
+          imgClassName="object-contain"
         />
 
         {/* Gifted Badge */}

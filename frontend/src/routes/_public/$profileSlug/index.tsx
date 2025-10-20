@@ -54,7 +54,7 @@ function RouteComponent() {
   }
 
   return (
-    <div className="mx-auto p-8">
+    <div className="mx-auto py-6">
       <ProfileHeader listOwner={data.listOwner} />
       {data.lists.length === 0 ? (
         <EmptyListsState

@@ -57,18 +57,21 @@ export const listItemRoutes = new Hono()
       const listId = await resolveListIdFromSlug(c, profileId, listSlug)
 
       const supabase = getSupabase(c)
-      const { name, quantity, size, colour, imageUrl, shop, notes } =
+      const { name, quantity, size, colour, imageId, shop, notes } =
         c.req.valid('form')
+
+      const normalize = (v: unknown) =>
+        typeof v === 'string' && v.trim() !== '' && v !== 'undefined' ? v : null
 
       const { data: insertedData, error: insertError } = await supabase
         .from('list_items')
         .insert({
           list_id: listId,
+          image_id: normalize(imageId),
           name,
           quantity,
           size,
           colour,
-          image_url: imageUrl,
           shop,
           notes,
         })
@@ -114,19 +117,22 @@ export const listItemRoutes = new Hono()
 
       const supabase = getSupabase(c)
 
-      const { name, quantity, size, colour, imageUrl, shop, notes } =
+      const { name, quantity, size, colour, imageId, shop, notes } =
         c.req.valid('form')
+
+      const normalize = (v: unknown) =>
+        typeof v === 'string' && v.trim() !== '' && v !== 'undefined' ? v : null
 
       const { error: updateError } = await supabase
         .from('list_items')
         .update({
           name,
           quantity,
-          size: size || null,
-          colour: colour || null,
-          image_url: imageUrl || null,
-          shop: shop || null,
-          notes: notes || null,
+          size,
+          colour,
+          image_id: normalize(imageId), // allow replace or remove
+          shop,
+          notes,
           updated_at: new Date().toISOString(),
         })
         .eq('id', itemId)
@@ -242,9 +248,7 @@ export const listItemRoutes = new Hono()
       .eq('list_id', listId)
 
     if (deleteError) {
-      throw new HTTPException(500, {
-        message: deleteError.message,
-      })
+      throw new HTTPException(500, { message: deleteError.message })
     }
 
     return c.body(null, 204)

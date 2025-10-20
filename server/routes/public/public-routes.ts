@@ -45,6 +45,9 @@ const reservedRoutes = [
   'about',
   'settings',
   'activity',
+  'privacy-policy',
+  'images',
+  'direct-upload-url',
 ]
 
 // view all published lists for a profile
@@ -64,7 +67,7 @@ export const publicRoutes = new Hono()
     const { data: allLists, error } = await supabaseAdmin
       .from('lists')
       .select(
-        'name, slug, private, created_at, list_types!inner(id, name, image_url, is_custom)',
+        'name, slug, private, created_at, list_types!inner(id, name, image_id, is_custom)',
       )
       .eq('profile_id', profileId)
       .eq('status', 'published')
@@ -212,7 +215,7 @@ async function getPublicList(c: Context, profileId: string, listSlug: string) {
     .select(
       `
         id, name, slug, description, private, password, status, created_at, updated_at,
-        list_types!inner(id, name, image_url, is_custom)
+        list_types!inner(id, name, image_id, is_custom)
       `,
     )
     .eq('id', listId)
