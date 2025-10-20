@@ -67,7 +67,7 @@ services:
         sync: false
       - key: VITE_SUPABASE_PUBLIC_KEY
         sync: false
-      - key: SENTRY_DSN
+      - key: VITE_SENTRY_DSN
         sync: false
       - key: VITE_CF_IMAGES_API_URL
         sync: false
