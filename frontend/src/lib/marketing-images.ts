@@ -10,4 +10,8 @@ export const marketingImages = {
   girlWithDoll: `https://imagedelivery.net/${CF_DELIVERY_HASH}/4bb26467-bf93-4613-18d4-20637887a900/marketingMedium`,
   girlWithGiftbox: `https://imagedelivery.net/${CF_DELIVERY_HASH}/e8fec0da-2256-46ff-5d3c-62f2461e7300/marketingMedium`,
   familyGifting: `https://imagedelivery.net/${CF_DELIVERY_HASH}/483fc714-d3d3-47ae-6f1c-7227fee65000/marketingMedium`,
+  itemCardPreview: `https://imagedelivery.net/${CF_DELIVERY_HASH}/f58825fd-d5ea-4cfb-9b86-ef69ed798d00/marketingMedium`,
+  activityPreview: `https://imagedelivery.net/${CF_DELIVERY_HASH}/b5b4d2b2-8224-49cb-99ef-b9da961bbe00/marketingMedium`,
+  listTypePreview: `https://imagedelivery.net/${CF_DELIVERY_HASH}/86952409-2738-4401-faf1-eb6a67a5e200/marketingMedium`,
+  sharePreview: `https://imagedelivery.net/${CF_DELIVERY_HASH}/4d5ee548-f44b-40d5-9e9f-505c5f0b8500/marketingMedium`,
 }

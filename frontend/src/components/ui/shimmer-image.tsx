@@ -1,11 +1,15 @@
 import { useState } from 'react'
 
+import { cn } from '@/lib/utils'
+
 interface ShimmerImageProps extends React.ImgHTMLAttributes<HTMLImageElement> {
   className?: string
   rounded?: boolean
   alt: string
   width: number
   height: number
+  imgClassName?: string
+  lazy?: boolean
 }
 
 export function ShimmerImage({
@@ -14,6 +18,8 @@ export function ShimmerImage({
   alt,
   width,
   height,
+  imgClassName = '',
+  lazy = false,
   ...props
 }: ShimmerImageProps) {
   const [loaded, setLoaded] = useState(false)
@@ -30,12 +36,15 @@ export function ShimmerImage({
       <img
         {...props}
         alt={alt}
+        loading={lazy ? 'lazy' : 'eager'}
         width={width}
         height={height}
         onLoad={() => setLoaded(true)}
-        className={`h-full w-full object-cover transition-opacity duration-700 ${
-          loaded ? 'opacity-100' : 'opacity-0'
-        }`}
+        className={cn(
+          'h-full w-full object-cover transition-opacity duration-700',
+          loaded ? 'opacity-100' : 'opacity-0',
+          imgClassName,
+        )}
       />
     </div>
   )

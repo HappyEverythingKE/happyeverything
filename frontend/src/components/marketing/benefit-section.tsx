@@ -1,17 +1,18 @@
 import { Link } from '@tanstack/react-router'
 
-import Image4 from '@/assets/app-previews/activity-preview.png'
-import Image3 from '@/assets/app-previews/item-card-preview.png'
-import Image1 from '@/assets/app-previews/list-type-preview.png'
-import Image2 from '@/assets/app-previews/share-preview.png'
-
 import { marketingImages } from '@/lib/marketing-images'
 import { Button } from '@/components/ui/button'
+import {
+  Card,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
 import { ShimmerImage } from '@/components/ui/shimmer-image'
 
 type ImageProps = {
   src: string
-  alt?: string
+  alt: string
 }
 
 type SectionProps = {
@@ -20,10 +21,17 @@ type SectionProps = {
   description: string
 }
 
-const leftSections = [
+const images = {
+  prevOne: marketingImages.listTypePreview,
+  prevTwo: marketingImages.sharePreview,
+  prevThree: marketingImages.activityPreview,
+  prevFour: marketingImages.itemCardPreview,
+}
+
+const topSections = [
   {
     image: {
-      src: Image1,
+      src: images.prevOne,
       alt: 'Customizable wish lists',
     },
     heading: 'Customizable wish lists',
@@ -32,7 +40,7 @@ const leftSections = [
   },
   {
     image: {
-      src: Image2,
+      src: images.prevTwo,
       alt: 'Share on your terms',
     },
     heading: 'Share on your terms',
@@ -41,44 +49,54 @@ const leftSections = [
   },
 ]
 
-const rightSections = [
+const bottomSections = [
   {
     image: {
-      src: Image3,
-      alt: 'Free to use',
-    },
-    heading: '100% Free to use',
-    description:
-      'No fees, no subscriptions. Just an easy, hassle-free way to create and share your wish lists.',
-  },
-  {
-    image: {
-      src: Image4,
+      src: images.prevThree,
       alt: 'Real-time gift tracking',
     },
     heading: 'Real-time gift tracking',
     description:
       'Get notified when someone crosses-off an item from your list and avoid duplicate gifts.',
   },
+  {
+    image: {
+      src: images.prevFour,
+      alt: 'Free to use',
+    },
+    heading: '100% Free to use',
+    description:
+      'No fees, no subscriptions. Just an easy, hassle-free way to create and share your wish lists.',
+  },
 ]
 
 const FeatureSection = ({ sections }: { sections: SectionProps[] }) => (
-  <div className="grid w-full grid-cols-1 gap-x-20 gap-y-12 md:gap-y-16">
+  <div className="grid w-full grid-flow-col grid-cols-1 grid-rows-2 gap-x-12 gap-y-12">
     {sections.map((section, index) => (
-      <div key={index} className="flex flex-col items-center text-center">
-        <div className="relative mb-5 aspect-video w-full md:mb-6">
-          <img
+      <Card
+        key={index}
+        className="to-blush/20 h-full bg-gradient-to-b from-transparent p-6 text-center lg:gap-10 lg:p-10"
+      >
+        <CardHeader className="gap-2">
+          <CardTitle className="text-xl">
+            <h3>{section.heading}</h3>
+          </CardTitle>
+          <CardDescription className="text-md mx-auto text-balance text-center lg:max-w-lg">
+            {section.description}
+          </CardDescription>
+        </CardHeader>
+        <div className="relative mx-auto mb-2 w-[90%]">
+          <ShimmerImage
             src={section.image.src}
-            className="absolute inset-0 h-full w-full object-contain"
-            width={200}
-            height={200}
-            loading="lazy"
             alt={section.image.alt}
+            width={800}
+            height={500}
+            className="absolute inset-0 aspect-video"
+            imgClassName="object-contain"
+            lazy={true}
           />
         </div>
-        <h3 className="mb-1 text-lg">{section.heading}</h3>
-        <p>{section.description}</p>
-      </div>
+      </Card>
     ))}
   </div>
 )
@@ -98,24 +116,15 @@ export function BenefitSection() {
             confusion. No duplicates. Just joyful, thoughtful giving.
           </p>
         </div>
-      </div>
-      <div className="grid place-items-center gap-x-8 gap-y-12 sm:grid-cols-2 md:gap-y-16 lg:grid-cols-[1fr_1.5fr_1fr] lg:gap-x-12">
-        <FeatureSection sections={leftSections} />
-        <div className="relative order-last w-full sm:col-span-2 lg:order-none lg:col-span-1">
-          <ShimmerImage
-            className="h-auto w-full rounded-2xl object-cover"
-            src={marketingImages.girlWithDoll}
-            alt="Girl with doll"
-            width={768}
-            height={768}
-          />
+        <div className="mt-8 flex items-center justify-center">
+          <Button asChild size="lg">
+            <Link to="/signup">Create your first wish list</Link>
+          </Button>
         </div>
-        <FeatureSection sections={rightSections} />
       </div>
-      <div className="md:mt-18 mt-12 flex flex-wrap items-center justify-center gap-4 lg:mt-20">
-        <Button asChild size="lg">
-          <Link to="/signup">Create your first wish list</Link>
-        </Button>
+      <div className="grid grid-cols-1 place-items-center gap-x-8 gap-y-12 md:grid-cols-2 md:gap-y-16 lg:gap-x-12">
+        <FeatureSection sections={topSections} />
+        <FeatureSection sections={bottomSections} />
       </div>
     </section>
   )
