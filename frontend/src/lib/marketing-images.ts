@@ -7,7 +7,7 @@ export const marketingImages = {
   boyWithToyCar: `https://imagedelivery.net/${CF_DELIVERY_HASH}/aef0c119-04a8-4bb6-faab-820261614e00/marketingMedium`,
   siblingsGift: `https://imagedelivery.net/${CF_DELIVERY_HASH}/a379f4c0-9708-4291-58dd-46ac73bbbe00/marketingMedium`,
   grandmaGift: `https://imagedelivery.net/${CF_DELIVERY_HASH}/658e745e-f5cd-4452-5f62-bfb8ef09dc00/marketingMedium`,
-  girlWithDoll: `https://imagedelivery.net/${CF_DELIVERY_HASH}/4bb26467-bf93-4613-18d4-20637887a900/marketingMedium`,
+  girlWithDoll: `https://imagedelivery.net/${CF_DELIVERY_HASH}/dc24669b-73e3-4e0b-b9f7-57720bc2f600/marketingMedium`,
   girlWithGiftbox: `https://imagedelivery.net/${CF_DELIVERY_HASH}/e8fec0da-2256-46ff-5d3c-62f2461e7300/marketingMedium`,
   familyGifting: `https://imagedelivery.net/${CF_DELIVERY_HASH}/483fc714-d3d3-47ae-6f1c-7227fee65000/marketingMedium`,
   itemCardPreview: `https://imagedelivery.net/${CF_DELIVERY_HASH}/f58825fd-d5ea-4cfb-9b86-ef69ed798d00/marketingMedium`,

@@ -9,20 +9,20 @@ export const TwoColLayout = ({ children }: PropsWithChildren) => {
 
   return (
     <>
-      <main className="grid min-h-svh grid-cols-1 lg:grid-cols-2">
+      <main className="grid min-h-svh grid-cols-1 lg:grid-cols-[1fr_0.75fr]">
         <div className="mt-4 flex flex-col">
           <LogoHeader />
           <div className="flex w-full flex-1 items-center justify-center p-6 lg:p-10">
             {children}
           </div>
         </div>
-        <div className="relative p-6 lg:p-0">
+        <div className="relative p-6 lg:max-h-screen lg:p-0">
           <ShimmerImage
             src={heroImage}
             alt="Girl with a doll"
             width={768}
             height={768}
-            className="inset-0 mx-auto h-auto rounded-2xl object-cover sm:w-full md:w-[60%] lg:h-full lg:w-full lg:rounded-none"
+            className="inset-0 mx-auto rounded-2xl object-cover sm:w-full md:w-[60%] lg:h-full lg:w-full lg:rounded-none"
             imgClassName="object-cover"
           />
         </div>
