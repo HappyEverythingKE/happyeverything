@@ -28,8 +28,8 @@ export function ProfileHeader({
   }
 
   return (
-    <header>
-      <div className="from-tangerine via-blush to-dusk relative h-32 rounded-2xl bg-gradient-to-r">
+    <header className="w-full">
+      <div className="from-tangerine via-blush to-dusk relative h-32 bg-gradient-to-r">
         <div className="absolute left-1/2 top-full -translate-x-1/2 -translate-y-1/2">
           <Avatar className="border-background h-24 w-24 border-2 shadow-lg">
             <AvatarImage src={avatar} alt={name} />
@@ -40,7 +40,7 @@ export function ProfileHeader({
         </div>
       </div>
 
-      <div className="space-y-2 pt-16">
+      <div className="space-y-1 pt-16">
         <h1 className="text-foreground text-center text-2xl">{name}</h1>
         <div className="flex items-center justify-center gap-1 text-sm">
           <p className="font-medium text-gray-700">@{profileSlug}</p>
@@ -49,7 +49,7 @@ export function ProfileHeader({
         </div>
       </div>
 
-      <div className="flex items-center justify-center pt-4">
+      <div className="flex items-center justify-center pt-3">
         <Button variant="outline" size="sm" onClick={handleShare}>
           {copied ? <CheckIcon /> : <Share />}
           {copied ? 'Profile Link Copied' : 'Share'}

@@ -1,9 +1,11 @@
 import { Link } from '@tanstack/react-router'
 
+import listTypePlaceholder from '@/assets/list-type-banner-placeholder.jpg'
 import type { List } from '@shared/types'
 import { startCase } from 'lodash'
 import { LockIcon } from 'lucide-react'
 
+import { getImageVariantUrl } from '@/lib/get-image-variant-url'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
@@ -13,6 +15,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
+import { ShimmerImage } from '@/components/ui/shimmer-image'
 
 interface WithPublicListsProps {
   profileSlug: string
@@ -20,14 +23,11 @@ interface WithPublicListsProps {
 }
 
 export function ProfileListsGrid({ profileSlug, lists }: WithPublicListsProps) {
-  const placeholderImage =
-    'https://d22po4pjz3o32e.cloudfront.net/placeholder-image-landscape.svg'
-
   return (
-    <section className="px-[15%] py-16 md:py-24 lg:py-20">
+    <section className="px-[15%] py-16">
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
         {lists.map((list, index) => (
-          <Card key={index} className="relative w-full max-w-xs">
+          <Card key={index} className="relative w-full md:max-w-xs">
             {list.isPrivate && (
               <Badge
                 variant="blush"
@@ -38,10 +38,16 @@ export function ProfileListsGrid({ profileSlug, lists }: WithPublicListsProps) {
             )}
             <CardHeader>
               <div className="relative mb-6 block aspect-[3/2] w-full">
-                <img
-                  src={list.listType.imageUrl || placeholderImage}
+                <ShimmerImage
+                  src={
+                    getImageVariantUrl({
+                      imageId: list.listType.imageId,
+                      context: 'marketing-thumb',
+                    }) || listTypePlaceholder
+                  }
                   alt={list.name}
-                  className="absolute size-full rounded-xl object-cover"
+                  className="absolute size-full"
+                  imgClassName="object-cover rounded-xl"
                 />
               </div>
               <CardTitle>{list.name}</CardTitle>

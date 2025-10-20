@@ -11,7 +11,7 @@ import { TrashIcon } from 'lucide-react'
 import { toast } from 'sonner'
 import type { z } from 'zod'
 
-import { useImageVariant } from '@/hooks/use-image-variant'
+import { getImageVariantUrl } from '@/lib/get-image-variant-url'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -65,7 +65,7 @@ export function NewListItemForm({
       const imageId = await uploadImage(file)
       form.setFieldValue('imageId', imageId)
       setImageUrl(
-        useImageVariant({
+        getImageVariantUrl({
           imageId,
           context: 'thumbnail',
         }),

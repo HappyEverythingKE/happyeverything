@@ -27,7 +27,7 @@ export function ListDetail({
   }
 
   return (
-    <div className="px-[5%] py-16 md:py-24 lg:py-20">
+    <div className="px-8 py-16 md:py-24 lg:py-20">
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {list.items.map((item) => {
           // Gifted Badge Component

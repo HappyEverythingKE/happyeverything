@@ -48,7 +48,6 @@ const columnLinks = [
     links: [
       { title: 'Privacy Policy', url: '/privacy-policy', external: false },
       { title: 'Terms of Service', url: '/terms-of-service', external: false },
-      { title: 'Cookie Settings', url: '#', external: false },
     ],
   },
 ]

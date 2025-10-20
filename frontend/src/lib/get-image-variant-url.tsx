@@ -7,7 +7,7 @@ type ImageContext =
   | 'list-item'
   | 'thumbnail'
 
-interface UseImageVariantOptions {
+interface ImageVariantOptions {
   imageId?: string // Cloudflare image ID (from upload response)
   context: ImageContext
 }
@@ -15,12 +15,12 @@ interface UseImageVariantOptions {
 /**
  * Returns a Cloudflare Images variant URL based on usage context.
  * Example usage:
- *   const imageUrl = useImageVariant({ imageId, context: 'avatar-thumb' })
+ *   const imageUrl = getImageVariantUrl({ imageId, context: 'avatar-thumb' })
  */
-export function useImageVariant({
+export function getImageVariantUrl({
   imageId,
   context,
-}: UseImageVariantOptions): string | null {
+}: ImageVariantOptions): string | null {
   if (!imageId) return null
 
   const ACCOUNT_HASH = import.meta.env.VITE_CF_IMAGE_ACCOUNT_HASH

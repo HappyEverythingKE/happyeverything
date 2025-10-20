@@ -1,8 +1,8 @@
 import type { ListItem } from '@shared/types'
 import { ExternalLink, Heart } from 'lucide-react'
 
+import { getImageVariantUrl } from '@/lib/get-image-variant-url'
 import { cn } from '@/lib/utils'
-import { useImageVariant } from '@/hooks/use-image-variant'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import {
@@ -46,7 +46,7 @@ export function ItemCard({
     }
   })()
 
-  const imageUrl = useImageVariant({
+  const imageUrl = getImageVariantUrl({
     imageId: item.imageId,
     context: 'list-item',
   })
@@ -55,7 +55,7 @@ export function ItemCard({
     <Card
       key={item.id}
       className={cn(
-        'relative flex h-full w-full flex-col overflow-hidden rounded-md border-stone-200 bg-white p-6 transition-shadow hover:shadow-md',
+        'min-w-sm relative flex h-full w-full flex-col overflow-hidden rounded-md border-stone-200 bg-white p-6 transition-shadow hover:shadow-md md:min-w-full',
         className,
       )}
     >

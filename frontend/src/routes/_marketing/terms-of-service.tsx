@@ -87,21 +87,23 @@ function RouteComponent() {
               </thead>
               <tbody>
                 <tr className="border-b py-2">
-                  <td>Essential</td>
-                  <td>Keeps the site secure and working properly</td>
-                  <td>Login session</td>
+                  <td className="pr-2">Essential</td>
+                  <td className="pr-2">
+                    Keeps the site secure and working properly
+                  </td>
+                  <td className="pr-2">Login session</td>
                 </tr>
 
                 <tr className="border-b py-2">
-                  <td>Functional</td>
-                  <td>Remembers your choices</td>
-                  <td>Language or theme</td>
+                  <td className="pr-2">Functional</td>
+                  <td className="pr-2">Remembers your choices</td>
+                  <td className="pr-2">Language or theme</td>
                 </tr>
 
                 <tr className="border-b py-2">
-                  <td>Analytics</td>
-                  <td>Helps us improve the site</td>
-                  <td>Google Analytics</td>
+                  <td className="pr-2">Analytics</td>
+                  <td className="pr-2">Helps us improve the site</td>
+                  <td className="pr-2">Google Analytics</td>
                 </tr>
               </tbody>
             </table>
