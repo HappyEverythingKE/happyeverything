@@ -38,8 +38,8 @@ export function SolutionSection() {
       <div className="md:mb-18 mb-12 text-center">
         <div className="mx-auto w-full max-w-3xl">
           <h2 className="text-balance text-2xl md:text-3xl">
-            Gifting made <span className="font-italic">simple</span> in 3 easy
-            steps
+            Gifting made <span className="font-italic italic">simple</span> in 3
+            easy steps
           </h2>
         </div>
       </div>

@@ -108,7 +108,8 @@ export function BenefitSection() {
         <div className="mx-auto max-w-3xl text-center">
           <h2 className="mb-6 text-pretty text-2xl md:text-3xl">
             Why settle for guesswork? <br />
-            Get the gifts you <span className="font-italic">actually</span> want
+            Get the gifts you{' '}
+            <span className="font-italic italic">actually</span> want
           </h2>
           <p className="text-pretty">
             Happy Everything makes it simple for your loved ones to know exactly
