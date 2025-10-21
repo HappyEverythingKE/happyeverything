@@ -39,7 +39,7 @@ export type ListStatusType = z.infer<typeof ListStatusType>
 export const ListItemStatusType = z.enum(['active', 'gifted'])
 export type ListItemStatusType = z.infer<typeof ListItemStatusType>
 
-export const MAX_FILE_SIZE_MB = 3 // 3MB
+export const MAX_FILE_SIZE_MB = 1 // 1MB
 export const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024
 
 export type AuthContext = {

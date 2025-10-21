@@ -79,10 +79,11 @@ export function HeroSection() {
     <section id="home-hero" className="relative">
       <div className="px-[5%] pt-16 md:pt-24 lg:pt-28">
         <div className="mx-auto w-full max-w-3xl text-center">
-          <h1 className="mb-5 text-4xl md:mb-6 md:text-5xl">
+          <h1 className="mb-5 text-pretty text-4xl md:mb-6 md:text-5xl">
             No more guesswork.
             <br />
-            Just gifts you&apos;ll <span className="font-italic">love.</span>
+            Just gifts you&apos;ll{' '}
+            <span className="font-italic italic">love.</span>
           </h1>
           <p className="md:text-lg">
             Celebrate birthdays, weddings and everything in between. Whether

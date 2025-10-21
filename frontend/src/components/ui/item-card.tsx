@@ -55,7 +55,7 @@ export function ItemCard({
     <Card
       key={item.id}
       className={cn(
-        'min-w-sm relative flex h-full w-full flex-col overflow-hidden rounded-md border-stone-200 bg-white p-6 transition-shadow hover:shadow-md md:min-w-full',
+        'relative flex h-full w-full flex-col overflow-hidden rounded-md border-stone-200 bg-white p-6 transition-shadow hover:shadow-md md:min-w-full',
         className,
       )}
     >

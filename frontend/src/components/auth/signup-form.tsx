@@ -176,8 +176,15 @@ export function SignupForm() {
 
           <div>
             <p className="text-center text-xs text-gray-500">
-              By creating an account, you agree to Happy Everything’s Terms of
-              Service and Privacy Policy.
+              By creating an account, you agree to Happy Everything’s{' '}
+              <span className="hover:text-tangerine underline underline-offset-2">
+                <Link to="/privacy-policy">Privacy Policy</Link>
+              </span>{' '}
+              and{' '}
+              <span className="hover:text-tangerine underline underline-offset-2">
+                <Link to="/terms-of-service">Terms of Service</Link>
+              </span>
+              .
             </p>
           </div>
         </div>
