@@ -48,6 +48,7 @@ const columnLinks = [
     links: [
       { title: 'Privacy Policy', url: '/privacy-policy', external: false },
       { title: 'Terms of Service', url: '/terms-of-service', external: false },
+      { title: 'Cookie Settings', url: 'cookieyes', external: false },
     ],
   },
 ]
@@ -84,29 +85,30 @@ export function Footer() {
                 <ul>
                   {column.links.map((link, linkIndex) => (
                     <li key={linkIndex} className="py-2 text-sm font-medium">
-                      <Link
-                        to={link.url}
-                        target={link.external ? '_blank' : '_self'}
-                        className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-                      >
-                        {link.icon && (
-                          <span>
-                            <img
-                              src={link.icon}
-                              alt=""
-                              className="size-5"
-                            ></img>
-                          </span>
-                        )}
-                        <span>{link.title}</span>
-                      </Link>
+                      {link.url === 'cookieyes' ? (
+                        <button className="cky-banner-element hover:underline hover:underline-offset-4">
+                          {link.title}
+                        </button>
+                      ) : (
+                        <Link
+                          to={link.url}
+                          target={link.external ? '_blank' : '_self'}
+                          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
+                        >
+                          {link.icon && (
+                            <span>
+                              <img
+                                src={link.icon}
+                                alt=""
+                                className="size-5"
+                              ></img>
+                            </span>
+                          )}
+                          <span>{link.title}</span>
+                        </Link>
+                      )}
                     </li>
                   ))}
-                  <li className="py-2 text-sm font-medium">
-                    <button className="cky-banner-element hover:underline hover:underline-offset-4">
-                      Cookie Settings
-                    </button>
-                  </li>
                 </ul>
               </div>
             ))}
