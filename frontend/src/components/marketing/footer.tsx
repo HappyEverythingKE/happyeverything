@@ -102,6 +102,11 @@ export function Footer() {
                       </Link>
                     </li>
                   ))}
+                  <li className="py-2 text-sm font-medium">
+                    <button className="cky-banner-element hover:underline hover:underline-offset-4">
+                      Cookie Settings
+                    </button>
+                  </li>
                 </ul>
               </div>
             ))}
