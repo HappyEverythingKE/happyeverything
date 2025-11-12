@@ -27,14 +27,14 @@ const images = [
     height: 1530,
   },
   {
-    src: marketingImages.boyWithToyCar,
-    alt: 'Boy with a toy car gift',
+    src: marketingImages.siblingsGift,
+    alt: 'Siblings with a giftbox',
     width: 1020,
     height: 1530,
   },
   {
-    src: marketingImages.siblingsGift,
-    alt: 'Siblings with a giftbox',
+    src: marketingImages.boyWithToyCar,
+    alt: 'Boy with a toy car gift',
     width: 1020,
     height: 1530,
   },

@@ -51,7 +51,7 @@ const bottomLineVariants = {
   },
 }
 
-export function Header() {
+export function Header({ isAuthenticated }: { isAuthenticated: boolean }) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
   return (
@@ -123,20 +123,43 @@ export function Header() {
                   Contact us
                 </a>
               </Button>
-              <Button
-                asChild
-                variant="outline"
-                className={cn(isMobileMenuOpen && 'w-full')}
-              >
-                <Link to="/login" onClick={() => setIsMobileMenuOpen(false)}>
-                  Log in
-                </Link>
-              </Button>
-              <Button asChild className={cn(isMobileMenuOpen && 'w-full')}>
-                <Link to="/signup" onClick={() => setIsMobileMenuOpen(false)}>
-                  Sign up free
-                </Link>
-              </Button>
+              {isAuthenticated ? (
+                <Button
+                  asChild
+                  variant="outline"
+                  className={cn(isMobileMenuOpen && 'w-full')}
+                >
+                  <Link
+                    to="/dashboard"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    Dashboard
+                  </Link>
+                </Button>
+              ) : (
+                <>
+                  <Button
+                    asChild
+                    variant="outline"
+                    className={cn(isMobileMenuOpen && 'w-full')}
+                  >
+                    <Link
+                      to="/login"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      Log in
+                    </Link>
+                  </Button>
+                  <Button asChild className={cn(isMobileMenuOpen && 'w-full')}>
+                    <Link
+                      to="/signup"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      Sign up free
+                    </Link>
+                  </Button>
+                </>
+              )}
             </div>
           </motion.div>
         </nav>

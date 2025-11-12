@@ -4,13 +4,18 @@ import { Footer } from '@/components/marketing/footer'
 import { Header } from '@/components/marketing/header'
 
 export const Route = createFileRoute('/_marketing')({
+  loader: async ({ context }) => {
+    return { authState: context.authState }
+  },
   component: LayoutComponent,
 })
 
 function LayoutComponent() {
+  const { authState } = Route.useLoaderData()
+
   return (
     <div>
-      <Header />
+      <Header isAuthenticated={authState.isAuthenticated} />
       <main>
         <Outlet />
       </main>
