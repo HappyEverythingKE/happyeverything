@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { useForm } from '@tanstack/react-form'
 import { useSuspenseQuery } from '@tanstack/react-query'
@@ -8,6 +8,10 @@ import {
   useDeleteAccount,
   useUpdateAccount,
 } from '@/services/account.api'
+import {
+  useDeleteAvatarImageFromCloudflare,
+  useUploadImageToCloudflare,
+} from '@/services/cloudflare-upload.api'
 import { useDeleteProfile } from '@/services/profile.api'
 import { AccountSchema } from '@shared/types'
 import {
@@ -20,8 +24,14 @@ import {
 import { toast } from 'sonner'
 import type { z } from 'zod'
 
+import { getImageVariantUrl } from '@/lib/get-image-variant-url'
 import { supabase } from '@/lib/supabase'
-import { cn, populateCountries, prettifyInitials } from '@/lib/utils'
+import {
+  cn,
+  handleImageUpload,
+  populateCountries,
+  prettifyInitials,
+} from '@/lib/utils'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { Card, CardTitle } from '@/components/ui/card'
@@ -48,6 +58,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover'
+import { Spinner } from '@/components/ui/spinner'
 import { ProfileForm } from '@/components/dashboard/forms/profile-form'
 import { FieldInfo } from '@/components/field-info'
 
@@ -67,6 +78,20 @@ function RouteComponent() {
   const [showDeleteProfileDialog, setShowDeleteProfileDialog] = useState(false)
   const [deleteProfileConfirmation, setDeleteProfileConfirmation] = useState('')
   const [selectedProfileSlug, setSelectedProfileSlug] = useState<string>('')
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (account.avatar) {
+      setAvatarUrl(
+        getImageVariantUrl({
+          imageId: account.avatar,
+          context: 'avatar-thumb',
+        }),
+      )
+    } else {
+      setAvatarUrl(null)
+    }
+  }, [account.avatar])
 
   // update account
   const { mutateAsync: updateAccount, isPending: isUpdatingAccount } =
@@ -79,6 +104,14 @@ function RouteComponent() {
   // delete profile
   const { mutateAsync: deleteProfile, isPending: isDeletingProfile } =
     useDeleteProfile()
+
+  // upload avatar to cloudflare
+  const { mutateAsync: uploadImage, isPending: isUploadingImage } =
+    useUploadImageToCloudflare()
+
+  // delete avatar from cloudflare
+  const { mutateAsync: deleteAvatar, isPending: isDeletingAvatar } =
+    useDeleteAvatarImageFromCloudflare()
 
   const handleDeleteAccountClick = () => {
     setShowDeleteAccountDialog(true)
@@ -156,9 +189,56 @@ function RouteComponent() {
   //   }
   // }
 
+  const handleUploadAvatar = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    try {
+      await handleImageUpload({
+        file,
+        uploadImage,
+        getImageVariantUrl,
+        imageContext: 'avatar-thumb',
+        onSuccess: (imageId, imageUrl) => {
+          accountForm.setFieldValue('avatar', imageId)
+          setAvatarUrl(imageUrl)
+        },
+        onError: () => {
+          e.target.value = '' // reset input so user can re-select
+        },
+      })
+    } catch {
+      e.target.value = '' // reset input so user can re-select
+    }
+  }
+
+  const handleDeleteAvatar = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault()
+    e.stopPropagation()
+    const avatarId = accountForm.getFieldValue('avatar')
+
+    if (!avatarId) return
+
+    try {
+      await deleteAvatar(avatarId)
+      accountForm.setFieldValue('avatar', undefined)
+      const fileInput = document.getElementById(
+        'avatarUpload',
+      ) as HTMLInputElement
+      if (fileInput) {
+        fileInput.value = ''
+      }
+      setAvatarUrl(null)
+      toast.success('Avatar deleted successfully.')
+    } catch (error) {
+      toast.error('An error occurred.', { description: String(error) })
+    }
+  }
+
   const defaultAccountValues = {
     name: account.name,
     country: account.country,
+    avatar: account.avatar,
   } as z.infer<typeof AccountSchema>
 
   const accountForm = useForm({
@@ -166,7 +246,11 @@ function RouteComponent() {
     validators: { onChange: AccountSchema },
     onSubmit: async ({ value }) => {
       try {
-        await updateAccount(value)
+        await updateAccount({
+          name: value.name,
+          country: value.country,
+          avatar: value.avatar,
+        })
         toast.success('Account Updated.')
       } catch (error) {
         accountForm.setErrorMap({
@@ -185,15 +269,29 @@ function RouteComponent() {
         <div className="mx-auto max-w-xl space-y-10">
           {/* Heading Section */}
           <div className="flex flex-col gap-4">
-            <Avatar className="h-20 w-20 rounded-full">
-              <AvatarImage src={account.avatar} alt={account.name} />
-              <AvatarFallback className="rounded-full text-xl font-medium">
-                {initials}
-              </AvatarFallback>
-            </Avatar>
-            <div className="flex flex-col gap-1">
-              <h1 className="text-xl">{account.name}</h1>
-              <p>{account.email}</p>
+            <div className="relative max-w-fit">
+              <Avatar className="h-20 w-20 rounded-full">
+                <AvatarImage
+                  src={
+                    avatarUrl ||
+                    getImageVariantUrl({
+                      imageId: account.avatar,
+                      context: 'avatar-thumb',
+                    }) ||
+                    undefined
+                  }
+                  alt={account.name}
+                />
+                <AvatarFallback className="rounded-full text-xl font-medium">
+                  {initials}
+                </AvatarFallback>
+              </Avatar>
+            </div>
+            <div className="flex flex-col gap-4">
+              <div className="flex flex-col gap-1">
+                <h1 className="text-xl">{account.name}</h1>
+                <p>{account.email}</p>
+              </div>
             </div>
           </div>
 
@@ -303,6 +401,52 @@ function RouteComponent() {
                       )
                     }}
                   />
+                </div>
+
+                <div className="flex-1 space-y-3">
+                  <Label htmlFor="avatarUpload">Profile Picture</Label>
+                  {avatarUrl ? (
+                    <div>
+                      <Button
+                        variant="destructive"
+                        onClick={handleDeleteAvatar}
+                        disabled={isDeletingAvatar}
+                        size="sm"
+                      >
+                        {isDeletingAvatar ? (
+                          <span className="flex items-center gap-2 text-xs">
+                            <Spinner className="size-3.5" /> Deleting Profile
+                            Picture...
+                          </span>
+                        ) : (
+                          <span className="flex items-center gap-2 text-xs">
+                            <TrashIcon className="size-3.5" /> Delete Profile
+                            Picture
+                          </span>
+                        )}
+                      </Button>
+                    </div>
+                  ) : (
+                    <>
+                      <Input
+                        id="avatarUpload"
+                        type="file"
+                        accept="image/*"
+                        disabled={isUploadingImage}
+                        onChange={handleUploadAvatar}
+                      />
+
+                      {isUploadingImage ? (
+                        <span className="flex items-center gap-2 text-xs">
+                          <Spinner className="size-3.5" /> Uploading image...
+                        </span>
+                      ) : (
+                        <p className="-mt-1 ml-1 text-xs text-gray-500">
+                          Don&apos;t forget to hit Save!
+                        </p>
+                      )}
+                    </>
+                  )}
                 </div>
               </div>
 

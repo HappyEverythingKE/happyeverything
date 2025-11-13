@@ -29,6 +29,7 @@ export const accountQueryOptions = queryOptions({
 export const updateAccount = async (accountData: {
   name: string
   country: string
+  avatar?: string
 }) => {
   const res = await client.account.$patch({
     form: accountData,
@@ -47,8 +48,11 @@ export const useUpdateAccount = () => {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: (accountData: { name: string; country: string }) =>
-      updateAccount(accountData),
+    mutationFn: (accountData: {
+      name: string
+      country: string
+      avatar?: string
+    }) => updateAccount(accountData),
     onSuccess: async (res) => {
       if (!res.success) return
 

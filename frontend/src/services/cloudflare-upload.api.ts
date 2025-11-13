@@ -7,6 +7,7 @@ import type {
 } from '@shared/types'
 
 import { client } from '@/lib/api'
+import type { DeleteImageOptions } from '@/lib/types'
 import { hashFile } from '@/lib/utils'
 
 /**
@@ -66,20 +67,56 @@ export const useUploadImageToCloudflare = () =>
     mutationFn: uploadImageToCloudflare,
   })
 
-export const deleteImageFromCloudflare = async (imageId: string) => {
-  const res = await client.images[':imageId'].$delete({
+export const deleteImageFromCloudflare = async (
+  imageId: string,
+  options?: DeleteImageOptions,
+) => {
+  const requestConfig: {
+    param: { imageId: string }
+    query?: { listItemId: string }
+  } = {
     param: {
       imageId,
     },
-  })
+  }
+
+  if (options?.listItemId) {
+    requestConfig.query = { listItemId: options.listItemId }
+  }
+
+  const res = await client.images[':imageId'].$delete(requestConfig)
 
   if (!res.ok) {
     const data = (await res.json()) as ErrorResponse
-    throw new Error(data.error ?? 'Failed to delete image from Cloudflare')
+    throw new Error(data.error ?? 'Failed to delete image')
   }
 }
 
 export const useDeleteImageFromCloudflare = () =>
   useMutation({
-    mutationFn: deleteImageFromCloudflare,
+    mutationFn: ({
+      imageId,
+      listItemId,
+    }: {
+      imageId: string
+      listItemId?: string
+    }) => deleteImageFromCloudflare(imageId, { listItemId }),
+  })
+
+export const deleteAvatarImageFromCloudflare = async (avatarId: string) => {
+  const res = await client.images.avatar[':avatarId'].$delete({
+    param: {
+      avatarId,
+    },
+  })
+
+  if (!res.ok) {
+    const data = (await res.json()) as ErrorResponse
+    throw new Error(data.error ?? 'Failed to delete avatar image')
+  }
+}
+
+export const useDeleteAvatarImageFromCloudflare = () =>
+  useMutation({
+    mutationFn: deleteAvatarImageFromCloudflare,
   })

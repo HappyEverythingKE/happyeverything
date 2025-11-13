@@ -44,14 +44,27 @@ export const accountRoutes = new Hono()
   })
   .patch('/', getUserSession, zValidator('form', AccountSchema), async (c) => {
     const user = c.get('user')!
-    const { name, country } = c.req.valid('form')
-
+    const { name, country, avatar } = c.req.valid('form')
     const supabase = getSupabase(c)
 
     // update accounts table
+    const updateData: {
+      name: string
+      country: string
+      avatar?: string | null
+    } = {
+      name,
+      country,
+    }
+    if (avatar !== 'undefined') {
+      updateData.avatar = avatar
+    } else {
+      updateData.avatar = null
+    }
+
     const { data, error } = await supabase
       .from('accounts')
-      .update({ name, country })
+      .update(updateData)
       .eq('id', user.id)
       .select(
         'email, name, status, avatar, country, created_at, profiles(slug, status, created_at, lists(name, slug))',
