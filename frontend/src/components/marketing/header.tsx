@@ -116,9 +116,24 @@ export function Header({ isAuthenticated }: { isAuthenticated: boolean }) {
             <div className="mt-6 flex flex-col items-center gap-4 lg:ml-4 lg:mt-0 lg:flex-row">
               <Button asChild variant="link">
                 <a
+                  href="https://blog.myhappyeverything.com/"
+                  target="_blank"
+                  className={cn(
+                    isMobileMenuOpen && '-mb-4',
+                    'py-3 text-center lg:px-1 lg:py-2',
+                  )}
+                >
+                  The Happy Blog
+                </a>
+              </Button>
+              <Button asChild variant="link">
+                <a
                   href="mailto:hello@happyeverything.com"
                   target="_blank"
-                  className="py-3 text-center lg:px-4 lg:py-2"
+                  className={cn(
+                    isMobileMenuOpen && '-mb-1',
+                    'py-3 text-center lg:px-4 lg:py-2',
+                  )}
                 >
                   Contact us
                 </a>
