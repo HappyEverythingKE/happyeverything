@@ -2,9 +2,9 @@ import { useState } from 'react'
 import { useForm } from '@tanstack/react-form'
 
 import {
-  useDeleteImageFromCloudflare,
+  useDeleteImageFromSupabase,
   useUploadImageToCloudflare,
-} from '@/services/cloudflare-upload.api'
+} from '@/services/image.api'
 import { useCreateListItem } from '@/services/list-item.api'
 import { ListItemCreateSchema } from '@shared/types'
 import { TrashIcon } from 'lucide-react'
@@ -55,18 +55,22 @@ export function NewListItemForm({
   const { mutateAsync: uploadImage, isPending: isUploadingImage } =
     useUploadImageToCloudflare()
 
-  // delete image from cloudflare
+  // delete image from supabase
   const { mutateAsync: deleteImage, isPending: isDeletingImage } =
-    useDeleteImageFromCloudflare()
+    useDeleteImageFromSupabase()
 
   const handleUploadImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
 
     try {
+      const randomImageId = Math.floor(
+        100000 + Math.random() * 900000,
+      ).toString()
+
       await handleImageUpload({
         file,
-        uploadImage,
+        uploadImage: (file) => uploadImage({ file, uniqueId: randomImageId }),
         getImageVariantUrl,
         imageContext: 'thumbnail',
         onSuccess: (imageId, imageUrl) => {
@@ -98,7 +102,7 @@ export function NewListItemForm({
         fileInput.value = ''
       }
       setImageUrl(null)
-      toast.success('Image deleted successfully.')
+      toast.warning("Don't forget to save your changes!")
     } catch (error) {
       toast.error('An error occurred.', { description: String(error) })
     }

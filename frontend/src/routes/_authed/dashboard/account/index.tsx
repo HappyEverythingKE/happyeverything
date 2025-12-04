@@ -11,7 +11,7 @@ import {
 import {
   useDeleteAvatarImageFromCloudflare,
   useUploadImageToCloudflare,
-} from '@/services/cloudflare-upload.api'
+} from '@/services/image.api'
 import { useDeleteProfile } from '@/services/profile.api'
 import { AccountSchema } from '@shared/types'
 import {
@@ -81,17 +81,17 @@ function RouteComponent() {
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null)
 
   useEffect(() => {
-    if (account.avatar) {
+    if (account.avatarId) {
       setAvatarUrl(
         getImageVariantUrl({
-          imageId: account.avatar,
+          imageId: account.avatarId,
           context: 'avatar-thumb',
         }),
       )
     } else {
       setAvatarUrl(null)
     }
-  }, [account.avatar])
+  }, [account.avatarId])
 
   // update account
   const { mutateAsync: updateAccount, isPending: isUpdatingAccount } =
@@ -196,11 +196,11 @@ function RouteComponent() {
     try {
       await handleImageUpload({
         file,
-        uploadImage,
+        uploadImage: (file) => uploadImage({ file }),
         getImageVariantUrl,
         imageContext: 'avatar-thumb',
         onSuccess: (imageId, imageUrl) => {
-          accountForm.setFieldValue('avatar', imageId)
+          accountForm.setFieldValue('avatarId', imageId)
           setAvatarUrl(imageUrl)
         },
         onError: () => {
@@ -215,13 +215,13 @@ function RouteComponent() {
   const handleDeleteAvatar = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault()
     e.stopPropagation()
-    const avatarId = accountForm.getFieldValue('avatar')
+    const avatarId = accountForm.getFieldValue('avatarId')
 
     if (!avatarId) return
 
     try {
       await deleteAvatar(avatarId)
-      accountForm.setFieldValue('avatar', undefined)
+      accountForm.setFieldValue('avatarId', undefined)
       const fileInput = document.getElementById(
         'avatarUpload',
       ) as HTMLInputElement
@@ -229,7 +229,7 @@ function RouteComponent() {
         fileInput.value = ''
       }
       setAvatarUrl(null)
-      toast.success('Avatar deleted successfully.')
+      toast.warning("Don't forget to save your changes!")
     } catch (error) {
       toast.error('An error occurred.', { description: String(error) })
     }
@@ -238,7 +238,7 @@ function RouteComponent() {
   const defaultAccountValues = {
     name: account.name,
     country: account.country,
-    avatar: account.avatar,
+    avatarId: account.avatarId,
   } as z.infer<typeof AccountSchema>
 
   const accountForm = useForm({
@@ -249,7 +249,7 @@ function RouteComponent() {
         await updateAccount({
           name: value.name,
           country: value.country,
-          avatar: value.avatar,
+          avatarId: value.avatarId,
         })
         toast.success('Account Updated.')
       } catch (error) {
@@ -275,7 +275,7 @@ function RouteComponent() {
                   src={
                     avatarUrl ||
                     getImageVariantUrl({
-                      imageId: account.avatar,
+                      imageId: account.avatarId,
                       context: 'avatar-thumb',
                     }) ||
                     undefined
@@ -437,7 +437,7 @@ function RouteComponent() {
                       />
 
                       {isUploadingImage ? (
-                        <span className="flex items-center gap-2 text-xs">
+                        <span className="flex items-center gap-2 text-xs text-amber-600">
                           <Spinner className="size-3.5" /> Uploading image...
                         </span>
                       ) : (

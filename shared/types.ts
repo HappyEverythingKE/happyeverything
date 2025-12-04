@@ -50,7 +50,7 @@ export type CurrentUser = {
   email: string
   name: string
   status: StatusType
-  avatar?: string
+  avatarId?: string
   country?: string
 }
 
@@ -166,7 +166,7 @@ export const AccountSchema = z.object({
   name: z.string().trim().min(3, 'Please enter your full name.').max(31),
   // email: z.string().email('Please enter a valid email.'),
   country: z.string().trim().min(1, 'Please enter a country.'),
-  avatar: z.string().optional(),
+  avatarId: z.string().optional(),
 })
 
 export const ProfileSlugSchema = z.object({

@@ -46,16 +46,30 @@ export const populateCountries = () => {
   return formattedCountries
 }
 
-export const hashFile = async (file: File): Promise<string> => {
+/**
+ * Hash a file using SHA-256 and optionally append a unique ID.
+ * This ensures unique hashes for the same image when used by different list items,
+ * making it easier to delete list-item-specific images without affecting duplicates.
+ */
+export const hashFile = async (
+  file: File,
+  uniqueId?: string,
+): Promise<string> => {
   const arrayBuffer = await file.arrayBuffer()
   const hashBuffer = await crypto.subtle.digest('SHA-256', arrayBuffer)
   const hashArray = Array.from(new Uint8Array(hashBuffer))
-  return hashArray.map((b) => b.toString(16).padStart(2, '0')).join('')
+  const fileHash = hashArray
+    .map((b) => b.toString(16).padStart(2, '0'))
+    .join('')
+
+  // Append uniqueId to the hash if provided to ensure uniqueness per list item
+  return uniqueId ? `${fileHash}-${uniqueId}` : fileHash
 }
 
 interface HandleImageUploadOptions {
   file: File
-  uploadImage: (file: File) => Promise<string>
+  uniqueId?: string // Optional unique ID to include in hash for uniqueness
+  uploadImage: (file: File, uniqueId?: string) => Promise<string>
   getImageVariantUrl: (params: {
     imageId: string
     context: ImageContext
@@ -73,6 +87,7 @@ interface HandleImageUploadOptions {
  */
 export const handleImageUpload = async ({
   file,
+  uniqueId,
   uploadImage,
   getImageVariantUrl,
   imageContext,
@@ -94,13 +109,13 @@ export const handleImageUpload = async ({
       throw new Error('Invalid file type')
     }
 
-    // Upload the image
-    const imageId = await uploadImage(file)
+    // Upload the image, passing uniqueId if provided
+    const imageId = await uploadImage(file, uniqueId)
     const imageUrl = getImageVariantUrl({
       imageId,
       context: imageContext,
     })
-    toast.success('Image uploaded successfully!')
+    toast.warning("Don't forget to save your changes!")
     onSuccess(imageId, imageUrl)
   } catch (error) {
     if (onError) {

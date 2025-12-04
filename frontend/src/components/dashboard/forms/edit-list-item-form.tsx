@@ -3,9 +3,9 @@ import { useNavigate } from '@tanstack/react-router'
 import { useForm } from '@tanstack/react-form'
 
 import {
-  useDeleteImageFromCloudflare,
+  useDeleteImageFromSupabase,
   useUploadImageToCloudflare,
-} from '@/services/cloudflare-upload.api'
+} from '@/services/image.api'
 import { useDeleteListItem, useUpdateListItem } from '@/services/list-item.api'
 import { ListItemCreateSchema, type ListItem } from '@shared/types'
 import { TrashIcon } from 'lucide-react'
@@ -50,9 +50,9 @@ export function EditListItemForm({
     listItem.id,
   )
 
-  // delete image from cloudflare
+  // delete image from supabase
   const { mutateAsync: deleteImage, isPending: isDeletingImage } =
-    useDeleteImageFromCloudflare()
+    useDeleteImageFromSupabase()
 
   // delete list item
   const { mutateAsync: deleteListItem, isPending: isDeleting } =
@@ -61,12 +61,6 @@ export function EditListItemForm({
   const handleDeleteItem = async () => {
     try {
       await deleteListItem()
-      if (listItem.imageId) {
-        await deleteImage({
-          imageId: listItem.imageId,
-          listItemId: listItem.id,
-        })
-      }
       toast.success('Gift Item Deleted.')
       navigate({
         to: '/dashboard/$profileSlug/$listSlug',
@@ -85,9 +79,13 @@ export function EditListItemForm({
     if (!file) return
 
     try {
+      const randomImageId = Math.floor(
+        100000 + Math.random() * 900000,
+      ).toString()
+
       await handleImageUpload({
         file,
-        uploadImage,
+        uploadImage: (file) => uploadImage({ file, uniqueId: randomImageId }),
         getImageVariantUrl,
         imageContext: 'thumbnail',
         onSuccess: (imageId, imageUrl) => {
@@ -119,7 +117,7 @@ export function EditListItemForm({
         fileInput.value = ''
       }
       setImageUrl(null)
-      toast.success('Image deleted successfully.')
+      toast.warning("Don't forget to save your changes!")
     } catch (error) {
       toast.error('An error occurred.', { description: String(error) })
     }

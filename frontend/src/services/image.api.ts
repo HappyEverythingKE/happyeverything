@@ -15,8 +15,9 @@ import { hashFile } from '@/lib/utils'
  */
 export const getDirectUploadUrl = async (
   file: File,
+  itemId?: string,
 ): Promise<DirectUploadData | { existingImageId: string }> => {
-  const hash = await hashFile(file)
+  const hash = await hashFile(file, itemId)
 
   const res = await client.images['direct-upload-url'].$post({
     json: { hash },
@@ -36,8 +37,11 @@ export const getDirectUploadUrl = async (
 /**
  * Upload file to Cloudflare if it’s new, or return existing image ID
  */
-export const uploadImageToCloudflare = async (file: File): Promise<string> => {
-  const result = await getDirectUploadUrl(file)
+export const uploadImageToCloudflare = async (
+  file: File,
+  itemId?: string,
+): Promise<string> => {
+  const result = await getDirectUploadUrl(file, itemId)
 
   // If the file already exists, just return the existing ID
   if ('existingImageId' in result) {
@@ -64,10 +68,11 @@ export const uploadImageToCloudflare = async (file: File): Promise<string> => {
 
 export const useUploadImageToCloudflare = () =>
   useMutation({
-    mutationFn: uploadImageToCloudflare,
+    mutationFn: ({ file, uniqueId }: { file: File; uniqueId?: string }) =>
+      uploadImageToCloudflare(file, uniqueId),
   })
 
-export const deleteImageFromCloudflare = async (
+export const deleteImageFromSupabase = async (
   imageId: string,
   options?: DeleteImageOptions,
 ) => {
@@ -92,7 +97,7 @@ export const deleteImageFromCloudflare = async (
   }
 }
 
-export const useDeleteImageFromCloudflare = () =>
+export const useDeleteImageFromSupabase = () =>
   useMutation({
     mutationFn: ({
       imageId,
@@ -100,7 +105,7 @@ export const useDeleteImageFromCloudflare = () =>
     }: {
       imageId: string
       listItemId?: string
-    }) => deleteImageFromCloudflare(imageId, { listItemId }),
+    }) => deleteImageFromSupabase(imageId, { listItemId }),
   })
 
 export const deleteAvatarImageFromCloudflare = async (avatarId: string) => {

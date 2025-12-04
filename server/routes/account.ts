@@ -22,7 +22,7 @@ export const accountRoutes = new Hono()
     const { data: account, error: accountError } = await supabase
       .from('accounts')
       .select(
-        'email, name, status, avatar, country, created_at, profiles(slug, status, created_at, lists(name, slug))',
+        'email, name, status, avatar_id, country, created_at, profiles(slug, status, created_at, lists(name, slug))',
       )
       .order('created_at', { referencedTable: 'profiles', ascending: false })
       .eq('id', user.id)
@@ -44,22 +44,22 @@ export const accountRoutes = new Hono()
   })
   .patch('/', getUserSession, zValidator('form', AccountSchema), async (c) => {
     const user = c.get('user')!
-    const { name, country, avatar } = c.req.valid('form')
+    const { name, country, avatarId } = c.req.valid('form')
     const supabase = getSupabase(c)
 
     // update accounts table
     const updateData: {
       name: string
       country: string
-      avatar?: string | null
+      avatar_id?: string | null
     } = {
       name,
       country,
     }
-    if (avatar !== 'undefined') {
-      updateData.avatar = avatar
+    if (avatarId !== 'undefined') {
+      updateData.avatar_id = avatarId
     } else {
-      updateData.avatar = null
+      updateData.avatar_id = null
     }
 
     const { data, error } = await supabase
@@ -67,7 +67,7 @@ export const accountRoutes = new Hono()
       .update(updateData)
       .eq('id', user.id)
       .select(
-        'email, name, status, avatar, country, created_at, profiles(slug, status, created_at, lists(name, slug))',
+        'email, name, status, avatar_id, country, created_at, profiles(slug, status, created_at, lists(name, slug))',
       )
       .order('created_at', { referencedTable: 'profiles', ascending: false })
       .single()
@@ -82,6 +82,7 @@ export const accountRoutes = new Hono()
       success: true,
       data: {
         ...data,
+        avatarId: data.avatar_id,
         createdAt: data.created_at,
       },
     })
