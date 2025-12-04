@@ -3,21 +3,17 @@ import { useNavigate } from '@tanstack/react-router'
 import { useForm } from '@tanstack/react-form'
 
 import {
-  useDeleteImageFromCloudflare,
+  useDeleteImageFromSupabase,
   useUploadImageToCloudflare,
-} from '@/services/cloudflare-upload.api'
+} from '@/services/image.api'
 import { useDeleteListItem, useUpdateListItem } from '@/services/list-item.api'
-import {
-  ListItemCreateSchema,
-  MAX_FILE_SIZE_BYTES,
-  MAX_FILE_SIZE_MB,
-  type ListItem,
-} from '@shared/types'
+import { ListItemCreateSchema, type ListItem } from '@shared/types'
 import { TrashIcon } from 'lucide-react'
 import { toast } from 'sonner'
 import type { z } from 'zod'
 
 import { getImageVariantUrl } from '@/lib/get-image-variant-url'
+import { handleImageUpload } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -54,9 +50,9 @@ export function EditListItemForm({
     listItem.id,
   )
 
-  // delete image from cloudflare
+  // delete image from supabase
   const { mutateAsync: deleteImage, isPending: isDeletingImage } =
-    useDeleteImageFromCloudflare()
+    useDeleteImageFromSupabase()
 
   // delete list item
   const { mutateAsync: deleteListItem, isPending: isDeleting } =
@@ -65,9 +61,6 @@ export function EditListItemForm({
   const handleDeleteItem = async () => {
     try {
       await deleteListItem()
-      if (listItem.imageId) {
-        await deleteImage(listItem.imageId)
-      }
       toast.success('Gift Item Deleted.')
       navigate({
         to: '/dashboard/$profileSlug/$listSlug',
@@ -82,38 +75,29 @@ export function EditListItemForm({
   }
 
   const handleUploadImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
     try {
-      const file = e.target.files?.[0]
-      if (!file) return
+      const randomImageId = Math.floor(
+        100000 + Math.random() * 900000,
+      ).toString()
 
-      // Validate file size
-      if (file.size > MAX_FILE_SIZE_BYTES) {
-        toast.error(
-          `Image is too large. Maximum size is ${MAX_FILE_SIZE_MB}MB.`,
-        )
-        e.target.value = '' // reset input so user can re-select
-        return
-      }
-
-      // Validate file type again (for extra safety)
-      if (!file.type.startsWith('image/')) {
-        toast.error('Please select a valid image file (JPG or PNG).')
-        e.target.value = ''
-        return
-      }
-
-      const imageId = await uploadImage(file)
-      form.setFieldValue('imageId', imageId)
-      setImageUrl(
-        getImageVariantUrl({
-          imageId,
-          context: 'thumbnail',
-        }),
-      )
-      toast.success('Image uploaded successfully!')
-    } catch (error) {
-      toast.error('Image upload failed.')
-      console.error(error)
+      await handleImageUpload({
+        file,
+        uploadImage: (file) => uploadImage({ file, uniqueId: randomImageId }),
+        getImageVariantUrl,
+        imageContext: 'thumbnail',
+        onSuccess: (imageId, imageUrl) => {
+          form.setFieldValue('imageId', imageId)
+          setImageUrl(imageUrl)
+        },
+        onError: () => {
+          e.target.value = '' // reset input so user can re-select
+        },
+      })
+    } catch {
+      e.target.value = '' // reset input so user can re-select
     }
   }
 
@@ -125,7 +109,7 @@ export function EditListItemForm({
     if (!imageId) return
 
     try {
-      await deleteImage(imageId)
+      await deleteImage({ imageId, listItemId: listItem.id })
       // clear the image id, input field and image thumbnail
       form.setFieldValue('imageId', undefined)
       const fileInput = document.getElementById('itemImage') as HTMLInputElement
@@ -133,7 +117,7 @@ export function EditListItemForm({
         fileInput.value = ''
       }
       setImageUrl(null)
-      toast.success('Image deleted successfully.')
+      toast.warning("Don't forget to save your changes!")
     } catch (error) {
       toast.error('An error occurred.', { description: String(error) })
     }

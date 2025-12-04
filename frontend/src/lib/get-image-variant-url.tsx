@@ -1,11 +1,4 @@
-type ImageContext =
-  | 'marketing-large'
-  | 'marketing-medium'
-  | 'marketing-thumb'
-  | 'avatar-thumb'
-  | 'avatar-medium'
-  | 'list-item'
-  | 'thumbnail'
+import type { ImageContext } from '@/lib/types'
 
 interface ImageVariantOptions {
   imageId?: string // Cloudflare image ID (from upload response)

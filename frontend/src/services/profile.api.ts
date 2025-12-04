@@ -75,7 +75,6 @@ export const useCreateProfile = () => {
         ...old,
         res.data,
       ])
-      await queryClient.invalidateQueries({ queryKey: ['account'] })
     },
   })
 }
@@ -112,14 +111,14 @@ export const useUpdateProfile = () => {
     onSuccess: async (res) => {
       if (!res.success) return // let the form handle the error
       queryClient.setQueryData(['profiles', res.data.slug], res.data)
-      queryClient.setQueryData(['profiles'], (old: Profile[]) =>
-        old
-          ? old.map((profile) =>
-              profile.slug === res.data.slug ? res.data : profile,
-            )
-          : old,
-      )
-      await queryClient.invalidateQueries({ queryKey: ['account'] })
+      // queryClient.setQueryData(['profiles'], (old: Profile[]) =>
+      //   old
+      //     ? old.map((profile) =>
+      //         profile.slug === res.data.slug ? res.data : profile,
+      //       )
+      //     : old,
+      // )
+      await queryClient.refetchQueries({ queryKey: ['account'], exact: true })
     },
   })
 }

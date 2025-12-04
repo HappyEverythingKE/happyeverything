@@ -39,7 +39,7 @@ export type ListStatusType = z.infer<typeof ListStatusType>
 export const ListItemStatusType = z.enum(['active', 'gifted'])
 export type ListItemStatusType = z.infer<typeof ListItemStatusType>
 
-export const MAX_FILE_SIZE_MB = 1 // 1MB
+export const MAX_FILE_SIZE_MB = 2
 export const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024
 
 export type AuthContext = {
@@ -50,7 +50,7 @@ export type CurrentUser = {
   email: string
   name: string
   status: StatusType
-  avatar?: string
+  avatarId?: string
   country?: string
 }
 
@@ -166,6 +166,7 @@ export const AccountSchema = z.object({
   name: z.string().trim().min(3, 'Please enter your full name.').max(31),
   // email: z.string().email('Please enter a valid email.'),
   country: z.string().trim().min(1, 'Please enter a country.'),
+  avatarId: z.string().optional(),
 })
 
 export const ProfileSlugSchema = z.object({

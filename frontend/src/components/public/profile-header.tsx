@@ -4,6 +4,7 @@ import type { PublicListOwner } from '@shared/types'
 import { CheckIcon, DotIcon, Share } from 'lucide-react'
 import { toast } from 'sonner'
 
+import { getImageVariantUrl } from '@/lib/get-image-variant-url'
 import { prettifyInitials } from '@/lib/utils'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
@@ -16,6 +17,12 @@ export function ProfileHeader({
   const { name, avatar, profileSlug, accountCountry } = listOwner || {}
   const [copied, setCopied] = useState(false)
   const shareableListLink = `${import.meta.env.VITE_APP_BASE_URL}/${profileSlug}`
+  const avatarImg = avatar
+    ? getImageVariantUrl({
+        imageId: avatar,
+        context: 'avatar-thumb',
+      })
+    : null
 
   const handleShare = async () => {
     try {
@@ -32,7 +39,7 @@ export function ProfileHeader({
       <div className="from-tangerine via-blush to-dusk relative h-32 bg-gradient-to-r">
         <div className="absolute left-1/2 top-full -translate-x-1/2 -translate-y-1/2">
           <Avatar className="border-background h-24 w-24 border-2 shadow-lg">
-            <AvatarImage src={avatar} alt={name} />
+            <AvatarImage src={avatarImg || undefined} alt={name} />
             <AvatarFallback className="bg-amethyst font-serif text-2xl font-semibold text-white">
               {prettifyInitials(name)}
             </AvatarFallback>

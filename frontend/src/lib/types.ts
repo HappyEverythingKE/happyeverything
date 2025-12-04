@@ -8,3 +8,16 @@ export const ContactFormSchema = z.object({
     message: 'Please accept the terms.',
   }),
 })
+
+export type ImageContext =
+  | 'marketing-large'
+  | 'marketing-medium'
+  | 'marketing-thumb'
+  | 'avatar-thumb'
+  | 'avatar-medium'
+  | 'list-item'
+  | 'thumbnail'
+
+export type DeleteImageOptions = {
+  listItemId?: string
+}

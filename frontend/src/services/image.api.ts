@@ -7,6 +7,7 @@ import type {
 } from '@shared/types'
 
 import { client } from '@/lib/api'
+import type { DeleteImageOptions } from '@/lib/types'
 import { hashFile } from '@/lib/utils'
 
 /**
@@ -14,8 +15,9 @@ import { hashFile } from '@/lib/utils'
  */
 export const getDirectUploadUrl = async (
   file: File,
+  itemId?: string,
 ): Promise<DirectUploadData | { existingImageId: string }> => {
-  const hash = await hashFile(file)
+  const hash = await hashFile(file, itemId)
 
   const res = await client.images['direct-upload-url'].$post({
     json: { hash },
@@ -35,8 +37,11 @@ export const getDirectUploadUrl = async (
 /**
  * Upload file to Cloudflare if it’s new, or return existing image ID
  */
-export const uploadImageToCloudflare = async (file: File): Promise<string> => {
-  const result = await getDirectUploadUrl(file)
+export const uploadImageToCloudflare = async (
+  file: File,
+  itemId?: string,
+): Promise<string> => {
+  const result = await getDirectUploadUrl(file, itemId)
 
   // If the file already exists, just return the existing ID
   if ('existingImageId' in result) {
@@ -63,23 +68,60 @@ export const uploadImageToCloudflare = async (file: File): Promise<string> => {
 
 export const useUploadImageToCloudflare = () =>
   useMutation({
-    mutationFn: uploadImageToCloudflare,
+    mutationFn: ({ file, uniqueId }: { file: File; uniqueId?: string }) =>
+      uploadImageToCloudflare(file, uniqueId),
   })
 
-export const deleteImageFromCloudflare = async (imageId: string) => {
-  const res = await client.images[':imageId'].$delete({
+export const deleteImageFromSupabase = async (
+  imageId: string,
+  options?: DeleteImageOptions,
+) => {
+  const requestConfig: {
+    param: { imageId: string }
+    query?: { listItemId: string }
+  } = {
     param: {
       imageId,
+    },
+  }
+
+  if (options?.listItemId) {
+    requestConfig.query = { listItemId: options.listItemId }
+  }
+
+  const res = await client.images[':imageId'].$delete(requestConfig)
+
+  if (!res.ok) {
+    const data = (await res.json()) as ErrorResponse
+    throw new Error(data.error ?? 'Failed to delete image')
+  }
+}
+
+export const useDeleteImageFromSupabase = () =>
+  useMutation({
+    mutationFn: ({
+      imageId,
+      listItemId,
+    }: {
+      imageId: string
+      listItemId?: string
+    }) => deleteImageFromSupabase(imageId, { listItemId }),
+  })
+
+export const deleteAvatarImageFromCloudflare = async (avatarId: string) => {
+  const res = await client.images.avatar[':avatarId'].$delete({
+    param: {
+      avatarId,
     },
   })
 
   if (!res.ok) {
     const data = (await res.json()) as ErrorResponse
-    throw new Error(data.error ?? 'Failed to delete image from Cloudflare')
+    throw new Error(data.error ?? 'Failed to delete avatar image')
   }
 }
 
-export const useDeleteImageFromCloudflare = () =>
+export const useDeleteAvatarImageFromCloudflare = () =>
   useMutation({
-    mutationFn: deleteImageFromCloudflare,
+    mutationFn: deleteAvatarImageFromCloudflare,
   })

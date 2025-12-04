@@ -7,6 +7,7 @@ import { getLogout } from '@/services/auth.api'
 import type { CurrentUser, Profile } from '@shared/types'
 import { BadgeCheck, ChevronsUpDown, LogOut } from 'lucide-react'
 
+import { getImageVariantUrl } from '@/lib/get-image-variant-url'
 import { supabase } from '@/lib/supabase'
 import { prettifyInitials } from '@/lib/utils'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
@@ -42,6 +43,13 @@ export function NavUser({
   const queryClient = useQueryClient()
   const initials = prettifyInitials(user.name)
 
+  const avatarImg = user.avatar
+    ? getImageVariantUrl({
+        imageId: user.avatar,
+        context: 'avatar-thumb',
+      })
+    : null
+
   const handleLogout = async () => {
     await supabase.auth.signOut() // client-side logout
     await getLogout() // server-side logout
@@ -58,7 +66,7 @@ export function NavUser({
           <DropdownMenuTrigger asChild>
             <SidebarMenuButton size="lg">
               <Avatar className="h-8 w-8 rounded-lg">
-                <AvatarImage src={user.avatar} alt={user.name} />
+                <AvatarImage src={avatarImg || undefined} alt={user.name} />
                 <AvatarFallback className="rounded-lg">
                   {initials}
                 </AvatarFallback>
@@ -79,7 +87,7 @@ export function NavUser({
             <DropdownMenuLabel className="p-0 font-normal">
               <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                 <Avatar className="h-8 w-8 rounded-lg">
-                  <AvatarImage src={user.avatar} alt={user.name} />
+                  <AvatarImage src={avatarImg || undefined} alt={user.name} />
                   <AvatarFallback className="rounded-lg">
                     {initials}
                   </AvatarFallback>
