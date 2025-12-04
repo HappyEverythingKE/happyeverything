@@ -13,5 +13,5 @@ export const marketingImages = {
   itemCardPreview: `https://imagedelivery.net/${CF_DELIVERY_HASH}/f58825fd-d5ea-4cfb-9b86-ef69ed798d00/marketingMedium`,
   activityPreview: `https://imagedelivery.net/${CF_DELIVERY_HASH}/b5b4d2b2-8224-49cb-99ef-b9da961bbe00/marketingMedium`,
   listTypePreview: `https://imagedelivery.net/${CF_DELIVERY_HASH}/86952409-2738-4401-faf1-eb6a67a5e200/marketingMedium`,
-  sharePreview: `https://imagedelivery.net/${CF_DELIVERY_HASH}/e9830532-a2ed-479e-1761-2468e57c0100/marketingMedium`,
+  sharePreview: `https://imagedelivery.net/${CF_DELIVERY_HASH}/6681a4b7-1fe6-4f4e-9b07-03e2562c9b00/marketingMedium`,
 }
