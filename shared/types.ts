@@ -71,7 +71,7 @@ export type Profile = {
 
 export type PublicListOwner = {
   name: string
-  avatar: string
+  avatarId: string
   profileSlug: string
   accountCountry: string
 }

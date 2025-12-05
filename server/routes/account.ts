@@ -38,6 +38,7 @@ export const accountRoutes = new Hono()
       success: true,
       data: {
         ...account,
+        avatarId: account.avatar_id,
         createdAt: account.created_at,
       },
     })

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { useForm } from '@tanstack/react-form'
 import { useSuspenseQuery } from '@tanstack/react-query'
@@ -9,7 +9,7 @@ import {
   useUpdateAccount,
 } from '@/services/account.api'
 import {
-  useDeleteAvatarImageFromCloudflare,
+  useDeleteAvatarImageFromSupabase,
   useUploadImageToCloudflare,
 } from '@/services/image.api'
 import { useDeleteProfile } from '@/services/profile.api'
@@ -79,19 +79,7 @@ function RouteComponent() {
   const [deleteProfileConfirmation, setDeleteProfileConfirmation] = useState('')
   const [selectedProfileSlug, setSelectedProfileSlug] = useState<string>('')
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null)
-
-  useEffect(() => {
-    if (account.avatarId) {
-      setAvatarUrl(
-        getImageVariantUrl({
-          imageId: account.avatarId,
-          context: 'avatar-thumb',
-        }),
-      )
-    } else {
-      setAvatarUrl(null)
-    }
-  }, [account.avatarId])
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   // update account
   const { mutateAsync: updateAccount, isPending: isUpdatingAccount } =
@@ -109,9 +97,9 @@ function RouteComponent() {
   const { mutateAsync: uploadImage, isPending: isUploadingImage } =
     useUploadImageToCloudflare()
 
-  // delete avatar from cloudflare
+  // delete avatar from supabase
   const { mutateAsync: deleteAvatar, isPending: isDeletingAvatar } =
-    useDeleteAvatarImageFromCloudflare()
+    useDeleteAvatarImageFromSupabase()
 
   const handleDeleteAccountClick = () => {
     setShowDeleteAccountDialog(true)
@@ -235,6 +223,17 @@ function RouteComponent() {
     }
   }
 
+  useEffect(() => {
+    if (account.avatarId) {
+      setAvatarUrl(
+        getImageVariantUrl({
+          imageId: account.avatarId,
+          context: 'avatar-thumb',
+        }),
+      )
+    }
+  }, [account.avatarId, setAvatarUrl])
+
   const defaultAccountValues = {
     name: account.name,
     country: account.country,
@@ -270,6 +269,46 @@ function RouteComponent() {
           {/* Heading Section */}
           <div className="flex flex-col gap-4">
             <div className="relative max-w-fit">
+              <div className="absolute -right-10 -top-4">
+                {avatarUrl ? (
+                  <Button
+                    variant="destructive"
+                    onClick={handleDeleteAvatar}
+                    disabled={isDeletingAvatar}
+                    className="size-8"
+                  >
+                    {isDeletingAvatar ? (
+                      <Spinner className="size-3.5" />
+                    ) : (
+                      <TrashIcon className="size-3.5" />
+                    )}
+                  </Button>
+                ) : (
+                  <>
+                    <Input
+                      ref={fileInputRef}
+                      id="avatarUpload"
+                      type="file"
+                      accept="image/*"
+                      disabled={isUploadingImage}
+                      onChange={handleUploadAvatar}
+                      className="hidden"
+                    />
+                    <Button
+                      variant="outline"
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={isUploadingImage}
+                      className="size-8"
+                    >
+                      {isUploadingImage ? (
+                        <Spinner className="size-3.5" />
+                      ) : (
+                        <EditIcon className="size-3.5" />
+                      )}
+                    </Button>
+                  </>
+                )}
+              </div>
               <Avatar className="h-20 w-20 rounded-full">
                 <AvatarImage
                   src={
@@ -401,52 +440,6 @@ function RouteComponent() {
                       )
                     }}
                   />
-                </div>
-
-                <div className="flex-1 space-y-3">
-                  <Label htmlFor="avatarUpload">Profile Picture</Label>
-                  {avatarUrl ? (
-                    <div>
-                      <Button
-                        variant="destructive"
-                        onClick={handleDeleteAvatar}
-                        disabled={isDeletingAvatar}
-                        size="sm"
-                      >
-                        {isDeletingAvatar ? (
-                          <span className="flex items-center gap-2 text-xs">
-                            <Spinner className="size-3.5" /> Deleting Profile
-                            Picture...
-                          </span>
-                        ) : (
-                          <span className="flex items-center gap-2 text-xs">
-                            <TrashIcon className="size-3.5" /> Delete Profile
-                            Picture
-                          </span>
-                        )}
-                      </Button>
-                    </div>
-                  ) : (
-                    <>
-                      <Input
-                        id="avatarUpload"
-                        type="file"
-                        accept="image/*"
-                        disabled={isUploadingImage}
-                        onChange={handleUploadAvatar}
-                      />
-
-                      {isUploadingImage ? (
-                        <span className="flex items-center gap-2 text-xs text-amber-600">
-                          <Spinner className="size-3.5" /> Uploading image...
-                        </span>
-                      ) : (
-                        <p className="-mt-1 ml-1 text-xs text-gray-500">
-                          Don&apos;t forget to hit Save!
-                        </p>
-                      )}
-                    </>
-                  )}
                 </div>
               </div>
 

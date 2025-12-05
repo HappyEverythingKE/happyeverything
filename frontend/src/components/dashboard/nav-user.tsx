@@ -43,9 +43,9 @@ export function NavUser({
   const queryClient = useQueryClient()
   const initials = prettifyInitials(user.name)
 
-  const avatarImg = user.avatar
+  const avatarImg = user.avatarId
     ? getImageVariantUrl({
-        imageId: user.avatar,
+        imageId: user.avatarId,
         context: 'avatar-thumb',
       })
     : null

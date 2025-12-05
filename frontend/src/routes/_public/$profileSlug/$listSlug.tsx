@@ -55,6 +55,13 @@ function RouteComponent() {
     unlockedListQueryOptions(profileSlug, listSlug),
   )
 
+  // Determine the list ID - use unlocked list ID if available, otherwise try to get it from public list
+  const listId = unlockedList?.id ?? (data as { list: ListWithItems }).list?.id
+
+  // subscribe to realtime updates for the list.
+  // Always call the hook, but it will only subscribe if listId is available
+  useRealtimeListSync(profileSlug, listSlug, listId)
+
   // private list, not yet unlocked
   if ('privateList' in data && !unlockedList) {
     return (
@@ -87,9 +94,6 @@ function RouteComponent() {
 
   // at this point we either have a public list OR an unlocked private list
   const list = unlockedList ?? (data as { list: ListWithItems }).list
-
-  // subscribe to realtime updates for the list
-  useRealtimeListSync(profileSlug, listSlug, list.id)
 
   const listInfo = {
     name: list.name,

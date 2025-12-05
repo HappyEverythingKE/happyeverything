@@ -240,7 +240,7 @@ export const authRoutes = new Hono()
 
     const { data: account, error: accountError } = await supabase
       .from('accounts')
-      .select('email, name, status, avatar, country')
+      .select('email, name, status, avatar_id, country')
       .eq('id', user.id)
       .single()
 
@@ -254,7 +254,7 @@ export const authRoutes = new Hono()
       email: account.email,
       name: account.name,
       status: account.status,
-      avatar: account.avatar || providerAvatar || undefined,
+      avatarId: account.avatar_id || providerAvatar || undefined,
       country: account.country,
     }
 

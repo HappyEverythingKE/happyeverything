@@ -14,12 +14,13 @@ export function ProfileHeader({
 }: {
   listOwner: PublicListOwner | undefined
 }) {
-  const { name, avatar, profileSlug, accountCountry } = listOwner || {}
+  const { name, avatarId, profileSlug, accountCountry } = listOwner || {}
+
   const [copied, setCopied] = useState(false)
   const shareableListLink = `${import.meta.env.VITE_APP_BASE_URL}/${profileSlug}`
-  const avatarImg = avatar
+  const avatarImg = avatarId
     ? getImageVariantUrl({
-        imageId: avatar,
+        imageId: avatarId,
         context: 'avatar-thumb',
       })
     : null
