@@ -108,7 +108,7 @@ export const useDeleteImageFromSupabase = () =>
     }) => deleteImageFromSupabase(imageId, { listItemId }),
   })
 
-export const deleteAvatarImageFromCloudflare = async (avatarId: string) => {
+export const deleteAvatarImageFromSupabase = async (avatarId: string) => {
   const res = await client.images.avatar[':avatarId'].$delete({
     param: {
       avatarId,
@@ -121,7 +121,7 @@ export const deleteAvatarImageFromCloudflare = async (avatarId: string) => {
   }
 }
 
-export const useDeleteAvatarImageFromCloudflare = () =>
+export const useDeleteAvatarImageFromSupabase = () =>
   useMutation({
-    mutationFn: deleteAvatarImageFromCloudflare,
+    mutationFn: deleteAvatarImageFromSupabase,
   })

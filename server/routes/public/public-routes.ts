@@ -87,7 +87,7 @@ export const publicRoutes = new Hono()
       data: {
         listOwner: {
           name: listOwner.name,
-          avatar: listOwner.avatar,
+          avatarId: listOwner.avatar_id,
           profileSlug: listOwner.profile_slug,
           accountCountry: listOwner.account_country,
         },
@@ -143,7 +143,7 @@ export const publicRoutes = new Hono()
       data: {
         listOwner: {
           name: listOwner.name,
-          avatar: listOwner.avatar,
+          avatarId: listOwner.avatar_id,
           profileSlug: listOwner.profile_slug,
           accountCountry: listOwner.account_country,
         },
@@ -192,7 +192,7 @@ async function getPublicListOwner(c: Context, profileId: string) {
   // pull public profile data using supabaseAdmin to bypass RLS
   const { data: listOwner, error: listOwnerError } = await supabaseAdmin
     .from('accounts_public_by_profile')
-    .select('name, avatar, profile_slug, account_country')
+    .select('name, avatar_id, profile_slug, account_country')
     .eq('profile_id', profileId)
     .maybeSingle()
 
