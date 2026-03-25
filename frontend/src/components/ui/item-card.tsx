@@ -61,7 +61,10 @@ export function ItemCard({
     >
       {/* Dim overlay when gifted */}
       {item.stillNeeds === 0 && (
-        <div className="pointer-events-none absolute inset-0 z-10 rounded-md bg-gradient-to-b from-gray-100/10 to-gray-300/70 dark:to-gray-900/70" />
+        // FIX: Removed `z-10` — the z-index was creating a compositing layer on Android
+        // that could intercept touch events. `pointer-events-none` already ensures the
+        // overlay doesn't block clicks; no z-index is needed for a purely visual overlay.
+        <div className="pointer-events-none absolute inset-0 rounded-md bg-gradient-to-b from-gray-100/10 to-gray-300/70 dark:to-gray-900/70" />
       )}
 
       {/* Image / Badge Area */}
