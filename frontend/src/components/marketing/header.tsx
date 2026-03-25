@@ -55,7 +55,11 @@ export function Header({ isAuthenticated }: { isAuthenticated: boolean }) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
   return (
-    <header className="overflow-hidden">
+    // FIX: Removed `overflow-hidden` from <header> — on Android browsers it creates a
+    // stacking/clipping context that swallows touch events for elements below it.
+    // `overflow-hidden` is kept on the inner motion.div where it's actually needed
+    // for the animated height transition.
+    <header>
       <div className="z-[999] mt-1 flex w-full items-center py-2 lg:min-h-20 lg:px-[5%] lg:pb-4">
         <nav className="size-full lg:flex lg:items-end lg:justify-between">
           <div className="md:min-h-18 flex min-h-16 items-center justify-between px-[5%] lg:min-h-full lg:px-0">
