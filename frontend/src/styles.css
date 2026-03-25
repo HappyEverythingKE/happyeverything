@@ -189,10 +189,13 @@
 
 @layer base {
   * {
-    @apply border-border outline-ring/50 overscroll-none;
+    /* FIX: Removed `overscroll-none` from here — applying overscroll-behavior to every
+       element via * disrupts Android's native touch gesture routing and causes swipe/tap
+       events to be dropped. It now lives only on body where it's actually needed. */
+    @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground m-0 font-sans text-base tracking-tight antialiased;
+    @apply bg-background text-foreground m-0 font-sans text-base tracking-tight antialiased overscroll-none;
   }
 
   h1,
