@@ -12,6 +12,7 @@ export interface ScrapedProduct {
   notes: string | null;
   imageUrl: string | null;
   imageId: string | null;
+  imageHash: string | null;
 }
 
 export interface ScrapeProductResult {
@@ -110,6 +111,7 @@ function normalizeProduct(input: RawScrapedProduct): ScrapedProduct {
     notes: existingNotes ?? buildNotes(description, price),
     imageUrl: toNullableString(input.imageUrl) ?? toNullableString(input.image),
     imageId: toNullableString(input.imageId),
+    imageHash: toNullableString(input.imageHash),
   };
 }
 
