@@ -81,23 +81,27 @@ export function NewListItemForm({
       form.setFieldValue('colour', product.colour.slice(0, 50))
     if (product.notes) form.setFieldValue('notes', product.notes.slice(0, 250))
 
-    if (product.imageUrl) {
-      // Extract Cloudflare Image ID from the URL so it persists to the DB
-      const cfMatch = product.imageUrl.match(
-        /imagedelivery\.net\/[^/]+\/([^/]+)/,
+        // Use the DB image ID returned by the edge function (satisfies FK constraint)
+    if (product.imageId) {
+      form.setFieldValue('imageId', product.imageId)
+      setImageUrl(
+        getImageVariantUrl({ imageId: product.imageId, context: 'thumbnail' }) ??
+          product.imageUrl,
       )
+    } else if (product.imageUrl) {
+      // Fallback: show preview only (no DB record, won't persist)
+      const cfMatch = product.imageUrl.match(/imagedelivery\.net\/[^/]+\/([^/]+)/)
       if (cfMatch) {
-        const imageId = cfMatch[1]
-        form.setFieldValue('imageId', imageId)
+        form.setFieldValue('imageId', cfMatch[1])
         setImageUrl(
-          getImageVariantUrl({ imageId, context: 'thumbnail' }) ??
+          getImageVariantUrl({ imageId: cfMatch[1], context: 'thumbnail' }) ??
             product.imageUrl,
         )
       } else {
-        // Non-Cloudflare URL — show as preview only
         setImageUrl(product.imageUrl)
       }
     }
+
 
     setShowAutoAdd(false)
     setAutoAddMode(null)
