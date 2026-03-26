@@ -73,7 +73,7 @@ export function NewListItemForm({
     useDeleteImageFromSupabase()
 
   // ─── Auto Add: apply scraped data to form ─────────────────────────
-  const applyScrapedData = (product: ScrapedProduct) => {
+   const applyScrapedData = (product: ScrapedProduct) => {
     if (product.name) form.setFieldValue('name', product.name.slice(0, 150))
     if (product.shop) form.setFieldValue('shop', product.shop)
     if (product.size) form.setFieldValue('size', product.size.slice(0, 50))
@@ -81,23 +81,31 @@ export function NewListItemForm({
       form.setFieldValue('colour', product.colour.slice(0, 50))
     if (product.notes) form.setFieldValue('notes', product.notes.slice(0, 250))
 
-    // If an imageUrl was returned, set it as the preview
-    // (the user can still upload a different image manually)
     if (product.imageUrl) {
-      setImageUrl(product.imageUrl)
-      // Note: we don't set imageId here because this is an external URL.
-      // The image will need to be downloaded and uploaded to Cloudflare
-      // if you want it persisted. For now, it shows as a preview.
-      // See downloadAndUploadImage() below for the full flow.
+      // Extract Cloudflare Image ID from the URL so it persists to the DB
+      const cfMatch = product.imageUrl.match(
+        /imagedelivery\.net\/[^/]+\/([^/]+)/,
+      )
+      if (cfMatch) {
+        const imageId = cfMatch[1]
+        form.setFieldValue('imageId', imageId)
+        setImageUrl(
+          getImageVariantUrl({ imageId, context: 'thumbnail' }) ??
+            product.imageUrl,
+        )
+      } else {
+        // Non-Cloudflare URL — show as preview only
+        setImageUrl(product.imageUrl)
+      }
     }
 
-    // Collapse the auto-add panel
     setShowAutoAdd(false)
     setAutoAddMode(null)
     setScrapeUrl('')
 
     toast.success('Product info extracted! Review and edit before saving.')
   }
+
 
   // ─── Auto Add: URL handler ────────────────────────────────────────
   const handleAutoAddByUrl = async () => {
