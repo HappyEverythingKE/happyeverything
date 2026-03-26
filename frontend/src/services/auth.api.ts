@@ -138,7 +138,11 @@ export const getSession = async () => {
 export const sessionQueryOptions = queryOptions({
   queryKey: ['session'],
   queryFn: getSession,
-  staleTime: Infinity,
+  // Access tokens expire after 1 hour. Refresh the session every 55 minutes
+  // so the server has a chance to rotate the auth cookies before they expire.
+  // staleTime: Infinity was causing users to be logged out when the token
+  // expired mid-session because the frontend never re-fetched the session.
+  staleTime: 55 * 60 * 1000,
 })
 
 export const getCurrentUser = async () => {
