@@ -90,9 +90,18 @@ export function HeroSection() {
             you’re the one receiving or giving, experience gifting made joyful,
             simple, and stress-free.
           </p>
-          <div className="mt-6 flex items-center justify-center md:mt-8">
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-3 md:mt-8">
             <Button asChild size="lg">
               <Link to="/signup">Create your wish list - it&apos;s free!</Link>
+            </Button>
+            <Button asChild size="lg" variant="outline">
+              <a
+                href="https://blog.myhappyeverything.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Our Blog!
+              </a>
             </Button>
           </div>
         </div>
