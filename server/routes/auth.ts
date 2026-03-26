@@ -170,23 +170,11 @@ export const authRoutes = new Hono()
     // const supabaseAdmin = getAdminSupabase(c)
     const supabase = getSupabase(c)
 
-    // validate email
-    // if (!z.string().email().safeParse(email).success) {
-    //   throw new HTTPException(400, {
-    //     message: 'Invalid email',
-    //     cause: { form: true },
-    //   })
-    // }
-
     const { data, error } = await supabase.auth.updateUser({
       email,
     })
 
     console.log('updated user email data API', data)
-
-    // const { error } = await supabaseAdmin.auth.admin.updateUserById(user.id, {
-    //   email,
-    // })
 
     if (error) {
       throw new HTTPException(500, {
@@ -227,10 +215,25 @@ export const authRoutes = new Hono()
       200,
     )
   })
-  .get('/session', getUserSession, async (c) => {
-    return c.json<AuthContext>({
-      isAuthenticated: true,
-    })
+  // CHANGED: Removed getUserSession middleware — now gracefully returns
+  // { isAuthenticated: false } instead of throwing 401. This allows the
+  // frontend to periodically re-check the session and trigger cookie-based
+  // token refresh via getUser().
+  .get('/session', async (c) => {
+    const supabase = getSupabase(c)
+
+    // getUser() validates the JWT and triggers a token refresh if needed,
+    // which updates the httpOnly auth cookies via the setAll callback
+    const {
+      data: { user },
+      error,
+    } = await supabase.auth.getUser()
+
+    if (error || !user) {
+      return c.json<AuthContext>({ isAuthenticated: false })
+    }
+
+    return c.json<AuthContext>({ isAuthenticated: true })
   })
   .get('/me', getUserSession, async (c) => {
     const user = c.get('user')!
