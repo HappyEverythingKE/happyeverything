@@ -1,4 +1,4 @@
-import { client } from "@/lib/supabase";
+import { supabase } from "@/lib/supabase";
 
 export interface ScrapedProduct {
   name: string | null;
@@ -32,7 +32,7 @@ type WrappedScrapeResponse = {
 export async function scrapeProductFromUrl(
   url: string,
 ): Promise<ScrapeProductResult> {
-  const { data, error } = await client.functions.invoke("scrape-product", {
+  const { data, error } = await supabase.functions.invoke("scrape-product", {
     body: { type: "url", url },
   });
 
@@ -52,7 +52,7 @@ export async function scrapeProductFromScreenshot(
 ): Promise<ScrapeProductResult> {
   const image = await fileToDataUrl(file);
 
-  const { data, error } = await client.functions.invoke("scrape-product", {
+  const { data, error } = await supabase.functions.invoke("scrape-product", {
     body: { type: "screenshot", image },
   });
 
