@@ -85,8 +85,8 @@ export function NewListItemForm({
   if (product.imageId) {
   form.setFieldValue('imageId', product.imageId)
   setImageUrl(
-    getImageVariantUrl({ imageId: product.imageHash ?? product.imageId, context: 'thumbnail' })
-  )
+  getImageVariantUrl({ imageId: product.imageId, context: 'thumbnail' })
+)
 }
  else if (product.imageUrl) {
       // Fallback: show preview only (no DB record, won't persist)
