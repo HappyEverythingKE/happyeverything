@@ -82,13 +82,13 @@ export function NewListItemForm({
     if (product.notes) form.setFieldValue('notes', product.notes.slice(0, 250))
 
         // Use the DB image ID returned by the edge function (satisfies FK constraint)
-    if (product.imageId) {
-      form.setFieldValue('imageId', product.imageId)
-      setImageUrl(
-        getImageVariantUrl({ imageId: product.imageId, context: 'thumbnail' }) ??
-          product.imageUrl,
-      )
-    } else if (product.imageUrl) {
+  if (product.imageId) {
+  form.setFieldValue('imageId', product.imageId)
+  setImageUrl(
+    getImageVariantUrl({ imageId: product.imageHash ?? product.imageId, context: 'thumbnail' })
+  )
+}
+ else if (product.imageUrl) {
       // Fallback: show preview only (no DB record, won't persist)
       const cfMatch = product.imageUrl.match(/imagedelivery\.net\/[^/]+\/([^/]+)/)
       if (cfMatch) {
