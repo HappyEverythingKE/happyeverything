@@ -122,6 +122,7 @@ export function LoginForm({
                       <div className="flex items-center justify-between">
                         <Label htmlFor={field.name}>Password</Label>
                         <Button
+                          type="button"
                           variant="link"
                           size="sm"
                           className="p-0 text-xs underline"
@@ -181,12 +182,11 @@ export function LoginForm({
               selector={(state) => [
                 state.canSubmit,
                 state.isSubmitting,
-                state.isPristine,
               ]}
-              children={([canSubmit, isSubmitting, isPristine]) => (
+              children={([canSubmit, isSubmitting]) => (
                 <Button
                   type="submit"
-                  disabled={!canSubmit || isPristine || isSubmitting}
+                  disabled={!canSubmit || isSubmitting}
                   className="mt-2 w-full"
                 >
                   {isSubmitting ? (
