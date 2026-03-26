@@ -6,8 +6,13 @@ import {
   useUploadImageToCloudflare,
 } from '@/services/image.api'
 import { useCreateListItem } from '@/services/list-item.api'
+import {
+  scrapeProductByUrl,
+  scrapeProductByScreenshot,
+  type ScrapedProduct,
+} from '@/services/scrape-product.api'
 import { ListItemCreateSchema } from '@shared/types'
-import { TrashIcon } from 'lucide-react'
+import { TrashIcon, WandSparkles, Link, Camera, Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
 import type { z } from 'zod'
 
@@ -45,6 +50,14 @@ export function NewListItemForm({
 }: NewListItemFormProps) {
   const [imageUrl, setImageUrl] = useState<string | null>(null)
 
+  // ─── Auto Add state ───────────────────────────────────────────────
+  const [showAutoAdd, setShowAutoAdd] = useState(false)
+  const [autoAddMode, setAutoAddMode] = useState<'url' | 'screenshot' | null>(
+    null,
+  )
+  const [scrapeUrl, setScrapeUrl] = useState('')
+  const [isScraping, setIsScraping] = useState(false)
+
   // create list item
   const { mutateAsync: createListItem, isPending } = useCreateListItem(
     profileSlug,
@@ -58,6 +71,103 @@ export function NewListItemForm({
   // delete image from supabase
   const { mutateAsync: deleteImage, isPending: isDeletingImage } =
     useDeleteImageFromSupabase()
+
+  // ─── Auto Add: apply scraped data to form ─────────────────────────
+  const applyScrapedData = (product: ScrapedProduct) => {
+    if (product.name) form.setFieldValue('name', product.name.slice(0, 150))
+    if (product.shop) form.setFieldValue('shop', product.shop)
+    if (product.size) form.setFieldValue('size', product.size.slice(0, 50))
+    if (product.colour)
+      form.setFieldValue('colour', product.colour.slice(0, 50))
+    if (product.notes) form.setFieldValue('notes', product.notes.slice(0, 250))
+
+    // If an imageUrl was returned, set it as the preview
+    // (the user can still upload a different image manually)
+    if (product.imageUrl) {
+      setImageUrl(product.imageUrl)
+      // Note: we don't set imageId here because this is an external URL.
+      // The image will need to be downloaded and uploaded to Cloudflare
+      // if you want it persisted. For now, it shows as a preview.
+      // See downloadAndUploadImage() below for the full flow.
+    }
+
+    // Collapse the auto-add panel
+    setShowAutoAdd(false)
+    setAutoAddMode(null)
+    setScrapeUrl('')
+
+    toast.success('Product info extracted! Review and edit before saving.')
+  }
+
+  // ─── Auto Add: URL handler ────────────────────────────────────────
+  const handleAutoAddByUrl = async () => {
+    if (!scrapeUrl.trim()) {
+      toast.error('Please enter a URL')
+      return
+    }
+
+    // Basic URL validation
+    try {
+      new URL(scrapeUrl)
+    } catch {
+      toast.error('Please enter a valid URL (e.g. https://example.com/product)')
+      return
+    }
+
+    setIsScraping(true)
+    try {
+      const { success, product, error } = await scrapeProductByUrl(scrapeUrl)
+      if (success && product) {
+        applyScrapedData(product)
+      } else {
+        toast.error(error || 'Could not extract product info from this URL')
+      }
+    } catch (err) {
+      console.error('Scrape error:', err)
+      toast.error(
+        'Failed to scrape this page. Try uploading a screenshot instead.',
+      )
+    } finally {
+      setIsScraping(false)
+    }
+  }
+
+  // ─── Auto Add: Screenshot handler ─────────────────────────────────
+  const handleAutoAddByScreenshot = async (
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please select an image file')
+      return
+    }
+
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error('Image too large. Maximum 10MB.')
+      return
+    }
+
+    setIsScraping(true)
+    try {
+      const { success, product, error } =
+        await scrapeProductByScreenshot(file)
+      if (success && product) {
+        applyScrapedData(product)
+      } else {
+        toast.error(
+          error || 'Could not extract product info from this screenshot',
+        )
+      }
+    } catch (err) {
+      console.error('Screenshot scrape error:', err)
+      toast.error('Failed to extract product info from screenshot')
+    } finally {
+      setIsScraping(false)
+      e.target.value = '' // reset input
+    }
+  }
 
   const handleUploadImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -78,11 +188,11 @@ export function NewListItemForm({
           setImageUrl(imageUrl)
         },
         onError: () => {
-          e.target.value = '' // reset input so user can re-select
+          e.target.value = ''
         },
       })
     } catch {
-      e.target.value = '' // reset input so user can re-select
+      e.target.value = ''
     }
   }
 
@@ -91,11 +201,14 @@ export function NewListItemForm({
     e.stopPropagation()
     const imageId = form.getFieldValue('imageId')
 
-    if (!imageId) return
+    if (!imageId) {
+      // Just clear the preview (external URL from scraping)
+      setImageUrl(null)
+      return
+    }
 
     try {
       await deleteImage({ imageId })
-      // clear the image id, input field and image thumbnail
       form.setFieldValue('imageId', undefined)
       const fileInput = document.getElementById('itemImage') as HTMLInputElement
       if (fileInput) {
@@ -136,6 +249,132 @@ export function NewListItemForm({
         }}
       >
         <div className="flex flex-col gap-8">
+          {/* ─── Auto Add Section ─────────────────────────────────── */}
+          <div className="rounded-lg border border-dashed border-gray-300 bg-gray-50 p-4">
+            <button
+              type="button"
+              onClick={() => {
+                setShowAutoAdd(!showAutoAdd)
+                if (!showAutoAdd) setAutoAddMode(null)
+              }}
+              className="flex w-full items-center justify-between text-left"
+            >
+              <div className="flex items-center gap-2">
+                <WandSparkles className="h-4 w-4 text-purple-500" />
+                <span className="text-sm font-medium">
+                  Auto Add from URL or Screenshot
+                </span>
+              </div>
+              <span className="text-xs text-gray-400">
+                {showAutoAdd ? 'Close' : 'Expand'}
+              </span>
+            </button>
+
+            {showAutoAdd && (
+              <div className="mt-4 space-y-4">
+                {/* Mode selector */}
+                {!autoAddMode && (
+                  <div className="flex gap-3">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setAutoAddMode('url')}
+                      className="flex-1"
+                    >
+                      <Link className="mr-2 h-3.5 w-3.5" />
+                      Paste URL
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setAutoAddMode('screenshot')}
+                      className="flex-1"
+                    >
+                      <Camera className="mr-2 h-3.5 w-3.5" />
+                      Upload Screenshot
+                    </Button>
+                  </div>
+                )}
+
+                {/* URL mode */}
+                {autoAddMode === 'url' && (
+                  <div className="space-y-3">
+                    <div className="flex gap-2">
+                      <Input
+                        type="url"
+                        placeholder="https://www.jumia.co.ke/product..."
+                        value={scrapeUrl}
+                        onChange={(e) => setScrapeUrl(e.target.value)}
+                        disabled={isScraping}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault()
+                            handleAutoAddByUrl()
+                          }
+                        }}
+                      />
+                      <Button
+                        type="button"
+                        size="sm"
+                        onClick={handleAutoAddByUrl}
+                        disabled={isScraping || !scrapeUrl.trim()}
+                      >
+                        {isScraping ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          'Fetch'
+                        )}
+                      </Button>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setAutoAddMode(null)}
+                        className="text-xs text-gray-400 hover:text-gray-600"
+                      >
+                        ← Back
+                      </button>
+                      {isScraping && (
+                        <p className="text-xs text-amber-600">
+                          Extracting product info...
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Screenshot mode */}
+                {autoAddMode === 'screenshot' && (
+                  <div className="space-y-3">
+                    <Input
+                      type="file"
+                      accept="image/*"
+                      disabled={isScraping}
+                      onChange={handleAutoAddByScreenshot}
+                    />
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setAutoAddMode(null)}
+                        className="text-xs text-gray-400 hover:text-gray-600"
+                      >
+                        ← Back
+                      </button>
+                      {isScraping && (
+                        <p className="text-xs text-amber-600">
+                          Analyzing screenshot...
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* ─── Name field ───────────────────────────────────────── */}
           <div className="space-y-3">
             <form.Field
               name="name"
@@ -166,6 +405,7 @@ export function NewListItemForm({
             />
           </div>
 
+          {/* ─── Quantity field ────────────────────────────────────── */}
           <div className="space-y-3">
             <form.Field
               name="quantity"
@@ -198,6 +438,7 @@ export function NewListItemForm({
             />
           </div>
 
+          {/* ─── Shop / Where to buy field ─────────────────────────── */}
           <div className="space-y-3">
             <form.Field
               name="shop"
@@ -224,6 +465,7 @@ export function NewListItemForm({
             />
           </div>
 
+          {/* ─── Image upload ──────────────────────────────────────── */}
           <div className="space-y-3">
             <Label htmlFor="itemImage">Add item image</Label>
             {imageUrl ? (
@@ -274,6 +516,7 @@ export function NewListItemForm({
             )}
           </div>
 
+          {/* ─── Size field ────────────────────────────────────────── */}
           <div className="space-y-3">
             <form.Field
               name="size"
@@ -287,7 +530,7 @@ export function NewListItemForm({
                       value={field.state.value}
                       onBlur={field.handleBlur}
                       onChange={(e) => field.handleChange(e.target.value)}
-                      placeholder="Example shoe size:  UK 9 Men’s"
+                      placeholder="Example shoe size:  UK 9 Men's"
                       aria-invalid={!field.state.meta.isValid}
                       maxLength={50}
                     />
@@ -301,6 +544,7 @@ export function NewListItemForm({
             />
           </div>
 
+          {/* ─── Colour field ──────────────────────────────────────── */}
           <div className="space-y-3">
             <form.Field
               name="colour"
@@ -328,6 +572,7 @@ export function NewListItemForm({
             />
           </div>
 
+          {/* ─── Notes field ───────────────────────────────────────── */}
           <div className="space-y-3">
             <form.Field
               name="notes"
