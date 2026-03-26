@@ -11,6 +11,7 @@ export interface ScrapedProduct {
   price: string | null;
   notes: string | null;
   imageUrl: string | null;
+  imageId: string | null;
 }
 
 export interface ScrapeProductResult {
@@ -21,6 +22,7 @@ export interface ScrapeProductResult {
 
 type RawScrapedProduct = Partial<ScrapedProduct> & {
   image?: string | null;
+  imageId?: string | null;
 };
 
 type WrappedScrapeResponse = {
@@ -107,6 +109,7 @@ function normalizeProduct(input: RawScrapedProduct): ScrapedProduct {
     price,
     notes: existingNotes ?? buildNotes(description, price),
     imageUrl: toNullableString(input.imageUrl) ?? toNullableString(input.image),
+    imageId: toNullableString(input.imageId),
   };
 }
 
