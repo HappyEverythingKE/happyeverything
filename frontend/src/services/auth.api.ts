@@ -131,6 +131,12 @@ export const postResendConfirmationEmail = async (email: string) => {
 
 export const getSession = async () => {
   const res = await client.auth.session.$get({})
+
+  if (!res.ok) {
+    // Gracefully handle failed session checks instead of throwing
+    return { isAuthenticated: false } as AuthContext
+  }
+
   const data = (await res.json()) as AuthContext
   return data
 }
@@ -138,11 +144,9 @@ export const getSession = async () => {
 export const sessionQueryOptions = queryOptions({
   queryKey: ['session'],
   queryFn: getSession,
-  // Access tokens expire after 1 hour. Refresh the session every 55 minutes
-  // so the server has a chance to rotate the auth cookies before they expire.
-  // staleTime: Infinity was causing users to be logged out when the token
-  // expired mid-session because the frontend never re-fetched the session.
-  staleTime: 55 * 60 * 1000,
+  staleTime: 5 * 60 * 1000, // Re-check session every 5 minutes to trigger token refresh
+  gcTime: 10 * 60 * 1000, // Keep in cache for 10 minutes
+  retry: 1, // Retry once on failure before giving up
 })
 
 export const getCurrentUser = async () => {
