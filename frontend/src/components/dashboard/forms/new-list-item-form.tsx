@@ -7,8 +7,8 @@ import {
 } from '@/services/image.api'
 import { useCreateListItem } from '@/services/list-item.api'
 import {
-  scrapeProductByUrl,
-  scrapeProductByScreenshot,
+  scrapeProductFromUrl,
+  scrapeProductFromScreenshot,
   type ScrapedProduct,
 } from '@/services/scrape-product.api'
 import { ListItemCreateSchema } from '@shared/types'
@@ -116,7 +116,7 @@ export function NewListItemForm({
 
     setIsScraping(true)
     try {
-      const { success, product, error } = await scrapeProductByUrl(scrapeUrl)
+      const { success, product, error } = await scrapeProductFromUrl(scrapeUrl)
       if (success && product) {
         applyScrapedData(product)
       } else {
@@ -152,7 +152,7 @@ export function NewListItemForm({
     setIsScraping(true)
     try {
       const { success, product, error } =
-        await scrapeProductByScreenshot(file)
+        await scrapeProductFromScreenshot(file)
       if (success && product) {
         applyScrapedData(product)
       } else {
