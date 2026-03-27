@@ -22,13 +22,6 @@ export function useAuthSubscription() {
         queryClient.invalidateQueries({ queryKey: ['session'] })
       }
 
-      // On mobile Safari, the browser can suspend the tab and fail to refresh
-      // the token on resume. Force a hard redirect to login so the user sees
-      // a clean state rather than a broken authenticated shell.
-      if (event === 'TOKEN_REFRESH_FAILED') {
-        queryClient.removeQueries({ queryKey: ['session', 'current-user'] })
-        window.location.href = '/login'
-      }
     })
 
     return () => subscription?.unsubscribe()
