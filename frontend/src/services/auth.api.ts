@@ -144,9 +144,14 @@ export const getSession = async () => {
 export const sessionQueryOptions = queryOptions({
   queryKey: ['session'],
   queryFn: getSession,
-  staleTime: 5 * 60 * 1000, // Re-check session every 5 minutes to trigger token refresh
-  gcTime: 10 * 60 * 1000, // Keep in cache for 10 minutes
-  retry: 1, // Retry once on failure before giving up
+  // Supabase JWTs expire after 1 hour. Keeping staleTime well under that
+  // ensures the /session endpoint (which calls getUser() server-side) is
+  // hit frequently enough to refresh the cookie before it expires.
+  // Previously 5 minutes — this was too long when combined with no
+  // visibility-based refresh, causing silent 401s after idle periods.
+  staleTime: 4 * 60 * 1000, // 4 minutes — safely under the 1hr JWT expiry
+  gcTime: 10 * 60 * 1000,
+  retry: 1,
 })
 
 export const getCurrentUser = async () => {
