@@ -16,6 +16,11 @@ declare module 'hono' {
   }
 }
 
+// Matches Supabase's default session length of 7 days.
+// Without this, cookies are session cookies and are wiped when the
+// browser is fully closed — causing users to be logged out on reopen.
+const COOKIE_MAX_AGE = 60 * 60 * 24 * 7 // 7 days in seconds
+
 // utility to access the RLS-aware Supabase client
 export const getSupabase = (c: Context) => {
   return c.get('supabase')
@@ -71,6 +76,7 @@ export const supabaseMiddleware = (): MiddlewareHandler => {
                 httpOnly: true,
                 secure: true,
                 sameSite: 'Lax',
+                maxAge: COOKIE_MAX_AGE,
               },
             })
           })
