@@ -1,9 +1,13 @@
 import type { Context, MiddlewareHandler } from 'hono'
-import { getCookie, setCookie } from 'hono/cookie'
+import { getCookie } from 'hono/cookie'
 import { createMiddleware } from 'hono/factory'
 import { HTTPException } from 'hono/http-exception'
 
-import { createServerClient } from '@supabase/ssr'
+import {
+  createServerClient,
+  parseCookieHeader,
+  serializeCookieHeader,
+} from '@supabase/ssr'
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { createClient as createAdminClient } from '@supabase/supabase-js'
 
@@ -17,18 +21,7 @@ declare module 'hono' {
 }
 
 // Matches Supabase's default session length of 7 days.
-// Without this, cookies are session cookies and are wiped when the
-// browser is fully closed — causing users to be logged out on reopen.
-// Hardcoded as a typed const (not spread into a Record<string,unknown>)
-// so that Hono's setCookie actually applies maxAge at runtime.
-const AUTH_COOKIE_OPTIONS = {
-  httpOnly: true,
-  secure: true,
-  sameSite: 'Lax',
-  path: '/',
-  maxAge: 60 * 60 * 24 * 7, // 7 days in seconds
-  domain: '.myhappyeverything.com',
-} as const
+const COOKIE_MAX_AGE = 60 * 60 * 24 * 7 // 7 days in seconds
 
 // utility to access the RLS-aware Supabase client
 export const getSupabase = (c: Context) => {
@@ -58,25 +51,32 @@ export const supabaseMiddleware = (): MiddlewareHandler => {
       throw new Error('SUPABASE_SERVICE_ROLE_KEY missing!')
     }
 
-    // Cookies that Supabase wants to set — collected during the request
-    // and written after next() so the response is already prepared.
-    const cookiesToSet: Array<{ name: string; value: string }> = []
+    // Serialized Set-Cookie headers to append after the response is ready
+    const cookieHeaders: string[] = []
 
     // authenticated Supabase client (uses cookies, respects RLS)
     const supabase = createServerClient(SUPABASE_URL, SUPABASE_PUBLIC_KEY, {
       cookies: {
         getAll() {
-          return Object.entries(getCookie(c)).map(([name, value]) => ({
-            name,
-            value,
-          }))
+          // parseCookieHeader is @supabase/ssr's own parser — more reliable
+          // than Hono's getCookie for reading the raw Cookie header
+          return parseCookieHeader(c.req.header('Cookie') ?? '')
         },
-        setAll: (cookies) => {
-          // Only collect name+value here — options are applied below using
-          // AUTH_COOKIE_OPTIONS so that maxAge is never lost inside a
-          // Record<string,unknown> cast.
-          cookies.forEach(({ name, value }) => {
-            cookiesToSet.push({ name, value })
+        setAll(cookies) {
+          // Use @supabase/ssr's own serializeCookieHeader so the cookie
+          // format is exactly what Supabase expects — then inject our
+          // maxAge by merging it into the options it provides.
+          cookies.forEach(({ name, value, options }) => {
+            cookieHeaders.push(
+              serializeCookieHeader(name, value, {
+                ...options,
+                httpOnly: true,
+                secure: true,
+                sameSite: 'Lax',
+                path: '/',
+                maxAge: COOKIE_MAX_AGE,
+              }),
+            )
           })
         },
       },
@@ -93,10 +93,10 @@ export const supabaseMiddleware = (): MiddlewareHandler => {
 
     await next()
 
-    // Set all cookies after the response has been processed,
-    // using the hardcoded typed options so maxAge is guaranteed to apply.
-    cookiesToSet.forEach(({ name, value }) => {
-      setCookie(c, name, value, AUTH_COOKIE_OPTIONS)
+    // Append all Set-Cookie headers to the response.
+    // Using append (not set) so multiple cookies don't overwrite each other.
+    cookieHeaders.forEach((cookie) => {
+      c.header('Set-Cookie', cookie, { append: true })
     })
   }
 }
