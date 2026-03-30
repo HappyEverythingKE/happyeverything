@@ -1,5 +1,4 @@
 import type { Context, MiddlewareHandler } from 'hono'
-import { getCookie } from 'hono/cookie'
 import { createMiddleware } from 'hono/factory'
 import { HTTPException } from 'hono/http-exception'
 
@@ -54,18 +53,17 @@ export const supabaseMiddleware = (): MiddlewareHandler => {
     // Serialized Set-Cookie headers to append after the response is ready
     const cookieHeaders: string[] = []
 
-    // authenticated Supabase client (uses cookies, respects RLS)
     const supabase = createServerClient(SUPABASE_URL, SUPABASE_PUBLIC_KEY, {
       cookies: {
         getAll() {
-          // parseCookieHeader is @supabase/ssr's own parser — more reliable
-          // than Hono's getCookie for reading the raw Cookie header
-          return parseCookieHeader(c.req.header('Cookie') ?? '')
+          // parseCookieHeader may return undefined values — filter them out
+          // to satisfy the { name: string; value: string }[] type requirement
+          return parseCookieHeader(c.req.header('Cookie') ?? '').filter(
+            (cookie): cookie is { name: string; value: string } =>
+              cookie.value !== undefined,
+          )
         },
         setAll(cookies) {
-          // Use @supabase/ssr's own serializeCookieHeader so the cookie
-          // format is exactly what Supabase expects — then inject our
-          // maxAge by merging it into the options it provides.
           cookies.forEach(({ name, value, options }) => {
             cookieHeaders.push(
               serializeCookieHeader(name, value, {
