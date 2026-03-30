@@ -72,7 +72,7 @@ export const supabaseMiddleware = (): MiddlewareHandler => {
                 ...options,
                 httpOnly: true,
                 secure: true,
-                sameSite: 'Lax',
+                sameSite: 'lax',
                 path: '/',
                 maxAge: COOKIE_MAX_AGE,
               }),
