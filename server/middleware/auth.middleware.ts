@@ -27,6 +27,7 @@ const AUTH_COOKIE_OPTIONS = {
   sameSite: 'Lax',
   path: '/',
   maxAge: 60 * 60 * 24 * 7, // 7 days in seconds
+  domain: '.myhappyeverything.com',
 } as const
 
 // utility to access the RLS-aware Supabase client
