@@ -19,7 +19,15 @@ declare module 'hono' {
 // Matches Supabase's default session length of 7 days.
 // Without this, cookies are session cookies and are wiped when the
 // browser is fully closed — causing users to be logged out on reopen.
-const COOKIE_MAX_AGE = 60 * 60 * 24 * 7 // 7 days in seconds
+// Hardcoded as a typed const (not spread into a Record<string,unknown>)
+// so that Hono's setCookie actually applies maxAge at runtime.
+const AUTH_COOKIE_OPTIONS = {
+  httpOnly: true,
+  secure: true,
+  sameSite: 'Lax',
+  path: '/',
+  maxAge: 60 * 60 * 24 * 7, // 7 days in seconds
+} as const
 
 // utility to access the RLS-aware Supabase client
 export const getSupabase = (c: Context) => {
@@ -49,12 +57,9 @@ export const supabaseMiddleware = (): MiddlewareHandler => {
       throw new Error('SUPABASE_SERVICE_ROLE_KEY missing!')
     }
 
-    // Store cookies to be set after the request
-    const cookiesToSet: Array<{
-      name: string
-      value: string
-      options?: Record<string, unknown>
-    }> = []
+    // Cookies that Supabase wants to set — collected during the request
+    // and written after next() so the response is already prepared.
+    const cookiesToSet: Array<{ name: string; value: string }> = []
 
     // authenticated Supabase client (uses cookies, respects RLS)
     const supabase = createServerClient(SUPABASE_URL, SUPABASE_PUBLIC_KEY, {
@@ -66,19 +71,11 @@ export const supabaseMiddleware = (): MiddlewareHandler => {
           }))
         },
         setAll: (cookies) => {
-          // Store cookies to be set later instead of setting them immediately
-          cookies.forEach(({ name, value, ...options }) => {
-            cookiesToSet.push({
-              name,
-              value,
-              options: {
-                ...options,
-                httpOnly: true,
-                secure: true,
-                sameSite: 'Lax',
-                maxAge: COOKIE_MAX_AGE,
-              },
-            })
+          // Only collect name+value here — options are applied below using
+          // AUTH_COOKIE_OPTIONS so that maxAge is never lost inside a
+          // Record<string,unknown> cast.
+          cookies.forEach(({ name, value }) => {
+            cookiesToSet.push({ name, value })
           })
         },
       },
@@ -95,9 +92,10 @@ export const supabaseMiddleware = (): MiddlewareHandler => {
 
     await next()
 
-    // Set all cookies after the response has been processed
-    cookiesToSet.forEach(({ name, value, options }) => {
-      setCookie(c, name, value, options)
+    // Set all cookies after the response has been processed,
+    // using the hardcoded typed options so maxAge is guaranteed to apply.
+    cookiesToSet.forEach(({ name, value }) => {
+      setCookie(c, name, value, AUTH_COOKIE_OPTIONS)
     })
   }
 }
