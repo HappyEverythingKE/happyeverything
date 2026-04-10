@@ -92,23 +92,23 @@ export function HeroSection({ isAuthenticated }: { isAuthenticated: boolean }) {
             simple, and stress-free.
           </p>
           <div className="mt-6 flex flex-wrap items-center justify-center gap-3 md:mt-8">
-  <Button asChild size="lg">
-    {isAuthenticated ? (
-      <Link to="/dashboard">My Dashboard</Link>
-    ) : (
-      <Link to="/signup">Create your wish list - it&apos;s free!</Link>
-    )}
-  </Button>
-  <Button asChild size="lg" variant="outline">
-    
-      href="https://blog.myhappyeverything.com/"
-      target="_blank"
-      rel="noopener noreferrer"
-    >
-      May Picks!
-    </a>
-  </Button>
-</div>
+            <Button asChild size="lg">
+              {isAuthenticated ? (
+                <Link to="/dashboard">My Dashboard</Link>
+              ) : (
+                <Link to="/signup">Create your wish list - it&apos;s free!</Link>
+              )}
+            </Button>
+            <Button asChild size="lg" variant="outline">
+              
+                href="https://blog.myhappyeverything.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                May Picks!
+              </a>
+            </Button>
+          </div>
         </div>
       </div>
 
