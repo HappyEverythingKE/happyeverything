@@ -1,4 +1,5 @@
-import { Link } from '@tanstack/react-router'
+import { useState } from 'react'
+import { Link, useNavigate } from '@tanstack/react-router'
 
 import { motion, useScroll, useTransform } from 'motion/react'
 import { useMediaQuery } from 'usehooks-ts'
@@ -6,6 +7,7 @@ import { useMediaQuery } from 'usehooks-ts'
 import { marketingImages } from '@/lib/marketing-images'
 import { Button } from '@/components/ui/button'
 import { ShimmerImage } from '@/components/ui/shimmer-image'
+import { Spinner } from '@/components/ui/spinner'
 
 const images = [
   { src: marketingImages.coupleGifting, alt: 'Couple exchanging a gift', width: 1020, height: 1530 },
@@ -20,6 +22,8 @@ const images = [
 export function HeroSection({ isAuthenticated }: { isAuthenticated: boolean }) {
   const isMobile = useMediaQuery('(max-width: 767px)')
   const { scrollYProgress } = useScroll()
+  const navigate = useNavigate()
+  const [isNavigating, setIsNavigating] = useState(false)
 
   const createTransform = (mobileValues: string[], desktopValues: string[]) =>
     useTransform(scrollYProgress, [0, 1], isMobile ? mobileValues : desktopValues)
@@ -31,6 +35,11 @@ export function HeroSection({ isAuthenticated }: { isAuthenticated: boolean }) {
     height: createTransform(['60vh', '100vh'], ['80vh', '100vh']),
   }
   const rightImageGroup = { x: createTransform(['0vw', '25vw'], ['0vw', '32vw']) }
+
+  const handleCtaClick = async () => {
+    setIsNavigating(true)
+    await navigate({ to: isAuthenticated ? '/dashboard' : '/signup' })
+  }
 
   return (
     <section id="home-hero" className="relative">
@@ -48,11 +57,21 @@ export function HeroSection({ isAuthenticated }: { isAuthenticated: boolean }) {
             simple, and stress-free.
           </p>
           <div className="mt-6 flex flex-wrap items-center justify-center gap-3 md:mt-8">
-            <Button asChild size="lg">
-              {isAuthenticated ? (
-                <Link to="/dashboard">My Dashboard</Link>
+            <Button
+              size="lg"
+              disabled={isNavigating}
+              onClick={handleCtaClick}
+              className="min-w-48"
+            >
+              {isNavigating ? (
+                <>
+                  <Spinner className="mr-2" />
+                  Loading...
+                </>
+              ) : isAuthenticated ? (
+                'My Dashboard'
               ) : (
-                <Link to="/signup">Create your wish list - it&apos;s free!</Link>
+                "Create your wish list - it's free!"
               )}
             </Button>
             <Button asChild size="lg" variant="outline">
