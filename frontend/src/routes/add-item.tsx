@@ -22,14 +22,10 @@ import {
   createFileRoute,
   redirect,
   useNavigate,
-  useRouter,
 } from '@tanstack/react-router'
-import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 
-import {
-  scrapeProductFromUrl,
-  type ScrapedProduct,
-} from '@/services/scrape-product.api'
+import { scrapeProductFromUrl } from '@/services/scrape-product.api'
 import {
   listItemsQueryOptions,
   useCreateListItem,
@@ -37,13 +33,11 @@ import {
 import { listsByProfileQueryOptions } from '@/services/list.api'
 import {
   allProfilesQueryOptions,
-  fetchProfileQueryOptions,
 } from '@/services/profile.api'
 import { userQueryOptions } from '@/services/auth.api'
 import type { List, ListItem, Profile } from '@shared/types'
 import {
   CheckCircle2,
-  ChevronDown,
   ExternalLink,
   Loader2,
   PackageOpen,
@@ -119,9 +113,7 @@ interface ItemPreview {
 function AddItemPage() {
   const search = Route.useSearch()
   const navigate = useNavigate()
-  const queryClient = useQueryClient()
-
-  // Resolve name from either ?name= or ?title= (PWA share target)
+  const // Resolve name from either ?name= or ?title= (PWA share target)
   const rawName = search.name ?? search.title ?? null
   const rawUrl = search.url ?? null
   const rawImage = search.image ?? null
