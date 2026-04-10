@@ -13,15 +13,15 @@ const searchSchema = z.object({
   error: z.string().optional(),
 })
 
-export const Route = createFileRoute('/_marketing/')({
+export const Route = createFileRoute('/_marketing/')(({
   validateSearch: searchSchema,
   component: App,
 })
 
 function App() {
   const { error } = Route.useSearch()
+  const { authState } = Route.useRouteContext()
 
-  // show error toast if redirected from failed profile load
   useEffect(() => {
     if (error === 'profile-not-found') {
       toast.error('Profile Not Found', {
@@ -32,7 +32,7 @@ function App() {
 
   return (
     <>
-      <HeroSection />
+      <HeroSection isAuthenticated={authState.isAuthenticated} />
       <div className="container mx-auto grow">
         <SolutionSection />
         <BenefitSection />
