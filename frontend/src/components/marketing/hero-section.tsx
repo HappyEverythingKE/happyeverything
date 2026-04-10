@@ -52,7 +52,6 @@ const images = [
   },
 ]
 
-// Change the function signature to accept the prop
 export function HeroSection({ isAuthenticated }: { isAuthenticated: boolean }) {
   const isMobile = useMediaQuery('(max-width: 767px)')
   const { scrollYProgress } = useScroll()
@@ -88,7 +87,7 @@ export function HeroSection({ isAuthenticated }: { isAuthenticated: boolean }) {
           </h1>
           <p className="md:text-lg">
             Celebrate birthdays, weddings and everything in between. Whether
-            you’re the one receiving or giving, experience gifting made joyful,
+            you're the one receiving or giving, experience gifting made joyful,
             simple, and stress-free.
           </p>
           <div className="mt-6 flex flex-wrap items-center justify-center gap-3 md:mt-8">
