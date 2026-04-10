@@ -52,7 +52,8 @@ const images = [
   },
 ]
 
-export function HeroSection() {
+// Change the function signature to accept the prop
+export function HeroSection({ isAuthenticated }: { isAuthenticated: boolean }) {
   const isMobile = useMediaQuery('(max-width: 767px)')
   const { scrollYProgress } = useScroll()
 
@@ -91,19 +92,23 @@ export function HeroSection() {
             simple, and stress-free.
           </p>
           <div className="mt-6 flex flex-wrap items-center justify-center gap-3 md:mt-8">
-            <Button asChild size="lg">
-              <Link to="/signup">Create your wish list - it&apos;s free!</Link>
-            </Button>
-            <Button asChild size="lg" variant="outline">
-              <a
-                href="https://blog.myhappyeverything.com/"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                May Picks
-              </a>
-            </Button>
-          </div>
+  <Button asChild size="lg">
+    {isAuthenticated ? (
+      <Link to="/dashboard">My Dashboard</Link>
+    ) : (
+      <Link to="/signup">Create your wish list - it&apos;s free!</Link>
+    )}
+  </Button>
+  <Button asChild size="lg" variant="outline">
+    
+      href="https://blog.myhappyeverything.com/"
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      May Picks!
+    </a>
+  </Button>
+</div>
         </div>
       </div>
 
