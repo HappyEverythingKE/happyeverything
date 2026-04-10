@@ -67,12 +67,14 @@ export const supabaseMiddleware = (): MiddlewareHandler => {
           cookies.forEach(({ name, value, options }) => {
             cookieHeaders.push(
               serializeCookieHeader(name, value, {
-                ...options,
-                httpOnly: true,
-                secure: true,
-                sameSite: 'lax',
-                path: '/',
-                maxAge: COOKIE_MAX_AGE,
+  ...options,
+  httpOnly: true,
+  secure: true,
+  sameSite: 'lax',
+  path: '/',
+  maxAge: COOKIE_MAX_AGE,
+  domain: '.myhappyeverything.com', // 👈 add this line
+})
               }),
             )
           })
