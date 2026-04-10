@@ -1,6 +1,7 @@
 {
   "short_name": "Happy Everything",
   "name": "Happy Everything",
+  "description": "Your personal gift wishlist and registry",
   "icons": [
     {
       "src": "favicon.ico",
@@ -10,16 +11,27 @@
     {
       "src": "web-app-manifest-192x192.png",
       "type": "image/png",
-      "sizes": "192x192"
+      "sizes": "192x192",
+      "purpose": "any maskable"
     },
     {
       "src": "web-app-manifest-512x512.png",
       "type": "image/png",
-      "sizes": "512x512"
+      "sizes": "512x512",
+      "purpose": "any maskable"
     }
   ],
   "start_url": "./",
   "display": "standalone",
   "theme_color": "#FFFCF7",
-  "background_color": "#FFFCF7"
+  "background_color": "#FFFCF7",
+  "share_target": {
+    "action": "/add-item",
+    "method": "GET",
+    "params": {
+      "title": "name",
+      "url": "url",
+      "text": "name"
+    }
+  }
 }
