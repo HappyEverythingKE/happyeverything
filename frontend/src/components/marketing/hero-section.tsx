@@ -8,48 +8,13 @@ import { Button } from '@/components/ui/button'
 import { ShimmerImage } from '@/components/ui/shimmer-image'
 
 const images = [
-  {
-    src: marketingImages.coupleGifting,
-    alt: 'Couple exchanging a gift',
-    width: 1020,
-    height: 1530,
-  },
-  {
-    src: marketingImages.friendsWithGiftbox,
-    alt: 'Friends with a large giftbox',
-    width: 1020,
-    height: 1530,
-  },
-  {
-    src: marketingImages.boyWithPuppy,
-    alt: 'Boy holding a puppy',
-    width: 1020,
-    height: 1530,
-  },
-  {
-    src: marketingImages.siblingsGift,
-    alt: 'Siblings with a giftbox',
-    width: 1020,
-    height: 1530,
-  },
-  {
-    src: marketingImages.boyWithToyCar,
-    alt: 'Boy with a toy car gift',
-    width: 1020,
-    height: 1530,
-  },
-  {
-    src: marketingImages.grandmaGift,
-    alt: 'Grandma with a gift',
-    width: 1020,
-    height: 1530,
-  },
-  {
-    src: marketingImages.coupleGifting,
-    alt: 'Couple exchanging a gift',
-    width: 1020,
-    height: 1530,
-  },
+  { src: marketingImages.coupleGifting, alt: 'Couple exchanging a gift', width: 1020, height: 1530 },
+  { src: marketingImages.friendsWithGiftbox, alt: 'Friends with a large giftbox', width: 1020, height: 1530 },
+  { src: marketingImages.boyWithPuppy, alt: 'Boy holding a puppy', width: 1020, height: 1530 },
+  { src: marketingImages.siblingsGift, alt: 'Siblings with a giftbox', width: 1020, height: 1530 },
+  { src: marketingImages.boyWithToyCar, alt: 'Boy with a toy car gift', width: 1020, height: 1530 },
+  { src: marketingImages.grandmaGift, alt: 'Grandma with a gift', width: 1020, height: 1530 },
+  { src: marketingImages.coupleGifting, alt: 'Couple exchanging a gift', width: 1020, height: 1530 },
 ]
 
 export function HeroSection({ isAuthenticated }: { isAuthenticated: boolean }) {
@@ -57,23 +22,15 @@ export function HeroSection({ isAuthenticated }: { isAuthenticated: boolean }) {
   const { scrollYProgress } = useScroll()
 
   const createTransform = (mobileValues: string[], desktopValues: string[]) =>
-    useTransform(
-      scrollYProgress,
-      [0, 1],
-      isMobile ? mobileValues : desktopValues,
-    )
+    useTransform(scrollYProgress, [0, 1], isMobile ? mobileValues : desktopValues)
 
-  const leftImageGroup = {
-    x: createTransform(['0vw', '-25vw'], ['0vw', '-32vw']),
-  }
+  const leftImageGroup = { x: createTransform(['0vw', '-25vw'], ['0vw', '-32vw']) }
   const centerImageContainer = {
     x: createTransform(['0vw', '-25vw'], ['0vw', '-32vw']),
     width: createTransform(['50vw', '100vw'], ['36vw', '100vw']),
     height: createTransform(['60vh', '100vh'], ['80vh', '100vh']),
   }
-  const rightImageGroup = {
-    x: createTransform(['0vw', '25vw'], ['0vw', '32vw']),
-  }
+  const rightImageGroup = { x: createTransform(['0vw', '25vw'], ['0vw', '32vw']) }
 
   return (
     <section id="home-hero" className="relative">
@@ -99,11 +56,7 @@ export function HeroSection({ isAuthenticated }: { isAuthenticated: boolean }) {
               )}
             </Button>
             <Button asChild size="lg" variant="outline">
-              
-                href="https://blog.myhappyeverything.com/"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
+              <a href="https://blog.myhappyeverything.com/" target="_blank" rel="noopener noreferrer">
                 May Picks!
               </a>
             </Button>
@@ -118,41 +71,16 @@ export function HeroSection({ isAuthenticated }: { isAuthenticated: boolean }) {
             style={leftImageGroup}
           >
             <div className="relative hidden md:block md:w-[25vw] lg:w-[20vw]">
-              <ShimmerImage
-                className="aspect-[2/3] w-full"
-                src={images[0].src}
-                alt={images[0].alt}
-                width={images[0].width}
-                height={images[0].height}
-              />
+              <ShimmerImage className="aspect-[2/3] w-full" src={images[0].src} alt={images[0].alt} width={images[0].width} height={images[0].height} />
             </div>
-
             <div className="relative grid w-[40vw] grid-cols-1 grid-rows-[auto_auto] gap-4 self-center md:w-[18vw]">
-              <ShimmerImage
-                className="aspect-square w-full"
-                src={images[1].src}
-                alt={images[1].alt}
-                width={images[1].width}
-                height={images[1].height}
-              />
-              <ShimmerImage
-                className="aspect-[3/4] w-full"
-                src={images[2].src}
-                alt={images[2].alt}
-                width={images[2].width}
-                height={images[2].height}
-              />
+              <ShimmerImage className="aspect-square w-full" src={images[1].src} alt={images[1].alt} width={images[1].width} height={images[1].height} />
+              <ShimmerImage className="aspect-[3/4] w-full" src={images[2].src} alt={images[2].alt} width={images[2].width} height={images[2].height} />
             </div>
           </motion.div>
 
           <motion.div className="relative" style={centerImageContainer}>
-            <ShimmerImage
-              className="size-full"
-              src={images[3].src}
-              alt={images[3].alt}
-              width={images[3].width}
-              height={images[3].height}
-            />
+            <ShimmerImage className="size-full" src={images[3].src} alt={images[3].alt} width={images[3].width} height={images[3].height} />
           </motion.div>
 
           <motion.div
@@ -160,30 +88,11 @@ export function HeroSection({ isAuthenticated }: { isAuthenticated: boolean }) {
             style={rightImageGroup}
           >
             <div className="relative grid w-[40vw] grid-cols-1 grid-rows-[auto_auto] gap-4 self-center md:w-[18vw]">
-              <ShimmerImage
-                className="aspect-[3/4] w-full"
-                src={images[4].src}
-                alt={images[4].alt}
-                width={images[4].width}
-                height={images[4].height}
-              />
-              <ShimmerImage
-                className="aspect-square w-full"
-                src={images[5].src}
-                alt={images[5].alt}
-                width={images[5].width}
-                height={images[5].height}
-              />
+              <ShimmerImage className="aspect-[3/4] w-full" src={images[4].src} alt={images[4].alt} width={images[4].width} height={images[4].height} />
+              <ShimmerImage className="aspect-square w-full" src={images[5].src} alt={images[5].alt} width={images[5].width} height={images[5].height} />
             </div>
-
             <div className="relative hidden md:block md:w-[25vw] lg:w-[20vw]">
-              <ShimmerImage
-                className="aspect-[2/3] w-full"
-                src={images[6].src}
-                alt={images[6].alt}
-                width={images[6].width}
-                height={images[6].height}
-              />
+              <ShimmerImage className="aspect-[2/3] w-full" src={images[6].src} alt={images[6].alt} width={images[6].width} height={images[6].height} />
             </div>
           </motion.div>
         </div>
