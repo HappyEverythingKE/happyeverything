@@ -275,13 +275,13 @@ export const authRoutes = new Hono()
     const { SUPABASE_PROJECT_ID } = env<AppEnv>(c)
 
     c.header(
-      'Set-Cookie',
-      `sb-${SUPABASE_PROJECT_ID}-auth-token=; Path=/; Max-Age=0; HttpOnly; Secure; SameSite=Lax`,
-    )
-    c.header(
-      'Set-Cookie',
-      `sb-${SUPABASE_PROJECT_ID}-auth-token-code-verifier=; Path=/; Max-Age=0; HttpOnly; Secure; SameSite=Lax`,
-    )
+  'Set-Cookie',
+  `sb-${SUPABASE_PROJECT_ID}-auth-token=; Path=/; Max-Age=0; HttpOnly; Secure; SameSite=Lax; Domain=.myhappyeverything.com`,
+)
+c.header(
+  'Set-Cookie',
+  `sb-${SUPABASE_PROJECT_ID}-auth-token-code-verifier=; Path=/; Max-Age=0; HttpOnly; Secure; SameSite=Lax; Domain=.myhappyeverything.com`,
+)
 
     const { error } = await supabase.auth.signOut()
 
