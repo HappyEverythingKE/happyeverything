@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from '@tanstack/react-router'
+import { createFileRoute, Link, redirect } from '@tanstack/react-router'
 import { useSuspenseQuery } from '@tanstack/react-query'
 
 import { allProfilesQueryOptions } from '@/services/profile.api'
@@ -18,16 +18,11 @@ import ProfileCardSkeleton from '@/components/ui/profile-card-skeleton'
 import { SuspenseQueryBoundary } from '@/components/suspense-query-boundary'
 
 export const Route = createFileRoute('/_authed/dashboard/')({
-  component: RouteComponent,
-})
-
-import { createFileRoute, Link, redirect } from '@tanstack/react-router'
-
-export const Route = createFileRoute('/_authed/dashboard/')({
   loader: async ({ context }) => {
     const profiles = await context.queryClient.ensureQueryData(
       allProfilesQueryOptions,
     )
+
     if (profiles.length === 1) {
       throw redirect({
         to: '/dashboard/$profileSlug',
@@ -43,7 +38,6 @@ function RouteComponent() {
     <div className="relative overflow-hidden">
       {/* blurred background */}
       <div className="absolute inset-0 bg-gradient-to-br from-gray-100 via-gray-200 to-gray-300">
-        {/* simulated blurred content elements */}
         <div className="absolute left-8 top-8 h-16 w-16 rounded-full bg-orange-200 opacity-60 blur-md" />
         <div className="absolute right-24 top-12 h-4 w-32 rounded bg-gray-400 opacity-40 blur-sm" />
         <div className="absolute left-16 top-32 h-4 w-24 rounded bg-gray-500 opacity-30 blur-sm" />
@@ -79,6 +73,7 @@ function ProfileCard() {
           </Link>
         </CardDescription>
       </CardHeader>
+
       <CardContent className="w-full py-6">
         {allProfiles.length === 0 ? (
           <div className="space-y-4 text-center">
@@ -95,11 +90,12 @@ function ProfileCard() {
                 to="/dashboard/$profileSlug"
                 params={{ profileSlug: profile.slug }}
               >
-                <Card className="hover:border-primary/50 group h-full w-60 cursor-pointer overflow-hidden transition-all hover:shadow-lg">
+                <Card className="group h-full w-60 cursor-pointer overflow-hidden transition-all hover:border-primary/50 hover:shadow-lg">
                   <CardHeader className="flex min-w-0 flex-col items-center justify-between space-y-2 pb-3">
                     <CardTitle className="group-hover:text-primary wrap-anywhere w-full truncate text-center text-xl transition-colors">
                       {profile.slug}
                     </CardTitle>
+
                     <Badge
                       variant={
                         profile.status === 'active' ? 'default' : 'secondary'
