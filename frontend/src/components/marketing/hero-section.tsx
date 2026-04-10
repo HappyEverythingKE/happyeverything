@@ -100,7 +100,7 @@ export function HeroSection() {
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                Our Blog!
+                May Picks
               </a>
             </Button>
           </div>
