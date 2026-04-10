@@ -6,15 +6,11 @@
  *   2. PWA share target (Android):  /add-item?url=...&title=...   (mapped in manifest)
  *   3. Future: Chrome extension, WhatsApp, etc.
  *
- * Flow:
- *   - Not logged in  → redirect to /login?returnTo=/add-item?...  (preserves all params)
- *   - Logged in, 1 profile, 1+ lists → straight to confirm screen
- *   - Logged in, multiple profiles/lists → lightweight picker first
- *
- * Data strategy:
- *   - Pre-fill UI instantly from query params (fast perceived performance)
- *   - Fire scraper in background; replace with verified data when ready
- *   - Duplicate check: if item with same `shop` URL exists in chosen list → show warning
+ * Image strategy:
+ *   - Scraper returns imageId (already in CF+Supabase) → use directly ✓
+ *   - Scraper returns only imageUrl (external) → POST /v1/images/upload-from-url
+ *     server fetches it, uploads to CF, returns imageId ✓
+ *   - No image → save without one, user can add manually ✓
  */
 
 import { useEffect, useRef, useState } from 'react'
@@ -31,11 +27,9 @@ import {
   useCreateListItem,
 } from '@/services/list-item.api'
 import { listsByProfileQueryOptions } from '@/services/list.api'
-import {
-  allProfilesQueryOptions,
-} from '@/services/profile.api'
+import { allProfilesQueryOptions } from '@/services/profile.api'
 import { userQueryOptions } from '@/services/auth.api'
-import type { List, ListItem, Profile } from '@shared/types'
+import type { List, ListItem, Profile, ErrorResponse, SuccessResponse } from '@shared/types'
 import {
   CheckCircle2,
   ExternalLink,
@@ -71,18 +65,15 @@ export const Route = createFileRoute('/add-item')({
   validateSearch: searchSchema,
 
   beforeLoad: async ({ context, search }) => {
-    // Not logged in → send to login, preserving the full /add-item URL
     if (!context.authState.isAuthenticated) {
       const returnTo = `/add-item?${new URLSearchParams(
         Object.entries(search)
           .filter(([, v]) => v != null)
           .map(([k, v]) => [k, String(v)]),
       ).toString()}`
-
       throw redirect({ to: '/login', search: { returnTo } })
     }
 
-    // Onboarding guard (same as _authed layout)
     const user = await context.queryClient.ensureQueryData(userQueryOptions)
     if (user.name === null || user.country === null) {
       throw redirect({ to: '/onboarding' })
@@ -98,14 +89,50 @@ type Step = 'picker' | 'confirm' | 'success'
 
 interface ItemPreview {
   name: string | null
-  image: string | null
+  /** Display URL — may be external (for preview only) or a CF variant URL */
+  displayImage: string | null
+  /**
+   * Cloudflare imageId already stored in Supabase `images` table.
+   * Set when scraper returns imageId, or after upload-from-url succeeds.
+   * This is what gets saved to list_items.image_id.
+   */
+  imageId: string | null
+  /**
+   * Raw external imageUrl from scraper — needs server-side upload before saving.
+   * Kept separate so we can show a preview while the upload happens in the background.
+   */
+  pendingImageUrl: string | null
   shop: string | null
-  // scraped extras
   brand: string | null
   size: string | null
   colour: string | null
   notes: string | null
   price: string | null
+}
+
+// ─── Helper: upload external image URL via server ─────────────────────────────
+
+async function uploadImageFromUrl(imageUrl: string): Promise<string | null> {
+  try {
+    const res = await fetch('/v1/images/upload-from-url', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ imageUrl }),
+    })
+
+    if (!res.ok) {
+      const err = (await res.json()) as ErrorResponse
+      console.warn('upload-from-url failed:', err.error)
+      return null
+    }
+
+    const { data } = (await res.json()) as SuccessResponse<{ imageId: string }>
+    return data.imageId
+  } catch (err) {
+    console.warn('upload-from-url error:', err)
+    return null
+  }
 }
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
@@ -114,7 +141,6 @@ function AddItemPage() {
   const search = Route.useSearch()
   const navigate = useNavigate()
 
-  // Resolve name from either ?name= or ?title= (PWA share target)
   const rawName = search.name ?? search.title ?? null
   const rawUrl = search.url ?? null
   const rawImage = search.image ?? null
@@ -122,10 +148,11 @@ function AddItemPage() {
 
   // ── State ────────────────────────────────────────────────────────────────
 
-  // Item preview — starts from query params, upgraded by scraper
   const [preview, setPreview] = useState<ItemPreview>({
     name: rawName,
-    image: rawImage,
+    displayImage: rawImage,
+    imageId: null,
+    pendingImageUrl: null,
     shop: rawUrl,
     brand: null,
     size: null,
@@ -133,11 +160,13 @@ function AddItemPage() {
     notes: null,
     price: null,
   })
+
   const [scraping, setScraping] = useState(false)
   const [scrapeError, setScrapeError] = useState(false)
-  const scrapedRef = useRef(false) // prevent double-scrape in strict mode
+  // Tracks background image upload to CF after scrape
+  const [uploadingImage, setUploadingImage] = useState(false)
+  const scrapedRef = useRef(false)
 
-  // Picker state
   const [selectedProfile, setSelectedProfile] = useState<Profile | null>(null)
   const [selectedList, setSelectedList] = useState<List | null>(null)
   const [step, setStep] = useState<Step>('picker')
@@ -166,7 +195,7 @@ function AddItemPage() {
     selectedList?.slug ?? '',
   )
 
-  // ── Auto-select when only one profile / one list ──────────────────────────
+  // ── Auto-select single profile / single list ──────────────────────────────
 
   useEffect(() => {
     if (profiles.length === 1 && !selectedProfile) {
@@ -175,52 +204,92 @@ function AddItemPage() {
   }, [profiles, selectedProfile])
 
   useEffect(() => {
-    if (
-      lists.length === 1 &&
-      selectedProfile &&
-      !selectedList
-    ) {
+    if (lists.length === 1 && selectedProfile && !selectedList) {
       setSelectedList(lists[0])
     }
   }, [lists, selectedProfile, selectedList])
 
-  // Auto-advance to confirm when both profile & list are selected
   useEffect(() => {
     if (selectedProfile && selectedList && step === 'picker') {
       setStep('confirm')
     }
   }, [selectedProfile, selectedList, step])
 
-  // ── Scraper ───────────────────────────────────────────────────────────────
+  // ── Scraper + image upload ────────────────────────────────────────────────
 
   useEffect(() => {
     if (!rawUrl || scrapedRef.current) return
     scrapedRef.current = true
     setScraping(true)
 
-    scrapeProductFromUrl(rawUrl).then((result) => {
+    scrapeProductFromUrl(rawUrl).then(async (result) => {
       setScraping(false)
+
       if (!result.success || !result.product) {
         setScrapeError(true)
         return
       }
+
       const p = result.product
-      // Merge: scraped data wins, fall back to query params
-      setPreview({
-        name: p.name ?? rawName,
-        image:
-          p.imageUrl ??
-          (p.imageId
-            ? getImageVariantUrl({ imageId: p.imageId, context: 'list-item' })
-            : null) ??
-          rawImage,
-        shop: p.shop ?? rawUrl,
-        brand: p.brand,
-        size: p.size,
-        colour: p.colour,
-        notes: p.notes,
-        price: p.price,
-      })
+
+      if (p.imageId) {
+        // Already in Cloudflare+Supabase — use directly
+        setPreview((prev) => ({
+          ...prev,
+          name: p.name ?? prev.name,
+          displayImage: getImageVariantUrl({ imageId: p.imageId!, context: 'list-item' }),
+          imageId: p.imageId!,
+          pendingImageUrl: null,
+          shop: p.shop ?? prev.shop,
+          brand: p.brand,
+          size: p.size,
+          colour: p.colour,
+          notes: p.notes,
+          price: p.price,
+        }))
+      } else if (p.imageUrl) {
+        // External URL — show immediately as preview, upload in background
+        setPreview((prev) => ({
+          ...prev,
+          name: p.name ?? prev.name,
+          displayImage: p.imageUrl,
+          imageId: null,
+          pendingImageUrl: p.imageUrl,
+          shop: p.shop ?? prev.shop,
+          brand: p.brand,
+          size: p.size,
+          colour: p.colour,
+          notes: p.notes,
+          price: p.price,
+        }))
+
+        // Background upload to CF via server
+        setUploadingImage(true)
+        uploadImageFromUrl(p.imageUrl).then((uploadedId) => {
+          setUploadingImage(false)
+          if (uploadedId) {
+            setPreview((prev) => ({
+              ...prev,
+              displayImage: getImageVariantUrl({ imageId: uploadedId, context: 'list-item' }) ?? prev.displayImage,
+              imageId: uploadedId,
+              pendingImageUrl: null,
+            }))
+          }
+          // If upload failed, imageId stays null — item saves without image
+        })
+      } else {
+        // No image from scraper
+        setPreview((prev) => ({
+          ...prev,
+          name: p.name ?? prev.name,
+          shop: p.shop ?? prev.shop,
+          brand: p.brand,
+          size: p.size,
+          colour: p.colour,
+          notes: p.notes,
+          price: p.price,
+        }))
+      }
     })
   }, [rawUrl]) // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -231,9 +300,7 @@ function AddItemPage() {
       setDuplicate(null)
       return
     }
-    const found = existingItems.find(
-      (item) => item.shop && item.shop === rawUrl,
-    )
+    const found = existingItems.find((item) => item.shop && item.shop === rawUrl)
     setDuplicate(found ?? null)
   }, [existingItems, rawUrl])
 
@@ -243,6 +310,9 @@ function AddItemPage() {
     if (!selectedProfile || !selectedList) return
     setAdding(true)
 
+    // If image is still uploading, wait briefly — but don't block the user
+    // imageId will be whatever we have at this point (null = no image, which is fine)
+
     try {
       const result = await createListItem({
         name: preview.name ?? 'New item',
@@ -251,7 +321,7 @@ function AddItemPage() {
         size: preview.size ?? undefined,
         colour: preview.colour ?? undefined,
         notes: preview.notes ?? undefined,
-        imageId: undefined, // image upload handled separately if needed
+        imageId: preview.imageId ?? undefined,
       })
 
       if (!result.success) {
@@ -266,6 +336,18 @@ function AddItemPage() {
       setAdding(false)
     }
   }
+
+  // ── Image status label ────────────────────────────────────────────────────
+
+  const imageStatusLabel = () => {
+    if (scraping) return { text: 'Verifying details…', icon: true }
+    if (uploadingImage) return { text: 'Saving image…', icon: true }
+    if (scrapeError) return { text: 'Using basic details', icon: false }
+    if (!rawUrl) return null
+    return { text: 'Details verified', icon: false, check: true }
+  }
+
+  const imgStatus = imageStatusLabel()
 
   // ─── Render ───────────────────────────────────────────────────────────────
 
@@ -286,11 +368,15 @@ function AddItemPage() {
           <div className="rounded-xl border border-border/60 bg-card p-4 mb-5 flex gap-4 items-start">
             {/* Image */}
             <div className="shrink-0 w-16 h-16 rounded-lg bg-secondary overflow-hidden flex items-center justify-center">
-              {preview.image ? (
+              {preview.displayImage ? (
                 <img
-                  src={preview.image}
+                  src={preview.displayImage}
                   alt={preview.name ?? 'Product'}
                   className="w-full h-full object-contain"
+                  onError={(e) => {
+                    // If external image fails to load, hide it
+                    ;(e.target as HTMLImageElement).style.display = 'none'
+                  }}
                 />
               ) : scraping ? (
                 <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
@@ -324,37 +410,31 @@ function AddItemPage() {
                 </>
               )}
 
-              {/* Scraper status */}
-              <div className="mt-1.5 flex items-center gap-1">
-                {scraping ? (
+              {/* Status */}
+              {imgStatus && (
+                <div className="mt-1.5 flex items-center gap-1">
                   <span className="text-[10px] text-muted-foreground flex items-center gap-1">
-                    <Loader2 className="h-2.5 w-2.5 animate-spin" />
-                    Verifying details…
+                    {imgStatus.icon && (
+                      <Loader2 className="h-2.5 w-2.5 animate-spin" />
+                    )}
+                    {imgStatus.check && (
+                      <CheckCircle2 className="h-2.5 w-2.5 text-green-500" />
+                    )}
+                    {imgStatus.text}
                   </span>
-                ) : scrapeError ? (
-                  <span className="text-[10px] text-muted-foreground">
-                    Using basic details
-                  </span>
-                ) : (
-                  <span className="text-[10px] text-muted-foreground flex items-center gap-1">
-                    <CheckCircle2 className="h-2.5 w-2.5 text-green-500" />
-                    Details verified
-                  </span>
-                )}
-              </div>
+                </div>
+              )}
 
               {/* Shop link */}
-              {rawUrl && (
-                <a
-                  href={rawUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-[10px] text-muted-foreground hover:text-foreground flex items-center gap-0.5 mt-1 underline underline-offset-2"
-                >
-                  View original
-                  <ExternalLink className="h-2.5 w-2.5" />
-                </a>
-              )}
+              <a
+                href={rawUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[10px] text-muted-foreground hover:text-foreground flex items-center gap-0.5 mt-1 underline underline-offset-2"
+              >
+                View original
+                <ExternalLink className="h-2.5 w-2.5" />
+              </a>
             </div>
           </div>
         )}
@@ -367,10 +447,9 @@ function AddItemPage() {
           </div>
         )}
 
-        {/* ── Step: Picker ─────────────────────────────────────────────── */}
+        {/* ── Step: Picker ──────────────────────────────────────────────── */}
         {step === 'picker' && (
           <div className="space-y-4">
-            {/* Profile picker — only shown if multiple */}
             {profiles.length > 1 && (
               <div>
                 <p className="text-xs font-medium text-muted-foreground mb-2 uppercase tracking-wide">
@@ -401,7 +480,6 @@ function AddItemPage() {
               </div>
             )}
 
-            {/* List picker — shown once profile is selected */}
             {selectedProfile && lists.length > 1 && (
               <div>
                 <p className="text-xs font-medium text-muted-foreground mb-2 uppercase tracking-wide">
@@ -422,9 +500,7 @@ function AddItemPage() {
                       <span>{list.name}</span>
                       <div className="flex items-center gap-2">
                         <Badge
-                          variant={
-                            list.status === 'published' ? 'tangerine' : 'harbor'
-                          }
+                          variant={list.status === 'published' ? 'tangerine' : 'harbor'}
                           className="text-[10px] px-2"
                         >
                           {list.status}
@@ -439,7 +515,6 @@ function AddItemPage() {
               </div>
             )}
 
-            {/* Loading state while lists fetch */}
             {selectedProfile && !lists.length && (
               <div className="flex items-center justify-center py-8 gap-2 text-sm text-muted-foreground">
                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -452,7 +527,6 @@ function AddItemPage() {
         {/* ── Step: Confirm ─────────────────────────────────────────────── */}
         {step === 'confirm' && selectedProfile && selectedList && (
           <div className="space-y-4">
-            {/* Target summary */}
             <div className="rounded-lg bg-secondary/60 px-4 py-3 flex items-center justify-between text-sm">
               <div>
                 <span className="text-muted-foreground text-xs">Adding to </span>
@@ -475,7 +549,6 @@ function AddItemPage() {
               </button>
             </div>
 
-            {/* Duplicate warning */}
             {duplicate && (
               <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 flex gap-2 text-sm">
                 <AlertCircle className="h-4 w-4 text-amber-500 shrink-0 mt-0.5" />
@@ -489,7 +562,6 @@ function AddItemPage() {
               </div>
             )}
 
-            {/* Add button */}
             <Button
               className="w-full"
               size="lg"
@@ -508,9 +580,11 @@ function AddItemPage() {
               )}
             </Button>
 
-            {scraping && (
+            {(scraping || uploadingImage) && (
               <p className="text-center text-xs text-muted-foreground">
-                Still verifying product details — you can add now or wait a moment.
+                {uploadingImage
+                  ? 'Saving image in background — you can add now.'
+                  : 'Still verifying product details — you can add now or wait.'}
               </p>
             )}
           </div>
@@ -533,7 +607,6 @@ function AddItemPage() {
             </div>
             <div className="flex flex-col gap-2 pt-2">
               <Button
-                asChild
                 variant="outline"
                 onClick={() =>
                   navigate({
@@ -545,7 +618,7 @@ function AddItemPage() {
                   })
                 }
               >
-                <span>View list</span>
+                View list
               </Button>
               {returnTo && (
                 <Button variant="ghost" asChild>
@@ -556,7 +629,6 @@ function AddItemPage() {
           </div>
         )}
 
-        {/* Bottom nav for non-success steps */}
         {step !== 'success' && (
           <div className="mt-6 text-center">
             <button
