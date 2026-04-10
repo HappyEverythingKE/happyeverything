@@ -113,7 +113,8 @@ interface ItemPreview {
 function AddItemPage() {
   const search = Route.useSearch()
   const navigate = useNavigate()
-  const // Resolve name from either ?name= or ?title= (PWA share target)
+
+  // Resolve name from either ?name= or ?title= (PWA share target)
   const rawName = search.name ?? search.title ?? null
   const rawUrl = search.url ?? null
   const rawImage = search.image ?? null
