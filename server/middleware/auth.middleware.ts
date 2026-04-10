@@ -75,7 +75,6 @@ export const supabaseMiddleware = (): MiddlewareHandler => {
   maxAge: COOKIE_MAX_AGE,
   domain: '.myhappyeverything.com', // 👈 add this line
 })
-              }),
             )
           })
         },
