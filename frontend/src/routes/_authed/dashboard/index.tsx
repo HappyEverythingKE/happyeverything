@@ -21,6 +21,23 @@ export const Route = createFileRoute('/_authed/dashboard/')({
   component: RouteComponent,
 })
 
+import { createFileRoute, Link, redirect } from '@tanstack/react-router'
+
+export const Route = createFileRoute('/_authed/dashboard/')({
+  loader: async ({ context }) => {
+    const profiles = await context.queryClient.ensureQueryData(
+      allProfilesQueryOptions,
+    )
+    if (profiles.length === 1) {
+      throw redirect({
+        to: '/dashboard/$profileSlug',
+        params: { profileSlug: profiles[0].slug },
+      })
+    }
+  },
+  component: RouteComponent,
+})
+
 function RouteComponent() {
   return (
     <div className="relative overflow-hidden">
