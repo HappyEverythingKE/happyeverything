@@ -118,11 +118,14 @@ export function Header({ isAuthenticated }: { isAuthenticated: boolean }) {
             className="overflow-hidden px-[5%] lg:flex lg:items-center lg:px-0 lg:[--height-closed:auto] lg:[--height-open:auto]"
           >
             <div className="mt-6 flex flex-col items-center gap-4 lg:ml-4 lg:mt-0 lg:flex-row">
-              <Button asChild variant="link">
-  
+             <Button asChild variant="link">
+  <a
     href="https://blog.myhappyeverything.com/"
     target="_blank"
-    className={cn(isMobileMenuOpen && '-mb-4', 'py-3 text-center lg:px-1 lg:py-2')}
+    className={cn(
+      isMobileMenuOpen && '-mb-4',
+      'py-3 text-center lg:px-1 lg:py-2',
+    )}
   >
     May Picks
   </a>
