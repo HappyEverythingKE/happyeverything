@@ -97,69 +97,76 @@ function RouteComponent() {
   return (
     <div className="flex flex-col gap-6 p-8">
       {/* List header */}
-      <div className="mb-4">
-        {/* Title + description */}
-        <div className="mb-4">
-          <h1 className="text-2xl font-semibold tracking-tight">{list.name}</h1>
-          {list.description && (
-            <p className="text-muted-foreground mt-1 max-w-xl text-sm leading-relaxed">
-              {list.description}
-            </p>
-          )}
-        </div>
+      <div className="animate-in fade-in slide-in-from-top-2 duration-500 mb-2 rounded-xl bg-gradient-to-br from-secondary via-background to-background px-6 py-6 border border-border/60">
 
-        {/* Badges + action buttons on the same row */}
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          {/* Status badges */}
-          <div className="flex flex-wrap items-center gap-2">
-            <Badge variant="harbor" className="px-3 text-xs">
-              {list.listType.name.toUpperCase()}
-            </Badge>
-            <Badge
-              variant={
-                list.status === 'published'
-                  ? 'tangerine'
-                  : list.status === 'draft'
-                    ? 'coral'
-                    : 'harbor'
-              }
-              className="px-3 text-xs"
-            >
-              {list.status.toUpperCase()}
-            </Badge>
-            {list.status === 'published' ? (
-              <Badge
-                variant={list.isPrivate ? 'blush' : 'dusk'}
-                className="px-3 text-xs"
-              >
-                {list.isPrivate ? 'PRIVATE' : 'PUBLIC'}
-              </Badge>
-            ) : (
-              <Badge variant="coral" className="px-3 text-xs">
-                NOT PUBLISHED
-              </Badge>
+        {/* Title + actions row */}
+        <div className="flex items-start justify-between gap-4 mb-3">
+          <div className="min-w-0">
+            <h1 className="font-serif text-2xl md:text-3xl leading-snug text-foreground">
+              {list.name}
+            </h1>
+            {list.description && (
+              <p className="text-muted-foreground mt-1.5 text-sm leading-relaxed max-w-lg">
+                {list.description}
+              </p>
             )}
           </div>
 
-          {/* Action buttons */}
-          <div className="flex items-center gap-2">
+          {/* Action buttons — top right */}
+          <div className="flex items-center gap-2 shrink-0 pt-0.5">
             <Button
               size="icon"
               variant="outline"
-              className="border-dark-tangerine hover:bg-secondary hover:border-dark-tangerine rounded-md bg-transparent"
+              className="border-dark-tangerine hover:bg-secondary hover:border-dark-tangerine rounded-lg bg-transparent transition-transform hover:scale-105"
               onClick={() => setIsDialogOpen(true)}
+              title="Share list"
             >
               <Share2 className="text-dark-tangerine h-4 w-4" />
             </Button>
             <Button
               size="icon"
               variant="outline"
-              className="border-dark-tangerine hover:bg-secondary hover:border-dark-tangerine rounded-md bg-transparent"
+              className="border-dark-tangerine hover:bg-secondary hover:border-dark-tangerine rounded-lg bg-transparent transition-transform hover:scale-105"
               onClick={() => setIsSheetOpen(true)}
+              title="Edit list settings"
             >
               <Settings className="text-dark-tangerine h-4 w-4" />
             </Button>
           </div>
+        </div>
+
+        {/* Divider */}
+        <div className="h-px bg-border/60 mb-3" />
+
+        {/* Status badges */}
+        <div className="flex flex-wrap items-center gap-2">
+          <Badge variant="harbor" className="px-3 text-xs">
+            {list.listType.name.toUpperCase()}
+          </Badge>
+          <Badge
+            variant={
+              list.status === 'published'
+                ? 'tangerine'
+                : list.status === 'draft'
+                  ? 'coral'
+                  : 'harbor'
+            }
+            className="px-3 text-xs"
+          >
+            {list.status.toUpperCase()}
+          </Badge>
+          {list.status === 'published' ? (
+            <Badge
+              variant={list.isPrivate ? 'blush' : 'dusk'}
+              className="px-3 text-xs"
+            >
+              {list.isPrivate ? 'PRIVATE' : 'PUBLIC'}
+            </Badge>
+          ) : (
+            <Badge variant="coral" className="px-3 text-xs">
+              NOT PUBLISHED
+            </Badge>
+          )}
         </div>
       </div>
 
