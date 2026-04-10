@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link, useNavigate } from '@tanstack/react-router'
+import { useNavigate } from '@tanstack/react-router'
 
 import { motion, useScroll, useTransform } from 'motion/react'
 import { useMediaQuery } from 'usehooks-ts'
