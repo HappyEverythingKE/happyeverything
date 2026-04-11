@@ -211,7 +211,7 @@ function RouteComponent() {
           profileSlug={profileSlug}
           list={list}
           listItemImageIds={(listItems ?? [])
-            .filter((i) => i.status === 'active' && i.imageId)
+            .filter((i) => i.imageId)
             .sort((a, b) => (b.topPick ? 1 : 0) - (a.topPick ? 1 : 0))
             .slice(0, 4)
             .map((i) => i.imageId!)}
