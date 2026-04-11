@@ -222,98 +222,68 @@ async function generateShareImage(
   const rand = (min: number, max: number) => min + rng() * (max - min)
   const randSign = () => (rng() > 0.5 ? 1 : -1)
 
-  const innerW = W - PAD * 2
+  const innerW = W - PAD * 2 // still used by CTA/URL sections below
 
   // Rotation bounds (radians) — ~0.6° to 3.5°
   const MIN_ROT = 0.01
   const MAX_ROT = 0.06
+
+  // The centre of the image area — all card anchors orbit this point
+  const areaCX = W / 2
+  const areaCY = imgAreaTop + imgAreaH / 2
 
   if (validImgs.length === 0) {
     ctx.fillStyle = '#f0e8e0'
     roundRect(ctx, PAD, imgAreaTop, innerW, imgAreaH, cornerR)
     ctx.fill()
   } else if (validImgs.length === 1) {
-    const w = rand(500, 680)
-    const h = rand(480, 640)
     drawCard(
       validImgs[0],
-      W / 2,
-      imgAreaTop + imgAreaH / 2,
-      w,
-      h,
+      areaCX,
+      areaCY,
+      rand(500, 700),
+      rand(480, 660),
       rand(MIN_ROT, MAX_ROT) * randSign(),
     )
   } else if (validImgs.length === 2) {
-    // Two cards offset diagonally, overlapping in the middle
-    const w0 = rand(440, 600), h0 = rand(440, 600)
-    const w1 = rand(380, 520), h1 = rand(380, 560)
-    drawCard(
-      validImgs[0],
-      PAD + w0 * 0.42,
-      imgAreaTop + h0 * 0.46,
-      w0, h0,
-      rand(MIN_ROT, MAX_ROT) * -1,
-    )
-    drawCard(
-      validImgs[1],
-      W - PAD - w1 * 0.38,
-      imgAreaTop + imgAreaH - h1 * 0.44,
-      w1, h1,
-      rand(MIN_ROT, MAX_ROT),
-    )
+    // Anchor both near centre, offset by ~¼ card width so edges cross
+    const w0 = rand(460, 620), h0 = rand(460, 620)
+    const w1 = rand(420, 580), h1 = rand(420, 580)
+    // card 0: shifted top-left of centre
+    drawCard(validImgs[0], areaCX - w0 * 0.25 + rand(-30, 30), areaCY - h0 * 0.22 + rand(-30, 30), w0, h0, rand(MIN_ROT, MAX_ROT) * -1)
+    // card 1: shifted bottom-right of centre — overlaps card 0
+    drawCard(validImgs[1], areaCX + w1 * 0.25 + rand(-30, 30), areaCY + h1 * 0.22 + rand(-30, 30), w1, h1, rand(MIN_ROT, MAX_ROT))
   } else if (validImgs.length === 3) {
-    const w0 = rand(380, 600), h0 = rand(380, 640)
-    const w1 = rand(320, 540), h1 = rand(320, 600)
-    const w2 = rand(360, 580), h2 = rand(340, 580)
-    drawCard(
-      validImgs[0],
-      PAD + w0 * 0.44,
-      imgAreaTop + h0 * 0.44 + rand(-20, 20),
-      w0, h0,
-      rand(MIN_ROT, MAX_ROT) * -1,
-    )
-    drawCard(
-      validImgs[1],
-      W - PAD - w1 * 0.38,
-      imgAreaTop + h1 * 0.38 + rand(-10, 30),
-      w1, h1,
-      rand(MIN_ROT, MAX_ROT),
-    )
-    drawCard(
-      validImgs[2],
-      W / 2 + rand(-60, 60),
-      imgAreaTop + imgAreaH - h2 * 0.40,
-      w2, h2,
-      rand(MIN_ROT, MAX_ROT) * randSign(),
-    )
+    const w0 = rand(460, 620), h0 = rand(460, 620)
+    const w1 = rand(380, 540), h1 = rand(380, 540)
+    const w2 = rand(400, 560), h2 = rand(400, 560)
+    // Triangle of centres — each offset ~⅓ card from the middle
+    drawCard(validImgs[0], areaCX - w0 * 0.28 + rand(-20, 20), areaCY - h0 * 0.20 + rand(-20, 20), w0, h0, rand(MIN_ROT, MAX_ROT) * -1)
+    drawCard(validImgs[1], areaCX + w1 * 0.30 + rand(-20, 20), areaCY - h1 * 0.18 + rand(-20, 20), w1, h1, rand(MIN_ROT, MAX_ROT))
+    drawCard(validImgs[2], areaCX + rand(-40, 40),              areaCY + h2 * 0.32 + rand(-20, 20), w2, h2, rand(MIN_ROT, MAX_ROT) * randSign())
   } else {
-    // 4 cards — scattered collage
-    const MIN_W = 320, MAX_W = 600
-    const MIN_H = 320, MAX_H = 680
+    // 4 cards — two rows, each pair overlapping horizontally AND the rows overlap vertically
+    const w0 = rand(460, 600), h0 = rand(440, 580)
+    const w1 = rand(400, 560), h1 = rand(400, 560)
+    const w2 = rand(420, 580), h2 = rand(420, 580)
+    const w3 = rand(440, 600), h3 = rand(440, 600)
 
-    const sizes: [number, number][] = [
-      [rand(440, MAX_W),      rand(440, MAX_H - 60)],
-      [rand(MIN_W, 460),      rand(MIN_H, 500)],
-      [rand(MIN_W + 40, 500), rand(MIN_H + 40, 520)],
-      [rand(400, MAX_W - 40), rand(400, MAX_H)],
-    ]
-    const anchors: [number, number][] = [
-      [PAD + sizes[0][0] * 0.40,       imgAreaTop + sizes[0][1] * 0.40],
-      [W - PAD - sizes[1][0] * 0.36,  imgAreaTop + sizes[1][1] * 0.36 + rand(0, 40)],
-      [PAD + sizes[2][0] * 0.38,       imgAreaTop + imgAreaH - sizes[2][1] * 0.38 + rand(-20, 0)],
-      [W - PAD - sizes[3][0] * 0.42,  imgAreaTop + imgAreaH - sizes[3][1] * 0.44],
-    ]
+    // Row offsets — rows sit close enough that top-row bottoms cross bottom-row tops
+    const rowGap = rand(40, 80) // vertical overlap amount (positive = overlap)
+    const topRowCY  = areaCY - h0 * 0.28
+    const botRowCY  = areaCY + h2 * 0.28 - rowGap
 
-    anchors.forEach(([cx, cy], i) => {
-      drawCard(
-        validImgs[i],
-        cx + rand(-24, 24),
-        cy + rand(-24, 24),
-        sizes[i][0],
-        sizes[i][1],
-        rand(MIN_ROT, MAX_ROT) * (i % 2 === 0 ? -1 : 1),
-      )
-    })
+    // Within each row, cards shifted left/right of centre so they overlap each other
+    const hShift0 = w0 * 0.28
+    const hShift1 = w1 * 0.28
+    const hShift2 = w2 * 0.28
+    const hShift3 = w3 * 0.28
+
+    // Draw back-to-front: 0 and 2 behind, 1 and 3 on top
+    drawCard(validImgs[0], areaCX - hShift0 + rand(-20, 20), topRowCY + rand(-20, 20), w0, h0, rand(MIN_ROT, MAX_ROT) * -1)
+    drawCard(validImgs[2], areaCX - hShift2 + rand(-20, 20), botRowCY + rand(-20, 20), w2, h2, rand(MIN_ROT, MAX_ROT) * -1)
+    drawCard(validImgs[1], areaCX + hShift1 + rand(-20, 20), topRowCY + rand(-20, 20), w1, h1, rand(MIN_ROT, MAX_ROT))
+    drawCard(validImgs[3], areaCX + hShift3 + rand(-20, 20), botRowCY + rand(-20, 20), w3, h3, rand(MIN_ROT, MAX_ROT))
   }
 
   // ── CTA ───────────────────────────────────────────────
