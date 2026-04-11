@@ -345,7 +345,7 @@ export function ShareListForm({
     } else {
       // fallback: copy link
       await handleCopy()
-      toast.info('Link copied! Your browser doesn't support the share sheet.')
+      toast.info("Link copied! Your browser doesn't support the share sheet.")
     }
   }
 
