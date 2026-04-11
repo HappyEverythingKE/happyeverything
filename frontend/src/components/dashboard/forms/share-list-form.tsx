@@ -127,14 +127,14 @@ async function generateShareImage(
   }
   lines.push(cur)
 
-  const titleTopY = logoY + logoRenderH + 80
+  const titleTopY = logoY + logoRenderH + 120
   const lineH = titleFontSize * 1.18
 
   lines.forEach((line, i) => {
     ctx.fillText(line, W / 2, titleTopY + i * lineH)
   })
 
-  const afterTitle = titleTopY + lines.length * lineH + 80
+  const afterTitle = titleTopY + lines.length * lineH + 40
 
   // ── images ────────────────────────────────────────────
   const photoIds = itemImageIds.slice(0, 4)
@@ -253,7 +253,7 @@ async function generateShareImage(
   }
 
   // ── CTA ───────────────────────────────────────────────
-  const ctaY = 1420
+  const ctaY = 1550
   const ctaW = 580
   const ctaH = 88
   const ctaX = (W - ctaW) / 2
