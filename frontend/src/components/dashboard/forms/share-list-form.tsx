@@ -79,7 +79,7 @@ async function generateShareImage(
   // Render logo centred at top
   const logoNativeW = 453
   const logoNativeH = 103
-  const logoRenderW = 520 // scale up nicely for 1080px wide canvas
+  const logoRenderW = 340 // sized to leave room for title
   const logoRenderH = Math.round((logoNativeH / logoNativeW) * logoRenderW)
   const logoX = (W - logoRenderW) / 2
   const logoY = PAD
@@ -97,7 +97,7 @@ async function generateShareImage(
   // ── list title (centred, below logo) ────────────────────────────────────────
   // Format: "My [List Name] List"
   const titleText = `My ${listName} List`
-  const titleFontSize = 108
+  const titleFontSize = 92
   ctx.fillStyle = '#041125'
   ctx.font = `700 ${titleFontSize}px "Noto Serif", Georgia, serif`
   ctx.textAlign = 'center'
@@ -118,8 +118,8 @@ async function generateShareImage(
   }
   titleLines.push(titleCur)
 
-  const titleTopY = logoY + logoRenderH + 60
-  const titleLineH = titleFontSize * 1.15
+  const titleTopY = logoY + logoRenderH + 44
+  const titleLineH = titleFontSize * 1.18
   titleLines.forEach((line, i) => {
     ctx.fillText(line, W / 2, titleTopY + i * titleLineH)
   })
@@ -154,10 +154,11 @@ async function generateShareImage(
     ctx.translate(-(x + w / 2), -(y + h / 2))
 
     ctx.shadowColor = 'rgba(4,17,37,0.12)'
-    ctx.shadowBlur = 40
-    ctx.shadowOffsetY = 10
+    ctx.shadowBlur = 48
+    ctx.shadowOffsetY = 14
 
-    ctx.fillStyle = '#f9f2ec'
+    
+    ctx.fillStyle = '#ffffff'
     roundRect(ctx, x, y, w, h, cornerR)
     ctx.fill()
     ctx.shadowColor = 'transparent'
@@ -165,7 +166,7 @@ async function generateShareImage(
     ctx.save()
     roundRect(ctx, x, y, w, h, cornerR)
     ctx.clip()
-    const scale = Math.max(w / img.naturalWidth, h / img.naturalHeight)
+    const scale = Math.min(w / img.naturalWidth, h / img.naturalHeight)
     const dw = img.naturalWidth * scale
     const dh = img.naturalHeight * scale
     ctx.drawImage(img, x + (w - dw) / 2, y + (h - dh) / 2, dw, dh)
@@ -180,31 +181,32 @@ async function generateShareImage(
   }
 
   const innerW = W - PAD * 2
+  // Cards are slightly oversized relative to their grid slot so they overlap
+  const OL = 28
 
   if (validImgs.length === 0) {
     drawPlaceholder(PAD, imgAreaTop, innerW, imgAreaH)
   } else if (validImgs.length === 1) {
     drawCard(validImgs[0], PAD, imgAreaTop, innerW, imgAreaH)
   } else if (validImgs.length === 2) {
-    const cardW = (innerW - gap) / 2
-    drawCard(validImgs[0], PAD, imgAreaTop, cardW, imgAreaH, -0.025)
-    drawCard(validImgs[1], PAD + cardW + gap, imgAreaTop, cardW, imgAreaH, 0.02)
+    const cardW = (innerW - gap) / 2 + OL
+    drawCard(validImgs[0], PAD - OL / 2, imgAreaTop + 20, cardW, imgAreaH - 20, -0.04)
+    drawCard(validImgs[1], PAD + innerW / 2 - OL / 2, imgAreaTop, cardW, imgAreaH - 20, 0.035)
   } else if (validImgs.length === 3) {
-    // top row: 2, bottom row: 1 wide
-    const topH = imgAreaH * 0.55
-    const botH = imgAreaH - topH - gap
-    const halfW = (innerW - gap) / 2
-    drawCard(validImgs[0], PAD, imgAreaTop, halfW, topH, -0.02)
-    drawCard(validImgs[1], PAD + halfW + gap, imgAreaTop, halfW, topH, 0.02)
-    drawCard(validImgs[2], PAD, imgAreaTop + topH + gap, innerW, botH)
+    const topH = imgAreaH * 0.52
+    const botH = imgAreaH - topH - gap + OL
+    const topW = innerW * 0.58
+    drawCard(validImgs[0], PAD - 10, imgAreaTop + 10, topW, topH, -0.035)
+    drawCard(validImgs[1], PAD + innerW - topW + 10, imgAreaTop, topW, topH - 10, 0.03)
+    drawCard(validImgs[2], PAD + 20, imgAreaTop + topH + gap - OL, innerW - 20, botH, -0.01)
   } else {
-    // 4-up: 2×2 grid with slight rotation
-    const halfW = (innerW - gap) / 2
-    const halfH = (imgAreaH - gap) / 2
-    drawCard(validImgs[0], PAD, imgAreaTop, halfW, halfH, -0.02)
-    drawCard(validImgs[1], PAD + halfW + gap, imgAreaTop, halfW, halfH, 0.02)
-    drawCard(validImgs[2], PAD, imgAreaTop + halfH + gap, halfW, halfH, 0.015)
-    drawCard(validImgs[3], PAD + halfW + gap, imgAreaTop + halfH + gap, halfW, halfH, -0.015)
+    // 4-up: two rows, cards overlap neighbours for an editorial, slightly chaotic feel
+    const cardW = (innerW - gap) / 2 + OL
+    const cardH = (imgAreaH - gap) / 2 + OL
+    drawCard(validImgs[0], PAD - OL / 2,           imgAreaTop,                          cardW, cardH, -0.038)
+    drawCard(validImgs[1], PAD + innerW / 2 - OL / 2, imgAreaTop + 16,                 cardW, cardH,  0.03)
+    drawCard(validImgs[2], PAD - OL / 2 + 10,      imgAreaTop + imgAreaH / 2 - OL / 2, cardW, cardH,  0.025)
+    drawCard(validImgs[3], PAD + innerW / 2 - OL / 2 - 10, imgAreaTop + imgAreaH / 2 - OL / 2 + 12, cardW, cardH, -0.03)
   }
 
   // ── CTA pill ─────────────────────────────────────────────────────────────────
