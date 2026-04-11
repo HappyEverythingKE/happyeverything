@@ -246,38 +246,35 @@ async function generateShareImage(
       rand(MIN_ROT, MAX_ROT) * randSign(),
     )
   } else if (validImgs.length === 2) {
-    // Anchor both near centre, offset by ~¼ card width so edges cross
-    const w0 = rand(460, 620), h0 = rand(460, 620)
-    const w1 = rand(420, 580), h1 = rand(420, 580)
-    // card 0: shifted top-left of centre
-    drawCard(validImgs[0], areaCX - w0 * 0.25 + rand(-30, 30), areaCY - h0 * 0.22 + rand(-30, 30), w0, h0, rand(MIN_ROT, MAX_ROT) * -1)
-    // card 1: shifted bottom-right of centre — overlaps card 0
-    drawCard(validImgs[1], areaCX + w1 * 0.25 + rand(-30, 30), areaCY + h1 * 0.22 + rand(-30, 30), w1, h1, rand(MIN_ROT, MAX_ROT))
+    const w0 = rand(460, 600), h0 = rand(460, 580)
+    const w1 = rand(420, 560), h1 = rand(420, 560)
+    // Shift each card ~55% of its half-width from centre — edges cross by ~10–15%
+    drawCard(validImgs[0], areaCX - w0 * 0.55 + rand(-20, 20), areaCY - h0 * 0.18 + rand(-30, 30), w0, h0, rand(MIN_ROT, MAX_ROT) * -1)
+    drawCard(validImgs[1], areaCX + w1 * 0.55 + rand(-20, 20), areaCY + h1 * 0.18 + rand(-30, 30), w1, h1, rand(MIN_ROT, MAX_ROT))
   } else if (validImgs.length === 3) {
-    const w0 = rand(460, 620), h0 = rand(460, 620)
-    const w1 = rand(380, 540), h1 = rand(380, 540)
-    const w2 = rand(400, 560), h2 = rand(400, 560)
-    // Triangle of centres — each offset ~⅓ card from the middle
-    drawCard(validImgs[0], areaCX - w0 * 0.28 + rand(-20, 20), areaCY - h0 * 0.20 + rand(-20, 20), w0, h0, rand(MIN_ROT, MAX_ROT) * -1)
-    drawCard(validImgs[1], areaCX + w1 * 0.30 + rand(-20, 20), areaCY - h1 * 0.18 + rand(-20, 20), w1, h1, rand(MIN_ROT, MAX_ROT))
-    drawCard(validImgs[2], areaCX + rand(-40, 40),              areaCY + h2 * 0.32 + rand(-20, 20), w2, h2, rand(MIN_ROT, MAX_ROT) * randSign())
+    const w0 = rand(440, 580), h0 = rand(440, 580)
+    const w1 = rand(380, 520), h1 = rand(380, 520)
+    const w2 = rand(400, 540), h2 = rand(400, 540)
+    // Triangle: top-left, top-right, bottom-centre — each shifted so only edges cross
+    drawCard(validImgs[0], areaCX - w0 * 0.52 + rand(-20, 20), areaCY - h0 * 0.28 + rand(-20, 20), w0, h0, rand(MIN_ROT, MAX_ROT) * -1)
+    drawCard(validImgs[1], areaCX + w1 * 0.52 + rand(-20, 20), areaCY - h1 * 0.22 + rand(-20, 20), w1, h1, rand(MIN_ROT, MAX_ROT))
+    drawCard(validImgs[2], areaCX + rand(-40, 40),              areaCY + h2 * 0.40 + rand(-20, 20), w2, h2, rand(MIN_ROT, MAX_ROT) * randSign())
   } else {
-    // 4 cards — two rows, each pair overlapping horizontally AND the rows overlap vertically
-    const w0 = rand(460, 600), h0 = rand(440, 580)
-    const w1 = rand(400, 560), h1 = rand(400, 560)
-    const w2 = rand(420, 580), h2 = rand(420, 580)
-    const w3 = rand(440, 600), h3 = rand(440, 600)
+    // 4 cards — two rows of two, spread wide so only inner edges cross
+    const w0 = rand(440, 560), h0 = rand(420, 540)
+    const w1 = rand(400, 520), h1 = rand(400, 520)
+    const w2 = rand(420, 540), h2 = rand(400, 520)
+    const w3 = rand(420, 560), h3 = rand(420, 560)
 
-    // Row offsets — rows sit close enough that top-row bottoms cross bottom-row tops
-    const rowGap = rand(40, 80) // vertical overlap amount (positive = overlap)
-    const topRowCY  = areaCY - h0 * 0.28
-    const botRowCY  = areaCY + h2 * 0.28 - rowGap
+    // Vertical: rows separated so they just clip each other (~15% of card height)
+    const topRowCY = areaCY - h0 * 0.46
+    const botRowCY = areaCY + h2 * 0.46
 
-    // Within each row, cards shifted left/right of centre so they overlap each other
-    const hShift0 = w0 * 0.28
-    const hShift1 = w1 * 0.28
-    const hShift2 = w2 * 0.28
-    const hShift3 = w3 * 0.28
+    // Horizontal: cards spread ~55% of half-width from centre so inner edges just cross
+    const hShift0 = w0 * 0.52
+    const hShift1 = w1 * 0.52
+    const hShift2 = w2 * 0.52
+    const hShift3 = w3 * 0.52
 
     // Draw back-to-front: 0 and 2 behind, 1 and 3 on top
     drawCard(validImgs[0], areaCX - hShift0 + rand(-20, 20), topRowCY + rand(-20, 20), w0, h0, rand(MIN_ROT, MAX_ROT) * -1)
