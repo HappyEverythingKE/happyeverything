@@ -3,7 +3,7 @@ import { useForm } from '@tanstack/react-form'
 
 import { useShareList, useUpdateListStatus } from '@/services/list.api'
 import { ListShareSchema, type List } from '@shared/types'
-import { CheckIcon, CopyIcon, LinkIcon, Share2Icon } from 'lucide-react'
+import { CheckIcon, CopyIcon, ImageIcon, LinkIcon, Share2Icon } from 'lucide-react'
 import { toast } from 'sonner'
 
 import logoUrl from '@/assets/logos/logo-primary.svg'
@@ -44,10 +44,6 @@ async function loadImgFromUrl(url: string): Promise<HTMLImageElement> {
   })
 }
 
-/**
- * Draws the Happy Everything share card onto an off-screen canvas and returns a Blob.
- * Format: 1080×1920 (standard stories format)
- */
 async function loadLocalSvg(src: string): Promise<HTMLImageElement> {
   const resp = await fetch(src)
   const text = await resp.text()
@@ -61,13 +57,38 @@ async function loadLocalSvg(src: string): Promise<HTMLImageElement> {
       res(img)
     }
     img.onerror = (e) => {
-  console.error('Image failed to load:', src, e)
-  rej(new Error(`Failed to load image: ${src}`))
-}
+      console.error('Image failed to load:', src, e)
+      rej(new Error(`Failed to load image: ${src}`))
+    }
     img.src = url
   })
 }
 
+function roundRect(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  w: number,
+  h: number,
+  r: number,
+) {
+  ctx.beginPath()
+  ctx.moveTo(x + r, y)
+  ctx.lineTo(x + w - r, y)
+  ctx.quadraticCurveTo(x + w, y, x + w, y + r)
+  ctx.lineTo(x + w, y + h - r)
+  ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h)
+  ctx.lineTo(x + r, y + h)
+  ctx.quadraticCurveTo(x, y + h, x, y + h - r)
+  ctx.lineTo(x, y + r)
+  ctx.quadraticCurveTo(x, y, x + r, y)
+  ctx.closePath()
+}
+
+/**
+ * Draws the Happy Everything share card onto an off-screen canvas and returns a Blob.
+ * Format: 1080×1920 (standard stories format)
+ */
 async function generateShareImage(
   listName: string,
   publicUrl: string,
@@ -144,28 +165,29 @@ async function generateShareImage(
   )
   const validImgs = imgs.filter(Boolean) as HTMLImageElement[]
 
-  const imgAreaTop = afterTitle
-  const imgAreaH = 1380 - afterTitle
-
-  const gap = 32
-  const cornerR = 32
+  const imgAreaTop = afterTitle + 20
+  const imgAreaBottom = 1460
+  const imgAreaH = imgAreaBottom - imgAreaTop
+  const cornerR = 28
 
   const drawCard = (
     img: HTMLImageElement,
-    x: number,
-    y: number,
+    cx: number,   // centre-x
+    cy: number,   // centre-y
     w: number,
     h: number,
     rotation = 0,
   ) => {
+    const x = cx - w / 2
+    const y = cy - h / 2
     ctx.save()
-    ctx.translate(x + w / 2, y + h / 2)
+    ctx.translate(cx, cy)
     ctx.rotate(rotation)
-    ctx.translate(-(x + w / 2), -(y + h / 2))
+    ctx.translate(-cx, -cy)
 
-    ctx.shadowColor = 'rgba(4,17,37,0.12)'
-    ctx.shadowBlur = 48
-    ctx.shadowOffsetY = 14
+    ctx.shadowColor = 'rgba(4,17,37,0.13)'
+    ctx.shadowBlur = 52
+    ctx.shadowOffsetY = 16
 
     ctx.fillStyle = '#ffffff'
     roundRect(ctx, x, y, w, h, cornerR)
@@ -176,80 +198,122 @@ async function generateShareImage(
     roundRect(ctx, x, y, w, h, cornerR)
     ctx.clip()
 
-    // ✅ inner padding (optional improvement)
+    const pad = 24
     const scale = Math.min(
-      (w - 40) / img.naturalWidth,
-      (h - 40) / img.naturalHeight
+      (w - pad * 2) / img.naturalWidth,
+      (h - pad * 2) / img.naturalHeight,
     )
-
     const dw = img.naturalWidth * scale
     const dh = img.naturalHeight * scale
-
-    ctx.drawImage(
-      img,
-      x + (w - dw) / 2,
-      y + (h - dh) / 2,
-      dw,
-      dh
-    )
+    ctx.drawImage(img, x + (w - dw) / 2, y + (h - dh) / 2, dw, dh)
 
     ctx.restore()
     ctx.restore()
   }
 
+  // Seeded RNG — deterministic layout per render, no jitter on re-renders
+  const rng = (() => {
+    let s = 42
+    return () => {
+      s = (s * 1664525 + 1013904223) & 0xffffffff
+      return (s >>> 0) / 0xffffffff
+    }
+  })()
+  const rand = (min: number, max: number) => min + rng() * (max - min)
+  const randSign = () => (rng() > 0.5 ? 1 : -1)
+
   const innerW = W - PAD * 2
+
+  // Rotation bounds (radians) — ~0.6° to 3.5°
+  const MIN_ROT = 0.01
+  const MAX_ROT = 0.06
 
   if (validImgs.length === 0) {
     ctx.fillStyle = '#f0e8e0'
     roundRect(ctx, PAD, imgAreaTop, innerW, imgAreaH, cornerR)
     ctx.fill()
   } else if (validImgs.length === 1) {
-    drawCard(validImgs[0], PAD, imgAreaTop, innerW, imgAreaH)
+    const w = rand(500, 680)
+    const h = rand(480, 640)
+    drawCard(
+      validImgs[0],
+      W / 2,
+      imgAreaTop + imgAreaH / 2,
+      w,
+      h,
+      rand(MIN_ROT, MAX_ROT) * randSign(),
+    )
   } else if (validImgs.length === 2) {
-    const w = (innerW - gap) / 2
-    drawCard(validImgs[0], PAD, imgAreaTop, w, imgAreaH - 20, -0.02)
-    drawCard(validImgs[1], PAD + w + gap, imgAreaTop + 10, w, imgAreaH - 20, 0.02)
-  } else if (validImgs.length === 3) {
-    const topH = imgAreaH * 0.55
-    drawCard(validImgs[0], PAD, imgAreaTop, innerW * 0.6, topH, -0.02)
-    drawCard(validImgs[1], PAD + innerW * 0.6 + gap, imgAreaTop, innerW * 0.4 - gap, topH * 0.6, 0.02)
-    drawCard(validImgs[2], PAD, imgAreaTop + topH + gap, innerW, imgAreaH - topH - gap, 0.01)
-  } else {
-    // ✅ editorial layout
-    const largeW = innerW * 0.58
-    const smallW = innerW - largeW - gap
-
-    const largeH = imgAreaH * 0.55
-    const smallH = imgAreaH - largeH - gap
-
-    drawCard(validImgs[0], PAD, imgAreaTop + 10, largeW, largeH, -0.02)
-
+    // Two cards offset diagonally, overlapping in the middle
+    const w0 = rand(440, 600), h0 = rand(440, 600)
+    const w1 = rand(380, 520), h1 = rand(380, 560)
+    drawCard(
+      validImgs[0],
+      PAD + w0 * 0.42,
+      imgAreaTop + h0 * 0.46,
+      w0, h0,
+      rand(MIN_ROT, MAX_ROT) * -1,
+    )
     drawCard(
       validImgs[1],
-      PAD + largeW + gap,
-      imgAreaTop,
-      smallW,
-      largeH * 0.6,
-      0.03
+      W - PAD - w1 * 0.38,
+      imgAreaTop + imgAreaH - h1 * 0.44,
+      w1, h1,
+      rand(MIN_ROT, MAX_ROT),
     )
-
+  } else if (validImgs.length === 3) {
+    const w0 = rand(380, 600), h0 = rand(380, 640)
+    const w1 = rand(320, 540), h1 = rand(320, 600)
+    const w2 = rand(360, 580), h2 = rand(340, 580)
+    drawCard(
+      validImgs[0],
+      PAD + w0 * 0.44,
+      imgAreaTop + h0 * 0.44 + rand(-20, 20),
+      w0, h0,
+      rand(MIN_ROT, MAX_ROT) * -1,
+    )
+    drawCard(
+      validImgs[1],
+      W - PAD - w1 * 0.38,
+      imgAreaTop + h1 * 0.38 + rand(-10, 30),
+      w1, h1,
+      rand(MIN_ROT, MAX_ROT),
+    )
     drawCard(
       validImgs[2],
-      PAD,
-      imgAreaTop + largeH + gap,
-      smallW,
-      smallH,
-      0.015
+      W / 2 + rand(-60, 60),
+      imgAreaTop + imgAreaH - h2 * 0.40,
+      w2, h2,
+      rand(MIN_ROT, MAX_ROT) * randSign(),
     )
+  } else {
+    // 4 cards — scattered collage
+    const MIN_W = 320, MAX_W = 600
+    const MIN_H = 320, MAX_H = 680
 
-    drawCard(
-      validImgs[3],
-      PAD + smallW + gap,
-      imgAreaTop + largeH + gap - 10,
-      largeW,
-      smallH + 10,
-      -0.02
-    )
+    const sizes: [number, number][] = [
+      [rand(440, MAX_W),      rand(440, MAX_H - 60)],
+      [rand(MIN_W, 460),      rand(MIN_H, 500)],
+      [rand(MIN_W + 40, 500), rand(MIN_H + 40, 520)],
+      [rand(400, MAX_W - 40), rand(400, MAX_H)],
+    ]
+    const anchors: [number, number][] = [
+      [PAD + sizes[0][0] * 0.40,       imgAreaTop + sizes[0][1] * 0.40],
+      [W - PAD - sizes[1][0] * 0.36,  imgAreaTop + sizes[1][1] * 0.36 + rand(0, 40)],
+      [PAD + sizes[2][0] * 0.38,       imgAreaTop + imgAreaH - sizes[2][1] * 0.38 + rand(-20, 0)],
+      [W - PAD - sizes[3][0] * 0.42,  imgAreaTop + imgAreaH - sizes[3][1] * 0.44],
+    ]
+
+    anchors.forEach(([cx, cy], i) => {
+      drawCard(
+        validImgs[i],
+        cx + rand(-24, 24),
+        cy + rand(-24, 24),
+        sizes[i][0],
+        sizes[i][1],
+        rand(MIN_ROT, MAX_ROT) * (i % 2 === 0 ? -1 : 1),
+      )
+    })
   }
 
   // ── CTA ───────────────────────────────────────────────
@@ -275,8 +339,6 @@ async function generateShareImage(
   ctx.fillStyle = '#041125'
   ctx.font = '700 38px "Noto Serif", Georgia, serif'
   ctx.textAlign = 'center'
-
-  // ✅ updated text
   ctx.fillText('See the full list', W / 2, ctaY + ctaH / 2 + 13)
 
   // ── URL ───────────────────────────────────────────────
@@ -305,26 +367,6 @@ async function generateShareImage(
     canvas.toBlob((b) => (b ? res(b) : rej()), 'image/png'),
   )
 }
-function roundRect(
-  ctx: CanvasRenderingContext2D,
-  x: number,
-  y: number,
-  w: number,
-  h: number,
-  r: number,
-) {
-  ctx.beginPath()
-  ctx.moveTo(x + r, y)
-  ctx.lineTo(x + w - r, y)
-  ctx.quadraticCurveTo(x + w, y, x + w, y + r)
-  ctx.lineTo(x + w, y + h - r)
-  ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h)
-  ctx.lineTo(x + r, y + h)
-  ctx.quadraticCurveTo(x, y + h, x, y + h - r)
-  ctx.lineTo(x, y + r)
-  ctx.quadraticCurveTo(x, y, x + r, y)
-  ctx.closePath()
-}
 
 // ─── types ────────────────────────────────────────────────────────────────────
 
@@ -347,7 +389,7 @@ export function ShareListForm({
   onFormCancel,
 }: ShareListFormProps) {
   const [copied, setCopied] = useState(false)
-  const [generatingStory, setGeneratingStory] = useState<'instagram' | 'facebook' | null>(null)
+  const [generatingStory, setGeneratingStory] = useState(false)
 
   const shareableListLink = `${import.meta.env.VITE_APP_BASE_URL}/${profileSlug}/${list.slug}`
 
@@ -397,9 +439,17 @@ export function ShareListForm({
     }
   }
 
-  // ── story share (Instagram / Facebook) ──────────────────────────────────────
-  const handleStoryShare = async (platform: 'instagram' | 'facebook') => {
-    setGeneratingStory(platform)
+  // ── story / share image ──────────────────────────────────────────────────────
+  const handleStoryShare = async () => {
+    // ✅ Copy link immediately — before any async work so it doesn't get
+    // blocked by the browser's user-gesture requirement
+    try {
+      await navigator.clipboard.writeText(shareableListLink)
+    } catch {
+      // clipboard can fail silently; user will still see the toast
+    }
+
+    setGeneratingStory(true)
     try {
       const blob = await generateShareImage(
         list.name,
@@ -407,14 +457,7 @@ export function ShareListForm({
         listItemImageIds,
       )
 
-      // 1. Copy link to clipboard so user can paste into caption / bio
-      try {
-        await navigator.clipboard.writeText(shareableListLink)
-      } catch {
-        // clipboard write can fail silently on some browsers
-      }
-
-      // 2. Try Web Share API with the image (works on Android Chrome + iOS Safari)
+      // Try Web Share API with the image (works on Android Chrome + iOS Safari)
       const file = new File([blob], 'happy-everything-list.png', { type: 'image/png' })
       const shareData: ShareData = {
         files: [file],
@@ -434,7 +477,7 @@ export function ShareListForm({
         }
       }
 
-      // 3. Fallback: trigger download + show guidance toast
+      // Fallback: trigger download + show guidance toast
       const url = URL.createObjectURL(blob)
       const a = document.createElement('a')
       a.href = url
@@ -444,15 +487,13 @@ export function ShareListForm({
 
       toast.success('Image downloaded & link copied!', {
         description:
-          platform === 'instagram'
-            ? 'Share the image to Instagram Stories or your feed, then paste your link in bio.'
-            : 'Share the image to your Facebook Story, then paste your link in the caption.',
+          'Share the image to your Instagram or Facebook story, then paste your link in the caption or bio.',
         duration: 8000,
       })
     } catch (err) {
       toast.error('Could not generate share image.', { description: String(err) })
     } finally {
-      setGeneratingStory(null)
+      setGeneratingStory(false)
     }
   }
 
@@ -488,7 +529,7 @@ export function ShareListForm({
   return (
     <div className="flex flex-col gap-4 sm:gap-6">
 
-      {/* ── SHARING OPTIONS (moved to top) ─────────────────────────────────── */}
+      {/* ── SHARING OPTIONS ─────────────────────────────────────────────────── */}
       <div className="flex flex-col space-y-4 rounded-xl border border-border bg-secondary/50 p-4 sm:p-5">
         <div>
           <Label className="text-md font-bold">Share your list</Label>
@@ -531,43 +572,26 @@ export function ShareListForm({
         {/* Divider */}
         <div className="flex items-center gap-3">
           <div className="h-px flex-1 bg-border" />
-          <span className="text-xs text-gray-400">or share to stories</span>
+          <span className="text-xs text-gray-400">or create a share image</span>
           <div className="h-px flex-1 bg-border" />
         </div>
 
-        {/* Instagram + Facebook story buttons */}
-        <div className="grid grid-cols-2 gap-3">
-          {/* Instagram */}
-          <button
-            onClick={() => handleStoryShare('instagram')}
-            disabled={generatingStory !== null}
-            className="flex items-center justify-center gap-2.5 rounded-xl bg-gradient-to-br from-[#833ab4] via-[#fd1d1d] to-[#fcb045] py-3.5 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-60 sm:py-4"
-          >
-            {generatingStory === 'instagram' ? (
-              <LoadingSpinner />
-            ) : (
-              <InstagramIcon />
-            )}
-            <span>{generatingStory === 'instagram' ? 'Creating…' : 'Instagram'}</span>
-          </button>
-
-          {/* Facebook */}
-          <button
-            onClick={() => handleStoryShare('facebook')}
-            disabled={generatingStory !== null}
-            className="flex items-center justify-center gap-2.5 rounded-xl bg-[#1877f2] py-3.5 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-60 sm:py-4"
-          >
-            {generatingStory === 'facebook' ? (
-              <LoadingSpinner />
-            ) : (
-              <FacebookIcon />
-            )}
-            <span>{generatingStory === 'facebook' ? 'Creating…' : 'Facebook'}</span>
-          </button>
-        </div>
+        {/* Single share image button */}
+        <button
+          onClick={handleStoryShare}
+          disabled={generatingStory}
+          className="flex w-full items-center justify-center gap-2.5 rounded-xl bg-foreground py-3.5 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-60 sm:py-4"
+        >
+          {generatingStory ? (
+            <LoadingSpinner />
+          ) : (
+            <ImageIcon className="h-5 w-5" />
+          )}
+          <span>{generatingStory ? 'Creating image…' : 'Create share image'}</span>
+        </button>
 
         <p className="text-center text-xs text-gray-400">
-          Story buttons generate a branded image + copy your link to clipboard
+          Generates a branded story image · copies your link to clipboard
         </p>
       </div>
 
@@ -712,30 +736,6 @@ export function ShareListForm({
 }
 
 // ─── small icons ─────────────────────────────────────────────────────────────
-
-function InstagramIcon() {
-  return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path
-        fillRule="evenodd"
-        clipRule="evenodd"
-        d="M16 3.24219H8C5.23858 3.24219 3 5.48077 3 8.24219V16.2422C3 19.0036 5.23858 21.2422 8 21.2422H16C18.7614 21.2422 21 19.0036 21 16.2422V8.24219C21 5.48077 18.7614 3.24219 16 3.24219ZM19.25 16.2422C19.2445 18.0348 17.7926 19.4867 16 19.4922H8C6.20735 19.4867 4.75549 18.0348 4.75 16.2422V8.24219C4.75549 6.44954 6.20735 4.99768 8 4.99219H16C17.7926 4.99768 19.2445 6.44954 19.25 8.24219V16.2422ZM16.75 8.49219C17.3023 8.49219 17.75 8.04447 17.75 7.49219C17.75 6.93991 17.3023 6.49219 16.75 6.49219C16.1977 6.49219 15.75 6.93991 15.75 7.49219C15.75 8.04447 16.1977 8.49219 16.75 8.49219ZM12 7.74219C9.51472 7.74219 7.5 9.75691 7.5 12.2422C7.5 14.7275 9.51472 16.7422 12 16.7422C14.4853 16.7422 16.5 14.7275 16.5 12.2422C16.5027 11.0479 16.0294 9.90176 15.1849 9.05727C14.3404 8.21278 13.1943 7.73953 12 7.74219ZM9.25 12.2422C9.25 13.761 10.4812 14.9922 12 14.9922C13.5188 14.9922 14.75 13.761 14.75 12.2422C14.75 10.7234 13.5188 9.49219 12 9.49219C10.4812 9.49219 9.25 10.7234 9.25 12.2422Z"
-        fill="white"
-      />
-    </svg>
-  )
-}
-
-function FacebookIcon() {
-  return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path
-        d="M22 12.3033C22 6.7467 17.5229 2.24219 12 2.24219C6.47715 2.24219 2 6.7467 2 12.3033C2 17.325 5.65684 21.4874 10.4375 22.2422V15.2116H7.89844V12.3033H10.4375V10.0867C10.4375 7.56515 11.9305 6.17231 14.2146 6.17231C15.3088 6.17231 16.4531 6.36882 16.4531 6.36882V8.8448H15.1922C13.95 8.8448 13.5625 9.62041 13.5625 10.4161V12.3033H16.3359L15.8926 15.2116H13.5625V22.2422C18.3432 21.4874 22 17.3252 22 12.3033Z"
-        fill="white"
-      />
-    </svg>
-  )
-}
 
 function LoadingSpinner() {
   return (
