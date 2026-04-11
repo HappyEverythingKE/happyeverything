@@ -22,17 +22,40 @@ function cfUrl(imageId: string) {
 }
 
 /**
- * Draws the share card onto an off-screen canvas and returns a Blob.
- * Uses the Happy Everything brand palette and item photos from the list.
+ * Loads an image via fetch (as a blob URL) to sidestep CORS restrictions
+ * that block canvas crossOrigin from Cloudflare Images.
+ */
+async function loadImgFromUrl(url: string): Promise<HTMLImageElement> {
+  const resp = await fetch(url)
+  if (!resp.ok) throw new Error(`Failed to fetch image: ${resp.status}`)
+  const blob = await resp.blob()
+  const objectUrl = URL.createObjectURL(blob)
+  return new Promise((res, rej) => {
+    const img = new Image()
+    img.onload = () => {
+      URL.revokeObjectURL(objectUrl)
+      res(img)
+    }
+    img.onerror = () => {
+      URL.revokeObjectURL(objectUrl)
+      rej(new Error('Image decode failed'))
+    }
+    img.src = objectUrl
+  })
+}
+
+/**
+ * Draws the Happy Everything share card onto an off-screen canvas and returns a Blob.
+ * Format: 1080×1920 (standard stories format)
  */
 async function generateShareImage(
   listName: string,
-  subtitle: string,
   publicUrl: string,
   itemImageIds: string[],
 ): Promise<Blob> {
   const W = 1080
-  const H = 1350
+  const H = 1920
+  const PAD = 80
   const canvas = document.createElement('canvas')
   canvas.width = W
   canvas.height = H
@@ -42,103 +65,79 @@ async function generateShareImage(
   ctx.fillStyle = '#fffcf7'
   ctx.fillRect(0, 0, W, H)
 
-  // subtle dot-grain texture
-  for (let i = 0; i < 6000; i++) {
-    ctx.fillStyle = `rgba(4,17,37,${Math.random() * 0.025})`
+  // subtle grain texture
+  for (let i = 0; i < 8000; i++) {
+    ctx.fillStyle = `rgba(4,17,37,${Math.random() * 0.02})`
     ctx.beginPath()
     ctx.arc(Math.random() * W, Math.random() * H, Math.random() * 1.2, 0, Math.PI * 2)
     ctx.fill()
   }
 
-  // ── brand header ────────────────────────────────────────────────────────────
-  // Four-pointed star sparkle at top
-  const drawSparkle = (x: number, y: number, size: number) => {
-    ctx.save()
-    ctx.translate(x, y)
-    ctx.fillStyle = '#f08f3a'
-    ctx.beginPath()
-    for (let i = 0; i < 8; i++) {
-      const angle = (i * Math.PI) / 4
-      const r = i % 2 === 0 ? size : size * 0.35
-      if (i === 0) ctx.moveTo(Math.cos(angle) * r, Math.sin(angle) * r)
-      else ctx.lineTo(Math.cos(angle) * r, Math.sin(angle) * r)
+  // ── logo (top right) ────────────────────────────────────────────────────────
+  // Draw the Happy Everything SVG icon path inline on canvas
+  // We render the logo-icon SVG as an image via a data URL
+  const logoSvg = `<svg width="110" height="62" viewBox="0 0 110 62" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M73.8868 41.9251C74.5685 42.122 75.2576 42.3189 75.9539 42.5194C77.569 37.4663 77.2664 31.9793 75.192 27.0392C70.2081 13.9762 53.1675 9.29494 41.5519 16.058C33.7534 20.6626 29.8086 27.3054 28.1315 35.3736C42.9409 34.9616 59.1977 37.6486 73.8868 41.9251ZM1.04666 39.621C8.68468 37.1345 18.5904 35.5705 28.0258 35.3772C29.8013 18.209 48.5045 6.71004 64.7211 14.6944C74.7946 19.3319 80.3216 32.1981 76.7232 42.7673C89.2102 46.3074 100.563 53.3658 109.361 61.2262C110.09 61.8897 110.061 61.9262 109.277 61.3319C100.129 53.971 88.9841 46.9309 76.4972 43.5184L76.4935 43.522C53.8602 36.5038 26.5566 33.4085 4.37895 38.9757C3.47478 39.1434 -2.33303 40.7475 1.04666 39.621Z" fill="#F08F3A"/><path d="M41.5519 16.058C53.1675 9.29859 70.2084 13.9762 75.1886 27.0392C77.2667 31.9793 77.569 37.4663 75.9539 42.5194C75.2576 42.3189 74.5685 42.122 73.8868 41.9251C59.1977 37.6486 42.9409 34.9616 28.1315 35.3736C29.8086 27.3017 33.7498 20.6626 41.5519 16.058Z" fill="#F08F3A"/></svg>`
+  const logoDataUrl = `data:image/svg+xml;base64,${btoa(logoSvg)}`
+
+  await new Promise<void>((res) => {
+    const logoImg = new Image()
+    logoImg.onload = () => {
+      // Scale logo to ~180px wide, top-right with padding
+      const logoW = 180
+      const logoH = Math.round((62 / 110) * logoW)
+      ctx.drawImage(logoImg, W - PAD - logoW, PAD, logoW, logoH)
+      res()
     }
-    ctx.closePath()
-    ctx.fill()
-    ctx.restore()
-  }
-
-  drawSparkle(W / 2, 80, 14)
-  drawSparkle(W / 2 - 38, 78, 9)
-  drawSparkle(W / 2 + 38, 78, 9)
-
-  // "Happy Everything" wordmark
-  ctx.fillStyle = '#041125'
-  ctx.font = '600 48px "Noto Serif", Georgia, serif'
-  ctx.textAlign = 'center'
-  ctx.fillText('Happy Everything', W / 2, 148)
-
-  // ── list title ──────────────────────────────────────────────────────────────
-  ctx.fillStyle = '#041125'
-  ctx.font = '700 112px "Noto Serif", Georgia, serif'
-  ctx.textAlign = 'center'
-
-  // wrap long names
-  const words = listName.split(' ')
-  const lines: string[] = []
-  let cur = ''
-  for (const w of words) {
-    const test = cur ? `${cur} ${w}` : w
-    if (ctx.measureText(test).width > W - 120) {
-      lines.push(cur)
-      cur = w
-    } else {
-      cur = test
-    }
-  }
-  lines.push(cur)
-
-  const titleY = 280
-  lines.forEach((line, i) => {
-    ctx.fillText(line, W / 2, titleY + i * 120)
+    logoImg.onerror = () => res() // fail silently
+    logoImg.src = logoDataUrl
   })
 
-  const afterTitle = titleY + lines.length * 120
+  // ── list title ──────────────────────────────────────────────────────────────
+  // Format: "My [List Name] List"
+  const titleText = `My ${listName} List`
+  const titleFontSize = 108
+  ctx.fillStyle = '#041125'
+  ctx.font = `700 ${titleFontSize}px "Noto Serif", Georgia, serif`
+  ctx.textAlign = 'left'
 
-  // subtitle
-  ctx.fillStyle = '#4a567c'
-  ctx.font = '400 46px "Noto Serif", Georgia, serif'
-  ctx.fillText(subtitle, W / 2, afterTitle + 20)
+  // word-wrap within PAD margins
+  const maxTitleW = W - PAD * 2
+  const titleWords = titleText.split(' ')
+  const titleLines: string[] = []
+  let titleCur = ''
+  for (const w of titleWords) {
+    const test = titleCur ? `${titleCur} ${w}` : w
+    if (ctx.measureText(test).width > maxTitleW) {
+      titleLines.push(titleCur)
+      titleCur = w
+    } else {
+      titleCur = test
+    }
+  }
+  titleLines.push(titleCur)
 
-  // sparkle accent after subtitle
-  drawSparkle(ctx.measureText(subtitle).width / 2 + W / 2 + 18, afterTitle + 14, 10)
+  const titleTopY = 220
+  const titleLineH = titleFontSize * 1.15
+  titleLines.forEach((line, i) => {
+    ctx.fillText(line, PAD, titleTopY + i * titleLineH)
+  })
+
+  const afterTitle = titleTopY + titleLines.length * titleLineH + 48
 
   // ── product images ──────────────────────────────────────────────────────────
   const photoIds = itemImageIds.slice(0, 4)
 
-  const loadImg = (url: string): Promise<HTMLImageElement> =>
-    new Promise((res, rej) => {
-      const img = new Image()
-      img.crossOrigin = 'anonymous'
-      img.onload = () => res(img)
-      img.onerror = rej
-      img.src = url
-    })
-
   const imgs = await Promise.all(
-    photoIds.map((id) => loadImg(cfUrl(id)).catch(() => null)),
+    photoIds.map((id) => loadImgFromUrl(cfUrl(id)).catch(() => null)),
   )
   const validImgs = imgs.filter(Boolean) as HTMLImageElement[]
 
-  const cardTop = afterTitle + 70
-  const cardH = 560
-  const gap = 24
-  const cornerR = 28
+  // Image area: from afterTitle to ~1480px (leaves room for CTA + URL + footer)
+  const imgAreaTop = afterTitle
+  const imgAreaH = 1380 - afterTitle
+  const gap = 20
+  const cornerR = 32
 
-  /**
-   * Draw a rounded rectangle clip, then centre-crop the image inside it,
-   * with a soft shadow beneath.
-   */
   const drawCard = (
     img: HTMLImageElement,
     x: number,
@@ -152,19 +151,15 @@ async function generateShareImage(
     ctx.rotate(rotation)
     ctx.translate(-(x + w / 2), -(y + h / 2))
 
-    // shadow
-    ctx.shadowColor = 'rgba(4,17,37,0.13)'
-    ctx.shadowBlur = 32
-    ctx.shadowOffsetY = 8
+    ctx.shadowColor = 'rgba(4,17,37,0.12)'
+    ctx.shadowBlur = 40
+    ctx.shadowOffsetY = 10
 
-    // card background
     ctx.fillStyle = '#f9f2ec'
     roundRect(ctx, x, y, w, h, cornerR)
     ctx.fill()
-
     ctx.shadowColor = 'transparent'
 
-    // clip + draw image
     ctx.save()
     roundRect(ctx, x, y, w, h, cornerR)
     ctx.clip()
@@ -176,77 +171,88 @@ async function generateShareImage(
     ctx.restore()
   }
 
-  if (validImgs.length === 0) {
-    // placeholder block
-    ctx.fillStyle = '#f9f2ec'
-    roundRect(ctx, 80, cardTop, W - 160, cardH, cornerR)
+  const drawPlaceholder = (x: number, y: number, w: number, h: number) => {
+    ctx.fillStyle = '#f0e8e0'
+    roundRect(ctx, x, y, w, h, cornerR)
     ctx.fill()
+  }
+
+  const innerW = W - PAD * 2
+
+  if (validImgs.length === 0) {
+    drawPlaceholder(PAD, imgAreaTop, innerW, imgAreaH)
   } else if (validImgs.length === 1) {
-    drawCard(validImgs[0], 80, cardTop, W - 160, cardH)
+    drawCard(validImgs[0], PAD, imgAreaTop, innerW, imgAreaH)
   } else if (validImgs.length === 2) {
-    const w = (W - 160 - gap) / 2
-    drawCard(validImgs[0], 80, cardTop, w, cardH, -0.03)
-    drawCard(validImgs[1], 80 + w + gap, cardTop, w, cardH, 0.02)
+    const cardW = (innerW - gap) / 2
+    drawCard(validImgs[0], PAD, imgAreaTop, cardW, imgAreaH, -0.025)
+    drawCard(validImgs[1], PAD + cardW + gap, imgAreaTop, cardW, imgAreaH, 0.02)
   } else if (validImgs.length === 3) {
-    const topW = (W - 160 - gap) / 2
-    drawCard(validImgs[0], 80, cardTop, topW, cardH * 0.58, -0.025)
-    drawCard(validImgs[1], 80 + topW + gap, cardTop, topW, cardH * 0.58, 0.02)
-    drawCard(validImgs[2], 80 + topW / 2, cardTop + cardH * 0.58 + gap, topW, cardH * 0.38)
+    // top row: 2, bottom row: 1 wide
+    const topH = imgAreaH * 0.55
+    const botH = imgAreaH - topH - gap
+    const halfW = (innerW - gap) / 2
+    drawCard(validImgs[0], PAD, imgAreaTop, halfW, topH, -0.02)
+    drawCard(validImgs[1], PAD + halfW + gap, imgAreaTop, halfW, topH, 0.02)
+    drawCard(validImgs[2], PAD, imgAreaTop + topH + gap, innerW, botH)
   } else {
-    // 4-up: big left, 3 stacked right — offset positions for organic feel
-    const lw = W * 0.54 - 80 - gap / 2
-    const rw = W - (W * 0.54 + gap / 2) - 80
-    const rh = (cardH - gap * 2) / 3
-    drawCard(validImgs[0], 80, cardTop + 20, lw, cardH - 20, -0.025)
-    drawCard(validImgs[1], W * 0.54 + gap / 2, cardTop, rw, rh, 0.02)
-    drawCard(validImgs[2], W * 0.54 + gap / 2, cardTop + rh + gap, rw, rh, -0.01)
-    drawCard(validImgs[3], W * 0.54 + gap / 2, cardTop + (rh + gap) * 2, rw, rh, 0.015)
+    // 4-up: 2×2 grid with slight rotation
+    const halfW = (innerW - gap) / 2
+    const halfH = (imgAreaH - gap) / 2
+    drawCard(validImgs[0], PAD, imgAreaTop, halfW, halfH, -0.02)
+    drawCard(validImgs[1], PAD + halfW + gap, imgAreaTop, halfW, halfH, 0.02)
+    drawCard(validImgs[2], PAD, imgAreaTop + halfH + gap, halfW, halfH, 0.015)
+    drawCard(validImgs[3], PAD + halfW + gap, imgAreaTop + halfH + gap, halfW, halfH, -0.015)
   }
 
   // ── CTA pill ─────────────────────────────────────────────────────────────────
-  const ctaY = cardTop + cardH + 48
-  const ctaW = 560
-  const ctaH = 80
+  const ctaY = 1420
+  const ctaW = 580
+  const ctaH = 88
   const ctaX = (W - ctaW) / 2
 
-  ctx.fillStyle = '#ffffff'
   ctx.shadowColor = 'rgba(4,17,37,0.1)'
-  ctx.shadowBlur = 20
-  ctx.shadowOffsetY = 4
-  roundRect(ctx, ctaX, ctaY, ctaW, ctaH, 40)
+  ctx.shadowBlur = 24
+  ctx.shadowOffsetY = 6
+  ctx.fillStyle = '#ffffff'
+  roundRect(ctx, ctaX, ctaY, ctaW, ctaH, 44)
   ctx.fill()
   ctx.shadowColor = 'transparent'
 
   ctx.strokeStyle = '#dddddd'
   ctx.lineWidth = 2
-  roundRect(ctx, ctaX, ctaY, ctaW, ctaH, 40)
+  roundRect(ctx, ctaX, ctaY, ctaW, ctaH, 44)
   ctx.stroke()
 
   ctx.fillStyle = '#041125'
-  ctx.font = '700 36px "Noto Serif", Georgia, serif'
+  ctx.font = '700 38px "Noto Serif", Georgia, serif'
   ctx.textAlign = 'center'
-  ctx.fillText('View the full list', W / 2, ctaY + ctaH / 2 + 12)
+  ctx.fillText('View the full list', W / 2, ctaY + ctaH / 2 + 13)
 
-  // ── URL pill ─────────────────────────────────────────────────────────────────
-  const urlY = ctaY + ctaH + 24
-  const urlW = 620
-  const urlH = 64
+  // ── URL pill — width fits text ─────────────────────────────────────────────
+  const urlY = ctaY + ctaH + 28
+  const urlH = 68
+  const urlFontSize = 30
+  const urlText = publicUrl.replace(/^https?:\/\//, '')
+  ctx.font = `400 ${urlFontSize}px "Open Sans", Helvetica, sans-serif`
+  const urlTextW = ctx.measureText(urlText).width
+  const urlPadX = 48
+  const urlW = Math.min(urlTextW + urlPadX * 2, innerW)
   const urlX = (W - urlW) / 2
 
-  ctx.fillStyle = '#f9f2ec'
-  roundRect(ctx, urlX, urlY, urlW, urlH, 32)
+  ctx.fillStyle = '#f0e8e0'
+  roundRect(ctx, urlX, urlY, urlW, urlH, 34)
   ctx.fill()
 
   ctx.fillStyle = '#4a567c'
-  ctx.font = '400 30px "Open Sans", Helvetica, sans-serif'
   ctx.textAlign = 'center'
-  ctx.fillText(publicUrl.replace(/^https?:\/\//, ''), W / 2, urlY + urlH / 2 + 10)
+  ctx.fillText(urlText, W / 2, urlY + urlH / 2 + 11)
 
-  // ── footer branding ───────────────────────────────────────────────────────────
+  // ── footer ────────────────────────────────────────────────────────────────────
   ctx.fillStyle = '#c4cccc'
   ctx.font = '400 26px "Open Sans", Helvetica, sans-serif'
   ctx.textAlign = 'center'
-  ctx.fillText('Made with Happy Everything', W / 2, urlY + urlH + 52)
+  ctx.fillText('Made with Happy Everything', W / 2, urlY + urlH + 56)
 
   return new Promise<Blob>((res, rej) =>
     canvas.toBlob((b) => (b ? res(b) : rej(new Error('Canvas toBlob failed'))), 'image/png'),
@@ -349,13 +355,8 @@ export function ShareListForm({
   const handleStoryShare = async (platform: 'instagram' | 'facebook') => {
     setGeneratingStory(platform)
     try {
-      const subtitle = list.listType?.name
-        ? `${list.listType.name} ✨`
-        : 'Things I love right now ✨'
-
       const blob = await generateShareImage(
         list.name,
-        subtitle,
         shareableListLink,
         listItemImageIds,
       )
