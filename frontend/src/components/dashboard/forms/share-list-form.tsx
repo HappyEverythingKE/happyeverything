@@ -6,6 +6,8 @@ import { ListShareSchema, type List } from '@shared/types'
 import { CheckIcon, CopyIcon, LinkIcon, Share2Icon } from 'lucide-react'
 import { toast } from 'sonner'
 
+import logoUrl from '@/assets/logos/logo-primary.svg'
+
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -58,7 +60,10 @@ async function loadLocalSvg(src: string): Promise<HTMLImageElement> {
       URL.revokeObjectURL(url)
       res(img)
     }
-    img.onerror = rej
+    img.onerror = (e) => {
+  console.error('Image failed to load:', src, e)
+  rej(new Error(`Failed to load image: ${src}`))
+}
     img.src = url
   })
 }
@@ -89,7 +94,7 @@ async function generateShareImage(
   }
 
   // ── logo (fixed) ───────────────────────────────────────
-  const logoImg = await loadLocalSvg('/src/assets/logos/logo-primary.svg')
+  const logoImg = await loadLocalSvg(logoUrl)
 
   const logoRenderW = 420
   const logoRenderH = (logoImg.height / logoImg.width) * logoRenderW
