@@ -210,6 +210,11 @@ function RouteComponent() {
         <ShareListForm
           profileSlug={profileSlug}
           list={list}
+          listItemImageIds={(listItems ?? [])
+            .filter((i) => i.status === 'active' && i.imageId)
+            .sort((a, b) => (b.topPick ? 1 : 0) - (a.topPick ? 1 : 0))
+            .slice(0, 4)
+            .map((i) => i.imageId!)}
           onFormSubmit={handleDialogSubmit}
           onFormCancel={handleDialogCancel}
         />
