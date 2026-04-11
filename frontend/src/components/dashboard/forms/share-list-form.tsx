@@ -14,11 +14,9 @@ import { FieldInfo } from '@/components/field-info'
 
 // ─── helpers ──────────────────────────────────────────────────────────────────
 
-const CLOUDFLARE_IMAGE_BASE =
-  import.meta.env.VITE_CLOUDFLARE_IMAGES_URL ?? 'https://imagedelivery.net'
-
 function cfUrl(imageId: string) {
-  return `${CLOUDFLARE_IMAGE_BASE}/${imageId}/public`
+  const accountHash = import.meta.env.VITE_CF_IMAGE_ACCOUNT_HASH
+  return `https://imagedelivery.net/${accountHash}/${imageId}/listItem`
 }
 
 /**
@@ -73,32 +71,36 @@ async function generateShareImage(
     ctx.fill()
   }
 
-  // ── logo (top right) ────────────────────────────────────────────────────────
-  // Draw the Happy Everything SVG icon path inline on canvas
-  // We render the logo-icon SVG as an image via a data URL
-  const logoSvg = `<svg width="110" height="62" viewBox="0 0 110 62" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M73.8868 41.9251C74.5685 42.122 75.2576 42.3189 75.9539 42.5194C77.569 37.4663 77.2664 31.9793 75.192 27.0392C70.2081 13.9762 53.1675 9.29494 41.5519 16.058C33.7534 20.6626 29.8086 27.3054 28.1315 35.3736C42.9409 34.9616 59.1977 37.6486 73.8868 41.9251ZM1.04666 39.621C8.68468 37.1345 18.5904 35.5705 28.0258 35.3772C29.8013 18.209 48.5045 6.71004 64.7211 14.6944C74.7946 19.3319 80.3216 32.1981 76.7232 42.7673C89.2102 46.3074 100.563 53.3658 109.361 61.2262C110.09 61.8897 110.061 61.9262 109.277 61.3319C100.129 53.971 88.9841 46.9309 76.4972 43.5184L76.4935 43.522C53.8602 36.5038 26.5566 33.4085 4.37895 38.9757C3.47478 39.1434 -2.33303 40.7475 1.04666 39.621Z" fill="#F08F3A"/><path d="M41.5519 16.058C53.1675 9.29859 70.2084 13.9762 75.1886 27.0392C77.2667 31.9793 77.569 37.4663 75.9539 42.5194C75.2576 42.3189 74.5685 42.122 73.8868 41.9251C59.1977 37.6486 42.9409 34.9616 28.1315 35.3736C29.8086 27.3017 33.7498 20.6626 41.5519 16.058Z" fill="#F08F3A"/></svg>`
-  const logoDataUrl = `data:image/svg+xml;base64,${btoa(logoSvg)}`
+  // ── logo (top centre) — full primary wordmark ──────────────────────────────
+  // logo-primary.svg: viewBox 0 0 453 103, orange wordmark + swirl
+  const logoSvg = `<svg width="453" height="103" viewBox="0 0 453 103" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4.07425 95.1786C3.05863 94.9702 2.26175 94.6786 1.67842 94.3036C1.1055 93.9286 0.761755 93.3348 0.636755 92.5327C0.553422 91.9077 0.480504 91.0223 0.428421 89.8661C0.386755 88.6994 0.37113 87.1265 0.386755 85.1369C0.397171 83.1525 0.428422 80.6369 0.470088 77.5952C0.428422 75.7931 0.350296 73.965 0.240921 72.1161C0.141963 70.2567 0.0794628 68.4181 0.0534215 66.5952C0.0221708 64.8192 0.0377962 63.3035 0.0950882 62.0535C0.162796 60.8035 0.43363 59.9442 0.907588 59.4702C1.37634 58.9858 2.0378 58.6577 2.88675 58.491C3.7305 58.314 4.6055 58.2358 5.51175 58.2619C6.42842 58.2931 7.20967 58.4233 7.86592 58.6577C8.45967 58.866 8.9805 59.2306 9.42842 59.741C9.87113 60.241 10.1836 60.9233 10.3659 61.7827C10.4753 62.3556 10.5118 62.9494 10.4701 63.5744C10.4284 64.189 10.418 64.8244 10.4493 65.4911C10.5013 66.59 10.543 67.6473 10.5743 68.6577C10.6003 69.6577 10.6368 70.6265 10.6784 71.5536C11.2618 71.2202 11.9388 70.9858 12.7201 70.8452C13.4961 70.6942 14.2253 70.6161 14.9076 70.6161C17.8503 70.6161 20.1368 71.7411 21.7618 73.9911C22.8034 75.4494 23.5743 77.4025 24.0743 79.8452C24.5847 82.2775 24.8451 84.9494 24.8451 87.8661C24.8451 89.1056 24.7878 90.1317 24.6784 90.9494C24.5795 91.7723 24.2045 92.4754 23.5534 93.0744C22.8711 93.7254 22.0118 94.0536 20.9701 94.0536C19.9284 94.0536 19.0534 93.6369 18.3451 92.8036C17.9545 92.3608 17.6888 91.9285 17.5534 91.5119C17.4284 91.0952 17.3711 90.6108 17.3868 90.0536C17.3972 89.4858 17.4076 88.7723 17.4076 87.9077C17.4076 86.866 17.3711 85.8556 17.3034 84.8661C17.2461 83.8661 17.142 82.7723 16.9909 81.5744C16.8763 80.3817 16.6263 79.491 16.2409 78.9077C15.8503 78.314 15.4076 78.0119 14.9076 78.0119C13.8086 78.0119 12.8868 78.5952 12.1368 79.7619C11.3972 80.9181 11.0326 82.814 11.0326 85.4494C11.0326 87.564 10.9701 89.1369 10.8451 90.1786C10.7305 91.2202 10.5534 92.0431 10.3034 92.6369C9.88676 93.7306 9.06384 94.4963 7.84509 94.9286C6.63676 95.3556 5.37634 95.439 4.07425 95.1786Z" fill="#F08F3A"/><path d="M412.604 60.7188C413.406 61.1303 414.214 61.5417 415.026 61.9584C418.25 56.0782 419.187 49.1928 417.802 42.5625C414.766 25.1563 394.745 15.25 378.708 20.8438C367.917 24.6823 361.427 31.974 357.401 41.5834C375.88 44.6355 395.406 51.8803 412.604 60.7188ZM322.771 40.3386C332.849 39.0886 345.516 39.5313 357.271 41.5625C363.604 20.6823 389.583 10.9167 407.786 24.724C419.167 32.9063 422.932 50.2032 415.922 62.448C430.568 69.849 442.953 81.3386 451.979 93.2136C452.724 94.2084 452.677 94.2448 451.849 93.3178C442.271 81.9844 430.13 70.5678 415.458 63.3282V63.3334C389.062 49.1771 355.922 38.7657 327.062 40.3386C325.901 40.3282 318.307 40.9219 322.771 40.3386Z" fill="#F08F3A"/><path d="M378.703 20.8438C394.745 15.25 414.766 25.1563 417.802 42.5625C419.187 49.1928 418.25 56.0782 415.026 61.9584C414.208 61.5417 413.406 61.1303 412.604 60.7188C395.406 51.8803 375.88 44.6355 357.401 41.5834C361.427 31.974 367.917 24.6823 378.703 20.8438Z" fill="#F08F3A"/></svg>`
+  const logoDataUrl = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(logoSvg)}`
+
+  // Render logo centred at top
+  const logoNativeW = 453
+  const logoNativeH = 103
+  const logoRenderW = 520 // scale up nicely for 1080px wide canvas
+  const logoRenderH = Math.round((logoNativeH / logoNativeW) * logoRenderW)
+  const logoX = (W - logoRenderW) / 2
+  const logoY = PAD
 
   await new Promise<void>((res) => {
     const logoImg = new Image()
     logoImg.onload = () => {
-      // Scale logo to ~180px wide, top-right with padding
-      const logoW = 180
-      const logoH = Math.round((62 / 110) * logoW)
-      ctx.drawImage(logoImg, W - PAD - logoW, PAD, logoW, logoH)
+      ctx.drawImage(logoImg, logoX, logoY, logoRenderW, logoRenderH)
       res()
     }
-    logoImg.onerror = () => res() // fail silently
+    logoImg.onerror = () => res()
     logoImg.src = logoDataUrl
   })
 
-  // ── list title ──────────────────────────────────────────────────────────────
+  // ── list title (centred, below logo) ────────────────────────────────────────
   // Format: "My [List Name] List"
   const titleText = `My ${listName} List`
   const titleFontSize = 108
   ctx.fillStyle = '#041125'
   ctx.font = `700 ${titleFontSize}px "Noto Serif", Georgia, serif`
-  ctx.textAlign = 'left'
+  ctx.textAlign = 'center'
 
   // word-wrap within PAD margins
   const maxTitleW = W - PAD * 2
@@ -116,10 +118,10 @@ async function generateShareImage(
   }
   titleLines.push(titleCur)
 
-  const titleTopY = 220
+  const titleTopY = logoY + logoRenderH + 60
   const titleLineH = titleFontSize * 1.15
   titleLines.forEach((line, i) => {
-    ctx.fillText(line, PAD, titleTopY + i * titleLineH)
+    ctx.fillText(line, W / 2, titleTopY + i * titleLineH)
   })
 
   const afterTitle = titleTopY + titleLines.length * titleLineH + 48
