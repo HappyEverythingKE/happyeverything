@@ -139,8 +139,8 @@ importers:
         specifier: ^3.1.1
         version: 3.1.1
       lodash:
-        specifier: ^4.17.21
-        version: 4.17.21
+        specifier: ^4.18.1
+        version: 4.18.1
       lucide-react:
         specifier: ^0.476.0
         version: 0.476.0(react@19.1.0)
@@ -255,7 +255,7 @@ importers:
         version: 1.14.2(hono@4.9.7)
       '@hono/zod-validator':
         specifier: ^0.7.0
-        version: 0.7.0(hono@4.9.7)(zod@3.25.28)
+        version: 0.7.0(hono@4.9.7)(zod@3.25.76)
       '@sentry/node':
         specifier: ^10.12.0
         version: 10.12.0
@@ -3121,8 +3121,8 @@ packages:
   lodash.merge@4.6.2:
     resolution: {integrity: sha512-0KpjqXRVvrYyCsX1swR/XTK0va6VQkQM6MNo7PqW77ByjAhoARA8EfrP1N4+KlKj8YS0ZUCtRT/YUuhyYDujIQ==}
 
-  lodash@4.17.21:
-    resolution: {integrity: sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg==}
+  lodash@4.18.1:
+    resolution: {integrity: sha512-dMInicTPVE8d1e5otfwmmjlxkZoUpiVLwyeTdUsi/Caj/gfzzblBcCE5sRHV/AsjuCmxWrte2TNGSYuCeCq+0Q==}
 
   log-update@6.1.0:
     resolution: {integrity: sha512-9ie8ItPR6tjY5uYJh8K/Zrv/RMZ5VOlOWvtZdEHYSTFKZfIBPQa9tOAEeAWhd+AnIneLJ22w5fjOYtoutpWq5w==}
@@ -4101,6 +4101,9 @@ packages:
   zod@3.25.28:
     resolution: {integrity: sha512-/nt/67WYKnr5by3YS7LroZJbtcCBurDKKPBPWWzaxvVCGuG/NOsiKkrjoOhI8mJ+SQUXEbUzeB3S+6XDUEEj7Q==}
 
+  zod@3.25.76:
+    resolution: {integrity: sha512-gzUt/qt81nXsFGKIFcC3YnfEAx5NkunCfnDlvuBSSFS02bcXu4Lmea0AFIUwbLWxWPx3d9p8S5QoaujKcNQxcQ==}
+
 snapshots:
 
   '@ampproject/remapping@2.3.0':
@@ -4480,10 +4483,10 @@ snapshots:
     dependencies:
       hono: 4.9.7
 
-  '@hono/zod-validator@0.7.0(hono@4.9.7)(zod@3.25.28)':
+  '@hono/zod-validator@0.7.0(hono@4.9.7)(zod@3.25.76)':
     dependencies:
       hono: 4.9.7
-      zod: 3.25.28
+      zod: 3.25.76
 
   '@humanfs/core@0.19.1': {}
 
@@ -7117,7 +7120,7 @@ snapshots:
 
   lodash.merge@4.6.2: {}
 
-  lodash@4.17.21: {}
+  lodash@4.18.1: {}
 
   log-update@6.1.0:
     dependencies:
@@ -8069,3 +8072,5 @@ snapshots:
   yocto-queue@0.1.0: {}
 
   zod@3.25.28: {}
+
+  zod@3.25.76: {}
