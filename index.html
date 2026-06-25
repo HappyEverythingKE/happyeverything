@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="/favicon.ico" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="theme-color" content="#FFFCF7" />
+    <meta
+      name="description"
+      content="Happy Everything has retired. You can now create and share your gift lists with our friends over at Infinity List."
+    />
+    <meta property="og:title" content="Happy Everything" />
+    <meta
+      property="og:description"
+      content="Happy Everything has retired. Create and share your gift lists over at Infinity List."
+    />
+    <meta property="og:image" content="/open-graph.png" />
+    <meta property="og:type" content="website" />
+    <title>Happy Everything</title>
+
+    <style>
+      @font-face {
+        font-family: 'Open Sans';
+        font-style: normal;
+        font-weight: 400;
+        font-display: swap;
+        src: url('/assets/fonts/open-sans-regular.woff2') format('woff2');
+      }
+      @font-face {
+        font-family: 'Open Sans';
+        font-style: normal;
+        font-weight: 600;
+        font-display: swap;
+        src: url('/assets/fonts/open-sans-semibold.woff2') format('woff2');
+      }
+      @font-face {
+        font-family: 'Open Sans';
+        font-style: normal;
+        font-weight: 700;
+        font-display: swap;
+        src: url('/assets/fonts/open-sans-bold.woff2') format('woff2');
+      }
+      @font-face {
+        font-family: 'Noto Serif';
+        font-style: normal;
+        font-weight: 600;
+        font-display: swap;
+        src: url('/assets/fonts/noto-serif-semibold.woff2') format('woff2');
+      }
+      @font-face {
+        font-family: 'Noto Serif Italic';
+        font-style: italic;
+        font-weight: 600;
+        font-display: swap;
+        src: url('/assets/fonts/noto-serif-semibold-italic.woff2') format('woff2');
+      }
+
+      :root {
+        --background: #fffcf7;
+        --foreground: #041125;
+        --primary: #e37311;
+        --primary-hover: #c9620a;
+        --tangerine: #f08f3a;
+        --coral: #e96a67;
+        --blush: #c05d88;
+        --amethyst: #835c90;
+        --dusk: #4a567c;
+        --muted-foreground: #5b6470;
+        --font-sans: 'Open Sans', 'Helvetica Neue', system-ui, sans-serif;
+        --font-serif: 'Noto Serif', Georgia, 'Times', serif;
+        --font-italic: 'Noto Serif Italic', Georgia, 'Times', serif;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      html,
+      body {
+        height: 100%;
+      }
+
+      body {
+        background-color: var(--background);
+        background-image:
+          radial-gradient(
+            ellipse 90% 60% at 15% 0%,
+            rgba(240, 143, 58, 0.16),
+            transparent 60%
+          ),
+          radial-gradient(
+            ellipse 80% 60% at 95% 100%,
+            rgba(192, 93, 136, 0.14),
+            transparent 60%
+          ),
+          radial-gradient(
+            ellipse 70% 50% at 50% 120%,
+            rgba(74, 86, 124, 0.1),
+            transparent 60%
+          );
+        color: var(--foreground);
+        font-family: var(--font-sans);
+        -webkit-font-smoothing: antialiased;
+        letter-spacing: -0.011em;
+        display: flex;
+        min-height: 100%;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem 1.5rem;
+        text-align: center;
+      }
+
+      main {
+        width: 100%;
+        max-width: 40rem;
+        animation: rise 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+      }
+
+      .logo {
+        width: clamp(180px, 42vw, 280px);
+        height: auto;
+        margin: 0 auto 2.5rem;
+        display: block;
+      }
+
+      h1 {
+        font-family: var(--font-serif);
+        font-weight: 600;
+        font-size: clamp(2rem, 6vw, 3rem);
+        line-height: 1.1;
+        text-wrap: pretty;
+        margin-bottom: 1.25rem;
+      }
+
+      h1 .accent {
+        font-family: var(--font-italic);
+        font-style: italic;
+        color: var(--primary);
+      }
+
+      p {
+        font-size: clamp(1rem, 2.6vw, 1.18rem);
+        line-height: 1.65;
+        color: var(--muted-foreground);
+        max-width: 34rem;
+        margin: 0 auto 2.25rem;
+      }
+
+      p .name {
+        color: var(--foreground);
+        font-weight: 600;
+      }
+
+      .cta {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.6rem;
+        background-color: var(--primary);
+        color: #fff;
+        font-family: var(--font-sans);
+        font-weight: 700;
+        font-size: 1.0625rem;
+        line-height: 1;
+        text-decoration: none;
+        padding: 1.05rem 2.1rem;
+        border-radius: 1rem;
+        box-shadow: 0 10px 24px -10px rgba(227, 115, 17, 0.6);
+        transition:
+          transform 0.15s ease,
+          background-color 0.15s ease,
+          box-shadow 0.15s ease;
+      }
+
+      .cta:hover {
+        background-color: var(--primary-hover);
+        transform: translateY(-2px);
+        box-shadow: 0 16px 30px -12px rgba(227, 115, 17, 0.7);
+      }
+
+      .cta:focus-visible {
+        outline: 3px solid var(--dusk);
+        outline-offset: 3px;
+      }
+
+      .cta svg {
+        width: 1.1em;
+        height: 1.1em;
+        flex-shrink: 0;
+      }
+
+      footer {
+        margin-top: 3rem;
+        font-size: 0.875rem;
+        color: var(--muted-foreground);
+      }
+
+      @keyframes rise {
+        from {
+          opacity: 0;
+          transform: translateY(16px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        main {
+          animation: none;
+        }
+        .cta {
+          transition: none;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <main>
+      <img class="logo" src="/assets/logo.svg" alt="Happy Everything" width="453" height="103" />
+
+      <h1>
+        Thank you for celebrating
+        <br />
+        <span class="accent">everything</span> with us.
+      </h1>
+
+      <p>
+        Happy Everything has retired. The good news? You can keep creating and
+        sharing your gift lists &mdash; and a whole lot more &mdash; with our
+        friends over at <span class="name">Infinity List</span>.
+      </p>
+
+      <a class="cta" href="https://infinity-list.com" rel="noopener">
+        Sign up at Infinity List
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M5 12h14" />
+          <path d="m13 6 6 6-6 6" />
+        </svg>
+      </a>
+
+      <footer>&copy; Happy Everything</footer>
+    </main>
+  </body>
+</html>

@@ -1,0 +1,10 @@
+# os
+.DS_Store
+
+# logs
+*.log
+
+# tooling
+.claude/
+.wrangler/
+node_modules/
